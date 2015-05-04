@@ -1,0 +1,26 @@
+{
+  "name": "cs50.stats",
+  "description": "Provides a status dialog for CS50 workspaces",
+  "version": "0.0.2",
+  "author": "Dan Bradley",
+  "contributors": [
+    {
+      "name": "Dan Bradley",
+      "email": "dan.b.bradley@gmail.com"
+    },
+    {
+      "name": "Dan Armendariz",
+      "email": "danallan@cs.harvard.edu"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "plugins": {
+    "plugin": {}
+  },
+  "categories": ["cs50"],
+  "licenses": [],
+  "engines": {"c9": ">=3.0.0"}
+}
