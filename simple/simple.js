@@ -26,7 +26,7 @@ define(function(require, exports, module) {
         var basename = require("path").basename;
         var commands = imports.commands;
 
-        var plugin = new Plugin("Ajax.org", main.consumes);
+        var plugin = new Plugin("CS50", main.consumes);
 
         var COOKIE_NAME = "cs50ide-comfort";
 
