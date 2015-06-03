@@ -29,6 +29,7 @@ define(function(require, exports, module) {
         var plugin = new Plugin("CS50", main.consumes);
 
         var COOKIE_NAME = "cs50ide-comfort";
+        var SETTINGS_VER = 1;
 
         var lessComfortable = false;
         var complexMenus = findComplexMenus();
@@ -395,6 +396,13 @@ define(function(require, exports, module) {
             if (loaded)
                return false;
             loaded = true;
+
+            // Turn off auto-save by default
+            var ver = settings.getNumber("user/welcome/@cs50simple");
+            if (isNaN(ver) || ver < SETTINGS_VER) {
+                settings.set("user/general/@autosave", false);
+                settings.set("user/welcome/@cs50simple", SETTINGS_VER);
+            }
 
             // Adds the permanent changes
             addToggle(plugin);
