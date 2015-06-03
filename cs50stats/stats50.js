@@ -149,7 +149,7 @@ define(function(require, exports, module) {
         });
 
         register(null, {
-            "cs50stats": plugin
+            "cs50.stats": plugin
         });
     }
 });
