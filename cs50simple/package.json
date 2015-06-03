@@ -18,10 +18,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/cs50/cs50ide-simple.git"
+    "url": "http://github.com/cs50/ide50-plugin.git"
   },
   "plugins": {
-    "simple": {}
+    "simple50": {}
   },
   "categories": ["miscellaneous"],
   "licenses": []

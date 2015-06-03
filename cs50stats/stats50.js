@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog", "proc"
     ];
-    main.provides = ["cs50stats"];
+    main.provides = ["cs50.stats"];
     return main;
 
     function main(options, imports, register) {
@@ -14,7 +14,7 @@ define(function(require, exports, module) {
         var proc = imports.proc;
 
         /***** Initialization *****/
-        
+
         var plugin = new Dialog("CS50", main.consumes, {
             name: "CS50 Stats",
             allowClose: true,
@@ -32,7 +32,7 @@ define(function(require, exports, module) {
                 group: "General",
                 exec: toggle
             }, plugin);
-            
+
             var btn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "CS50",
@@ -49,9 +49,9 @@ define(function(require, exports, module) {
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
             }), btn, 860, plugin);
-            
+
         }
-        
+
         function toggle() {
             if (showing) {
                 plugin.hide();
@@ -60,21 +60,21 @@ define(function(require, exports, module) {
                 plugin.show();
             }
         }
-        
+
         plugin.on("show", function () {
             showing = true;
             var version, hostname, apache;
-            proc.execFile("version50", { 
+            proc.execFile("version50", {
                 cwd: "/home/ubuntu/workspace"
             }, function(err, stdout, stderr) {
                 if (err) return console.error(err);
                 version = stdout.trim();
-                proc.execFile("hostname50", { 
+                proc.execFile("hostname50", {
                     cwd: "/home/ubuntu/workspace"
                 }, function(err, stdout, stderr) {
                     if (err) return console.error(err);
                     hostname = "https://" + stdout.trim();
-                    proc.execFile("service", { 
+                    proc.execFile("service", {
                         args: ["apache2", "status"],
                         cwd: "/home/ubuntu/workspace"
                     }, function(err, stdout, stderr) {
@@ -98,14 +98,14 @@ define(function(require, exports, module) {
                 return;
             });
         });
-        
+
         plugin.on("hide", function () {
             showing = false;
             plugin.hide();
         });
-        
+
         /***** Lifecycle *****/
-        
+
         plugin.on("load", function() {
             load();
         });
@@ -114,7 +114,7 @@ define(function(require, exports, module) {
         });
 
         /***** Register and define API *****/
-        
+
         /**
          * This is an example of an implementation of a plugin.
          * @singleton
@@ -124,30 +124,30 @@ define(function(require, exports, module) {
              * @property showing whether this plugin is being shown
              */
             get showing(){ return showing; },
-            
+
             _events: [
                 /**
                  * @event show The plugin is shown
                  */
                 "show",
-                
+
                 /**
                  * @event hide The plugin is hidden
                  */
                 "hide"
             ],
-            
+
             /**
              * Show the plugin
              */
             show: plugin.show,
-            
+
             /**
              * Hide the plugin
              */
             hide: plugin.hide,
         });
-        
+
         register(null, {
             "cs50stats": plugin
         });

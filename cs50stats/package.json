@@ -2,7 +2,7 @@
   "name": "cs50.stats",
   "description": "Provides a status dialog for CS50 workspaces",
   "version": "0.0.2",
-  "author": "Dan Bradley",
+  "author": "CS50",
   "contributors": [
     {
       "name": "Dan Bradley",
@@ -15,12 +15,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "http://github.com/cs50/ide50-plugin.git"
   },
   "plugins": {
-    "plugin": {}
+    "stats50": {}
   },
-  "categories": ["cs50"],
+  "categories": ["miscellaneous"],
   "licenses": [],
   "engines": {"c9": ">=3.0.0"}
 }
