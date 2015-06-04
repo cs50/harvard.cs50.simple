@@ -398,10 +398,10 @@ define(function(require, exports, module) {
             loaded = true;
 
             // Turn off auto-save by default
-            var ver = settings.getNumber("user/welcome/@cs50simple");
+            var ver = settings.getNumber("user/cs50/@simple");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 settings.set("user/general/@autosave", false);
-                settings.set("user/welcome/@cs50simple", SETTINGS_VER);
+                settings.set("user/cs50/@simple", SETTINGS_VER);
             }
 
             // Adds the permanent changes
