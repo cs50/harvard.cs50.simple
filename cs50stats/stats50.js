@@ -1,6 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog", "proc"
+        "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
+        "settings", "proc"
     ];
     main.provides = ["cs50.stats"];
     return main;
@@ -12,6 +13,7 @@ define(function(require, exports, module) {
         var layout = imports.layout;
         var Dialog = imports.Dialog;
         var proc = imports.proc;
+        var settings = imports.settings;
 
         /***** Initialization *****/
 
@@ -23,33 +25,187 @@ define(function(require, exports, module) {
             modal: true
         });
 
+        var versionBtn, hostnameBtn, cs50Btn;
+
+        var stats = {}, timer = null, delay, verbose;
+
         var showing;
         function load() {
             showing = false;
+
+            settings.on("read", function(){
+                settings.setDefaults("user/cs50/stats", [
+                    ["refreshRate", delay],
+                    ["verboseButtons", true]
+                ]);
+            });
+
+            // watch for settings change and update accordingly
+            settings.on("write", function() {
+                // fetch new rate, stopping timer to allow restart with new val
+                var rate = settings.getNumber("user/cs50/stats/@refreshRate");
+                var ver = settings.getBool("user/cs50/stats/@verboseButtons");
+
+                if (delay != rate) {
+                    // validate new rate, overwriting bad value if necessary
+                    if (rate < 1) {
+                        delay = 30;
+                        settings.set("user/cs50/stats/@refreshRate", delay);
+                    } else {
+                        delay = rate;
+                    }
+
+                    // update stats and timer interval
+                    updateStats();
+                    stopTimer();
+                    if (ver) startTimer();
+                }
+
+                if (verbose != ver) {
+                    verbose = ver;
+                    updateVerbosity();
+                }
+            });
+
+            delay = settings.getNumber("user/cs50/stats/@refreshRate");
+            verbose = settings.getBool("user/cs50/stats/@verboseButtons");
+
             commands.addCommand({
-                name: "cs50dialog",
-                hint: "CS50 features",
+                name: "cs50statsDialog",
+                hint: "CS50 IDE Workspace Stats",
                 group: "General",
                 exec: toggle
             }, plugin);
 
-            var btn = new ui.button({
+            menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
+            menus.addItemByPath("Window/CS50 Workspace Stats...", new ui.item({
+                command: "cs50statsDialog"
+            }), 34, plugin);
+
+            // CS50 button
+            cs50Btn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "CS50",
-                "tooltip" : "CS50 features",
-                // "width"   : 80,
-                "command" : "cs50dialog"
+                "tooltip" : "CS50 IDE Workspace Stats",
+                "command" : "cs50statsDialog",
+                "visible" : false
             });
-
-            menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
-            menus.addItemByPath("Window/CS50...", new ui.item({
-                command: "cs50dialog"
-            }), 34, plugin);
 
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
-            }), btn, 860, plugin);
+            }), cs50Btn, 860, plugin);
 
+            // create version button
+            versionBtn = new ui.button({
+                "skin"    : "c9-menu-btn",
+                "caption" : "",
+                "tooltip" : "CS50 IDE Workspace Version",
+                "command" : "cs50statsDialog",
+                "visible" : false
+            });
+
+            // place version button
+            ui.insertByIndex(layout.findParent({
+                name: "preferences"
+            }), versionBtn, 860, plugin);
+
+            // create hostname button and place it
+            hostnameBtn = new ui.button({
+                "skin"    : "c9-menu-btn",
+                "caption" : "",
+                "tooltip" : "CS50 IDE Workspace Hostname",
+                "command" : "cs50statsDialog",
+                "visible" : false
+            });
+
+            ui.insertByIndex(layout.findParent({
+                name: "preferences"
+            }), hostnameBtn, 860, plugin);
+
+            updateStats();
+            updateVerbosity();
+        }
+
+        function updateVerbosity() {
+            if (verbose) {
+                cs50Btn.setAttribute("visible", false);
+                versionBtn.setAttribute("visible", true);
+                hostnameBtn.setAttribute("visible", true);
+                startTimer();
+            }
+            else {
+                stopTimer();
+                versionBtn.setAttribute("visible", false);
+                hostnameBtn.setAttribute("visible", false);
+                cs50Btn.setAttribute("visible", true);
+            }
+        }
+
+        function updateStats(callback) {
+            console.log("starting refresh");
+            proc.execFile("stats50", {
+                cwd: "/home/ubuntu/workspace"
+            }, function(err, stdout, stderr) {
+                parseStats(err, stdout, stderr);
+                callback && callback();
+            });
+        }
+
+        function stopTimer() {
+            console.log("STOP requested");
+            if (timer == null) return;
+
+            console.log("STOPPING timer");
+
+            window.clearInterval(timer);
+            timer = null;
+        }
+
+        function startTimer() {
+            console.log("START requested");
+            if (timer != null) return;
+            if (!settings.getBool("user/cs50/stats/@verboseButtons")) return;
+
+            console.log("STARTING timer");
+
+            timer = window.setInterval(updateStats, delay * 1000);
+        }
+
+        function parseStats(err, stdout, stderr) {
+
+            if (err) {
+                console.error(err);
+                stats = {
+                    "host": "!",
+                    "apache": "Unknown",
+                    "listening": false,
+                    "version": "!"
+                };
+            }
+            else {
+                // stats50 returns json object of data
+                stats = JSON.parse(stdout);
+            }
+
+            hostnameBtn.setCaption(stats.host);
+            versionBtn.setCaption(stats.version);
+
+            var str = '<table><col width="100">' +
+              "<tr><td>IDE Version</td><td>" + stats.version+"</td></tr>" +
+              "<tr><td>Apache</td><td>" + stats.apache + "</td></tr>"+
+              "<tr><td>Hostname</td><td>";
+
+            // display a link if we're listening
+            if (stats.listening) {
+              str += '<a href="https://'+stats.host+'" target="_blank">' +
+                     stats.host + '</a>';
+            }
+            else {
+                // no link!
+                str += stats.host;
+            }
+            str += "</td></tr></table>";
+            plugin.body = str;
         }
 
         function toggle() {
@@ -63,43 +219,13 @@ define(function(require, exports, module) {
 
         plugin.on("show", function () {
             showing = true;
-            var version, hostname, apache;
-            proc.execFile("version50", {
-                cwd: "/home/ubuntu/workspace"
-            }, function(err, stdout, stderr) {
-                if (err) return console.error(err);
-                version = stdout.trim();
-                proc.execFile("hostname50", {
-                    cwd: "/home/ubuntu/workspace"
-                }, function(err, stdout, stderr) {
-                    if (err) return console.error(err);
-                    hostname = "https://" + stdout.trim();
-                    proc.execFile("service", {
-                        args: ["apache2", "status"],
-                        cwd: "/home/ubuntu/workspace"
-                    }, function(err, stdout, stderr) {
-                        if (err && err.code !== 0) {
-                            apache = "Not Running";
-                        }
-                        else {
-                            apache = "Running!";
-                        }
-                        var str = '<table><col width="100">'+
-                          "<tr><td>IDE Version</td><td>"+version+"</td></tr>"+
-                          "<tr><td>Apache</td><td>"+apache+"</td></tr>"+
-                          '<tr><td>Hostname</td><td><a href="'+hostname+
-                          '" target="_blank">'+hostname+"</td></tr></table>";
-                        plugin.body = str;
-                        plugin.show();
-                        return;
-                    });
-                    return;
-                });
-                return;
+            updateStats(function() {
+                plugin.show();
             });
         });
 
         plugin.on("hide", function () {
+            updateVerbosity();
             showing = false;
             plugin.hide();
         });
@@ -110,6 +236,12 @@ define(function(require, exports, module) {
             load();
         });
         plugin.on("unload", function() {
+            stopTimer();
+
+            delay = 30;
+            verbose = true;
+            stats = {};
+            timer = null;
             showing = false;
         });
 
