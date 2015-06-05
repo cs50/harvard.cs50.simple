@@ -142,7 +142,6 @@ define(function(require, exports, module) {
         }
 
         function updateStats(callback) {
-            console.log("starting refresh");
             proc.execFile("stats50", {
                 cwd: "/home/ubuntu/workspace"
             }, function(err, stdout, stderr) {
@@ -152,40 +151,36 @@ define(function(require, exports, module) {
         }
 
         function stopTimer() {
-            console.log("STOP requested");
             if (timer == null) return;
-
-            console.log("STOPPING timer");
 
             window.clearInterval(timer);
             timer = null;
         }
 
         function startTimer() {
-            console.log("START requested");
             if (timer != null) return;
             if (!settings.getBool("user/cs50/stats/@verboseButtons")) return;
-
-            console.log("STARTING timer");
 
             timer = window.setInterval(updateStats, delay * 1000);
         }
 
         function parseStats(err, stdout, stderr) {
-
             if (err) {
-                console.error(err);
                 stats = {
                     "host": "!",
                     "apache": "Unknown",
                     "listening": false,
                     "version": "!"
                 };
+                hostnameBtn.setCaption("Run update50!");
+                versionBtn.setCaption("");
+                cs50Btn.setCaption("Run update50!");
+                plugin.body = "<p>Error: Please run update50!</p>";
+                return;
             }
-            else {
-                // stats50 returns json object of data
-                stats = JSON.parse(stdout);
-            }
+
+            // stats50 returns json object of data
+            stats = JSON.parse(stdout);
 
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
