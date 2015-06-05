@@ -21,19 +21,19 @@ define(function(require, exports, module) {
         var plugin = new Dialog("CS50", main.consumes, {
             name: "CS50 Stats",
             allowClose: true,
-            title: "CS50 IDE Stats",
+            title: "CS50 IDE Workspace Stats",
             heading: "",
             modal: true
         });
 
         var versionBtn, hostnameBtn, cs50Btn;
 
-        var stats = {}, timer = null, delay, verbose;
+        var stats = {}, timer = null, delay, showing, verbose;
 
-        var showing;
         function load() {
             showing = false;
 
+            // set default values
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/stats", [
                     ["refreshRate", delay],
@@ -68,9 +68,11 @@ define(function(require, exports, module) {
                 }
             });
 
+            // fetch setting information
             delay = settings.getNumber("user/cs50/stats/@refreshRate");
             verbose = settings.getBool("user/cs50/stats/@verboseButtons");
 
+            // notify UI of the function to run to open the dialog
             commands.addCommand({
                 name: "cs50statsDialog",
                 hint: "CS50 IDE Workspace Stats",
@@ -78,12 +80,13 @@ define(function(require, exports, module) {
                 exec: toggle
             }, plugin);
 
+            // add a menu item to show the dialog
             menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
             menus.addItemByPath("Window/CS50 Workspace Stats...", new ui.item({
                 command: "cs50statsDialog"
             }), 34, plugin);
 
-            // CS50 button
+            // create (non-verbose) CS50 button, hidden by default
             cs50Btn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "CS50",
@@ -92,11 +95,12 @@ define(function(require, exports, module) {
                 "visible" : false
             });
 
+            // place CS50 button
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
             }), cs50Btn, 860, plugin);
 
-            // create version button
+            // create (verbose) version button, hidden by default
             versionBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
@@ -110,7 +114,7 @@ define(function(require, exports, module) {
                 name: "preferences"
             }), versionBtn, 860, plugin);
 
-            // create hostname button and place it
+            // create hostname button, hidden by default
             hostnameBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
@@ -119,6 +123,7 @@ define(function(require, exports, module) {
                 "visible" : false
             });
 
+            // place button
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
             }), hostnameBtn, 860, plugin);
@@ -145,10 +150,18 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
+            // fetch data
             updateStats();
+
+            // show appropriate buttons based on user's settings
             updateVerbosity();
         }
 
+        /*
+         * Sets visibility of buttons to reflect user's verbosity preference.
+         * Verbose buttons require a timer to automatically refresh data
+         * based on a rate specified by the user.
+         */
         function updateVerbosity() {
             if (verbose) {
                 cs50Btn.setAttribute("visible", false);
@@ -164,6 +177,29 @@ define(function(require, exports, module) {
             }
         }
 
+        /*
+         * Stop automatic refresh of information by disabling JS timer
+         */
+        function stopTimer() {
+            if (timer == null) return;
+
+            window.clearInterval(timer);
+            timer = null;
+        }
+
+        /*
+         * If not already started, begin a timer to automatically refresh data
+         */
+        function startTimer() {
+            if (timer != null) return;
+            if (!settings.getBool("user/cs50/stats/@verboseButtons")) return;
+
+            timer = window.setInterval(updateStats, delay * 1000);
+        }
+
+        /*
+         * Initiate an info refresh by calling `stats50`
+         */
         function updateStats(callback) {
             proc.execFile("stats50", {
                 cwd: "/home/ubuntu/workspace"
@@ -173,21 +209,11 @@ define(function(require, exports, module) {
             });
         }
 
-        function stopTimer() {
-            if (timer == null) return;
-
-            window.clearInterval(timer);
-            timer = null;
-        }
-
-        function startTimer() {
-            if (timer != null) return;
-            if (!settings.getBool("user/cs50/stats/@verboseButtons")) return;
-
-            timer = window.setInterval(updateStats, delay * 1000);
-        }
-
+        /*
+         * Process output from stats50 and update UI with new info
+         */
         function parseStats(err, stdout, stderr) {
+            // set defaults on error
             if (err) {
                 stats = {
                     "host": "!",
@@ -202,12 +228,14 @@ define(function(require, exports, module) {
                 return;
             }
 
-            // stats50 returns json object of data
+            // parse the JSON returned by stats50 output
             stats = JSON.parse(stdout);
 
+            // update UI
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
 
+            // update table of info in dialog window
             var str = '<table><col width="100">' +
               "<tr><td>IDE Version</td><td>" + stats.version+"</td></tr>" +
               "<tr><td>Server Running</td><td>";
@@ -221,7 +249,7 @@ define(function(require, exports, module) {
 
             str += "</td></tr><tr><td>Hostname</td><td>";
 
-            // display a link if we're listening
+            // display a link if a server is running
             if (stats.listening) {
               str += '<a href="https://'+stats.host+'" target="_blank">' +
                      stats.host + '</a>';
@@ -234,6 +262,9 @@ define(function(require, exports, module) {
             plugin.body = str;
         }
 
+        /*
+         * Toggle the display of the stats dialog
+         */
         function toggle() {
             if (showing) {
                 plugin.hide();
@@ -243,6 +274,9 @@ define(function(require, exports, module) {
             }
         }
 
+        /*
+         * When the dialog is shown, request latest info and display dialog
+         */
         plugin.on("show", function () {
             showing = true;
             updateStats(function() {
@@ -250,6 +284,9 @@ define(function(require, exports, module) {
             });
         });
 
+        /*
+         * When dialog is hidden, reset state
+         */
         plugin.on("hide", function () {
             updateVerbosity();
             showing = false;
