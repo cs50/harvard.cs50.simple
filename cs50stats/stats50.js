@@ -238,6 +238,9 @@ define(function(require, exports, module) {
             stats = {};
             timer = null;
             showing = false;
+            cs50Btn = null;
+            versionBtn = null;
+            hostnameBtn = null;
         });
 
         /***** Register and define API *****/
