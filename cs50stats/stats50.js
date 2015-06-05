@@ -137,9 +137,9 @@ define(function(require, exports, module) {
                         "Information refresh rate (in seconds)" : {
                             type: "spinner",
                             path: "user/cs50/stats/@refreshRate",
-                            position: 200,
                             min: 1,
-                            max: 200
+                            max: 200,
+                            position: 200
                         }
                     }
                 }
@@ -191,7 +191,7 @@ define(function(require, exports, module) {
             if (err) {
                 stats = {
                     "host": "!",
-                    "apache": "Unknown",
+                    "server": "NONE",
                     "listening": false,
                     "version": "!"
                 };
@@ -210,8 +210,16 @@ define(function(require, exports, module) {
 
             var str = '<table><col width="100">' +
               "<tr><td>IDE Version</td><td>" + stats.version+"</td></tr>" +
-              "<tr><td>Apache</td><td>" + stats.apache + "</td></tr>"+
-              "<tr><td>Hostname</td><td>";
+              "<tr><td>Server Running</td><td>";
+
+            if (stats.listening) {
+                str += "Yes (" + stats.server + ")";
+            }
+            else {
+                str += "No";
+            }
+
+            str += "</td></tr><tr><td>Hostname</td><td>";
 
             // display a link if we're listening
             if (stats.listening) {
