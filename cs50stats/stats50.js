@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "settings", "proc"
+        "settings", "proc", "preferences"
     ];
     main.provides = ["cs50.stats"];
     return main;
@@ -14,6 +14,7 @@ define(function(require, exports, module) {
         var Dialog = imports.Dialog;
         var proc = imports.proc;
         var settings = imports.settings;
+        var prefs = imports.preferences;
 
         /***** Initialization *****/
 
@@ -121,6 +122,28 @@ define(function(require, exports, module) {
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
             }), hostnameBtn, 860, plugin);
+
+            // Add preference pane
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "Workspace Stats" : {
+                        position: 10,
+                        "Show version and host directly in menu bar" : {
+                            type: "checkbox",
+                            path: "user/cs50/stats/@verboseButtons",
+                            position: 100
+                        },
+                        "Information refresh rate (in seconds)" : {
+                            type: "spinner",
+                            path: "user/cs50/stats/@refreshRate",
+                            position: 200,
+                            min: 1,
+                            max: 200
+                        }
+                    }
+                }
+            }, plugin);
 
             updateStats();
             updateVerbosity();
