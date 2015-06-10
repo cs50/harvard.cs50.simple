@@ -30,16 +30,19 @@ define(function(require, exports, module) {
 
         var stats = {}, timer = null, delay, showing, verbose;
 
+        var fetching = false;
+
         function load() {
             showing = false;
 
             // set default values
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/stats", [
-                    ["refreshRate", delay],
+                    ["refreshRate", 30],
                     ["verboseButtons", true]
                 ]);
             });
+            plugin.body = "<p>Please wait, fetching information...</p>";
 
             // watch for settings change and update accordingly
             settings.on("write", function() {
@@ -201,11 +204,20 @@ define(function(require, exports, module) {
          * Initiate an info refresh by calling `stats50`
          */
         function updateStats(callback) {
+            // respect the lock
+            if (fetching) {
+                callback && callback();
+                return;
+            }
+
+            fetching = true;
+
             proc.execFile("stats50", {
                 cwd: "/home/ubuntu/workspace"
             }, function(err, stdout, stderr) {
                 parseStats(err, stdout, stderr);
                 callback && callback();
+                fetching = false;
             });
         }
 
@@ -309,6 +321,7 @@ define(function(require, exports, module) {
             cs50Btn = null;
             versionBtn = null;
             hostnameBtn = null;
+            fetching = false;
         });
 
         /***** Register and define API *****/
