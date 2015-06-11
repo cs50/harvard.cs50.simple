@@ -190,7 +190,6 @@ define(function(require, exports, module) {
          */
         function stopTimer() {
             if (timer == null) return;
-
             window.clearInterval(timer);
             timer = null;
         }
@@ -200,7 +199,6 @@ define(function(require, exports, module) {
          */
         function startTimer() {
             if (timer != null) return;
-
             timer = window.setInterval(updateStats, delay * 1000);
         }
 
