@@ -259,6 +259,7 @@ define(function(require, exports, module) {
             // update UI
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
+            cs50Btn.setCaption("CS50");
 
             updateDialog();
         }
