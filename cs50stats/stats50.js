@@ -200,7 +200,6 @@ define(function(require, exports, module) {
          */
         function startTimer() {
             if (timer != null) return;
-            if (!settings.getBool("user/cs50/stats/@verboseButtons")) return;
 
             timer = window.setInterval(updateStats, delay * 1000);
         }
@@ -341,7 +340,12 @@ define(function(require, exports, module) {
          */
         plugin.on("show", function () {
             showing = true;
+
+            // make sure dialog has latest info
             updateStats();
+
+            // keep dialog up-to-date
+            startTimer();
         });
 
         /*
@@ -350,6 +354,9 @@ define(function(require, exports, module) {
         plugin.on("hide", function () {
             updateVerbosity();
             showing = false;
+
+            // stop timer if necessary
+            if (!verbose) stopTimer();
         });
 
         /***** Lifecycle *****/
