@@ -325,6 +325,7 @@ define(function(require, exports, module) {
                 '<tr><td>Hostname</td><td id="hostname">...</td></tr>' +
                 '</table>';
 
+            // find & connect to all of the following in the dialog's DOM
             var els = ["version", "server", "hostname", "info", "stats"];
             html = {};
             for (var i = 0, j = els.length; i < j; i++)
@@ -347,13 +348,11 @@ define(function(require, exports, module) {
         });
 
         /*
-         * When dialog is hidden, reset state
+         * When dialog is hidden, reset state, stopping the timer if necessary
          */
         plugin.on("hide", function () {
             updateVerbosity();
             showing = false;
-
-            // stop timer if necessary
             if (!verbose) stopTimer();
         });
 
@@ -362,6 +361,7 @@ define(function(require, exports, module) {
         plugin.on("load", function() {
             load();
         });
+
         plugin.on("unload", function() {
             stopTimer();
 
