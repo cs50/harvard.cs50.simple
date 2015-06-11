@@ -26,17 +26,20 @@ define(function(require, exports, module) {
             modal: true
         });
 
-        var versionBtn, hostnameBtn, cs50Btn;
+        var versionBtn, hostnameBtn, cs50Btn;   // UI button elements
 
-        var timer = null, delay, showing, verbose;
-
-        var html = null;
-
-        var DEFAULT_REFRESH = 30;
-        var fetching = false;
+        var DEFAULT_REFRESH = 30;   // default refresh rate
+        var delay;                  // current refresh rate
+        var fetching;               // are we fetching data
+        var html = null;            // object with references to html els
+        var showing;                // is the dialog showing
+        var stats = null;           // last recorded stats
+        var timer = null;           // javascript interval ID
+        var verbose;                // current verbosity: do buttons show stats
 
         function load() {
             showing = false;
+            fetching = false;
 
             // set default values
             settings.on("read", function(){
@@ -230,24 +233,34 @@ define(function(require, exports, module) {
                 versionBtn.setCaption("");
                 cs50Btn.setCaption("Run update50!");
 
-                // show an error in the dialog
-                if (html == null) return;
-                html.info.innerHTML = "Error: please run <tt>update50</tt>!";
-                html.info.style.display = "block";
-                html.stats.style.display = "none";
-
+                stats = null;
+                updateDialog();
                 return;
             }
 
             // parse the JSON returned by stats50 output
-            var stats = JSON.parse(stdout);
+            stats = JSON.parse(stdout);
 
             // update UI
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
 
+            updateDialog();
+        }
+
+        /*
+         * Update the Dialog text based on latest stats info
+         */
+        function updateDialog() {
             // confirm dialog elements have been created
             if (html == null) return;
+
+            if (stats == null) {
+                html.info.innerHTML = "Please wait, fetching information...";
+                html.info.style.display = "block";
+                html.stats.style.display = "none";
+                return;
+            }
 
             // update table of info in dialog window
             html.info.style.display = "none";
@@ -284,7 +297,7 @@ define(function(require, exports, module) {
          */
         plugin.on("draw", function(e) {
             e.html.innerHTML =
-                '<p id="info">Please wait, fetching information...</p>' +
+                '<p id="info">...</p>' +
                 '<table id="stats"><col width="100">' +
                 '<tr><td>IDE Version</td><td id="version">...</td></tr>' +
                 '<tr><td>Server Running</td><td id="server">...</td></tr>' +
@@ -295,6 +308,8 @@ define(function(require, exports, module) {
             html = {};
             for (var i = 0, j = els.length; i < j; i++)
                 html[els[i]] = e.html.querySelector("#" + els[i]);
+
+            updateDialog();
         });
 
         /*
@@ -330,6 +345,7 @@ define(function(require, exports, module) {
             hostnameBtn = null;
             fetching = false;
             html = null;
+            stats = null;
         });
 
         /***** Register and define API *****/
