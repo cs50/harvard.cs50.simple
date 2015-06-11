@@ -226,14 +226,29 @@ define(function(require, exports, module) {
             // release lock
             fetching = false;
 
-            // set defaults on error
             if (err) {
-                // notify user in button text
+                var long;
+                if (err.code == "ENOENT") {
+                    // command not found
+                    long = "Please run <tt>update50</tt>!";
+                }
+                else if (err.code == "EDISCONNECT") {
+                    // disconnected client: don't provide error
+                    return;
+                }
+                else {
+                    long = "Unknown error from workspace: <em>" + err.message +
+                           " (" + err.code + ")</em><br /><br />"+
+                           "Please run <tt>update50</tt>!";
+                }
+
+                // notify user through button text
                 hostnameBtn.setCaption("Run update50!");
                 versionBtn.setCaption("");
                 cs50Btn.setCaption("Run update50!");
 
-                stats = null;
+                // update dialog with error
+                stats = {"error":long};
                 updateDialog();
                 return;
             }
@@ -256,27 +271,35 @@ define(function(require, exports, module) {
             if (html == null) return;
 
             if (stats == null) {
+                // no information fetched yet
                 html.info.innerHTML = "Please wait, fetching information...";
                 html.info.style.display = "block";
                 html.stats.style.display = "none";
-                return;
             }
-
-            // update table of info in dialog window
-            html.info.style.display = "none";
-            html.stats.style.display = "block";
-
-            html.version.innerHTML = stats.version;
-
-            if (stats.listening) {
-                // if a server is running, display it & provide a link to host
-                html.server.innerHTML = "Yes (" + stats.server + ")";
-                html.hostname.innerHTML = '<a href="https://'+ stats.host +
-                    '" target="_blank">' + stats.host + '</a>';
+            else if (stats.hasOwnProperty("error")) {
+                // error while fetching information
+                html.info.innerHTML = stats.error;
+                html.info.style.display = "block";
+                html.stats.style.display = "none";
             }
             else {
-                html.server.innerHTML = "No";
-                html.hostname.innerHTML = stats.host;
+                // have stats: update table of info in dialog window
+                html.info.style.display = "none";
+                html.stats.style.display = "block";
+
+                html.version.innerHTML = stats.version;
+
+                if (stats.listening) {
+                    // display running server & provide a link to host
+                    html.server.innerHTML = "Yes (" + stats.server + ")";
+                    html.hostname.innerHTML = '<a href="https://'+ stats.host +
+                        '" target="_blank">' + stats.host + '</a>';
+                }
+                else {
+                    // still show host, but no link, since no running server
+                    html.server.innerHTML = "No";
+                    html.hostname.innerHTML = stats.host;
+                }
             }
         }
 
