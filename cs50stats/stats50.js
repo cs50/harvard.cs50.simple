@@ -225,13 +225,13 @@ define(function(require, exports, module) {
 
             if (err) {
                 var long;
-                if (err.code == "ENOENT") {
-                    // command not found
-                    long = "Please run <tt>update50</tt>!";
-                }
-                else if (err.code == "EDISCONNECT") {
+                if (err.code == "EDISCONNECT") {
                     // disconnected client: don't provide error
                     return;
+                }
+                else if (err.code == "ENOENT") {
+                    // command not found
+                    long = "Please run <tt>update50</tt>!";
                 }
                 else {
                     long = "Unknown error from workspace: <em>" + err.message +
