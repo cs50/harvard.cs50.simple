@@ -28,8 +28,11 @@ define(function(require, exports, module) {
 
         var versionBtn, hostnameBtn, cs50Btn;
 
-        var stats = {}, timer = null, delay, showing, verbose;
+        var timer = null, delay, showing, verbose;
 
+        var html = null;
+
+        var DEFAULT_REFRESH = 30;
         var fetching = false;
 
         function load() {
@@ -38,11 +41,10 @@ define(function(require, exports, module) {
             // set default values
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/stats", [
-                    ["refreshRate", 30],
+                    ["refreshRate", DEFAULT_REFRESH],
                     ["verboseButtons", true]
                 ]);
             });
-            plugin.body = "<p>Please wait, fetching information...</p>";
 
             // watch for settings change and update accordingly
             settings.on("write", function() {
@@ -53,7 +55,7 @@ define(function(require, exports, module) {
                 if (delay != rate) {
                     // validate new rate, overwriting bad value if necessary
                     if (rate < 1) {
-                        delay = 30;
+                        delay = DEFAULT_REFRESH;
                         settings.set("user/cs50/stats/@refreshRate", delay);
                     } else {
                         delay = rate;
@@ -205,73 +207,64 @@ define(function(require, exports, module) {
          */
         function updateStats(callback) {
             // respect the lock
-            if (fetching) {
-                callback && callback();
-                return;
-            }
+            if (fetching) return;
 
             fetching = true;
 
             proc.execFile("stats50", {
                 cwd: "/home/ubuntu/workspace"
-            }, function(err, stdout, stderr) {
-                parseStats(err, stdout, stderr);
-                callback && callback();
-                fetching = false;
-            });
+            }, parseStats);
         }
 
         /*
          * Process output from stats50 and update UI with new info
          */
         function parseStats(err, stdout, stderr) {
+            // release lock
+            fetching = false;
+
             // set defaults on error
             if (err) {
-                stats = {
-                    "host": "!",
-                    "server": "NONE",
-                    "listening": false,
-                    "version": "!"
-                };
+                // notify user in button text
                 hostnameBtn.setCaption("Run update50!");
                 versionBtn.setCaption("");
                 cs50Btn.setCaption("Run update50!");
-                plugin.body = "<p>Error: Please run update50!</p>";
+
+                // show an error in the dialog
+                if (html == null) return;
+                html.info.innerHTML = "Error: please run <tt>update50</tt>!";
+                html.info.style.display = "block";
+                html.stats.style.display = "none";
+
                 return;
             }
 
             // parse the JSON returned by stats50 output
-            stats = JSON.parse(stdout);
+            var stats = JSON.parse(stdout);
 
             // update UI
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
 
+            // confirm dialog elements have been created
+            if (html == null) return;
+
             // update table of info in dialog window
-            var str = '<table><col width="100">' +
-              "<tr><td>IDE Version</td><td>" + stats.version+"</td></tr>" +
-              "<tr><td>Server Running</td><td>";
+            html.info.style.display = "none";
+            html.stats.style.display = "block";
+
+            html.version.innerHTML = stats.version;
 
             if (stats.listening) {
-                str += "Yes (" + stats.server + ")";
+                // if a server is running, display it & provide a link to host
+                html.server.innerHTML = "Yes (" + stats.server + ")";
+                html.hostname.innerHTML = '<a href="https://'+ stats.host +
+                    '" target="_blank">' + stats.host + '</a>';
             }
             else {
-                str += "No";
+                html.server.innerHTML = "No";
+                html.hostname.innerHTML = stats.host;
             }
-
-            str += "</td></tr><tr><td>Hostname</td><td>";
-
-            // display a link if a server is running
-            if (stats.listening) {
-              str += '<a href="https://'+stats.host+'" target="_blank">' +
-                     stats.host + '</a>';
-            }
-            else {
-                // no link!
-                str += stats.host;
-            }
-            str += "</td></tr></table>";
-            plugin.body = str;
         }
 
         /*
@@ -287,13 +280,29 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Place initial HTML on the first drawing of the dialog
+         */
+        plugin.on("draw", function(e) {
+            e.html.innerHTML =
+                '<p id="info">Please wait, fetching information...</p>' +
+                '<table id="stats"><col width="100">' +
+                '<tr><td>IDE Version</td><td id="version">...</td></tr>' +
+                '<tr><td>Server Running</td><td id="server">...</td></tr>' +
+                '<tr><td>Hostname</td><td id="hostname">...</td></tr>' +
+                '</table>';
+
+            var els = ["version", "server", "hostname", "info", "stats"];
+            html = {};
+            for (var i = 0, j = els.length; i < j; i++)
+                html[els[i]] = e.html.querySelector("#" + els[i]);
+        });
+
+        /*
          * When the dialog is shown, request latest info and display dialog
          */
         plugin.on("show", function () {
             showing = true;
-            updateStats(function() {
-                plugin.show();
-            });
+            updateStats();
         });
 
         /*
@@ -302,7 +311,6 @@ define(function(require, exports, module) {
         plugin.on("hide", function () {
             updateVerbosity();
             showing = false;
-            plugin.hide();
         });
 
         /***** Lifecycle *****/
@@ -315,13 +323,13 @@ define(function(require, exports, module) {
 
             delay = 30;
             verbose = true;
-            stats = {};
             timer = null;
             showing = false;
             cs50Btn = null;
             versionBtn = null;
             hostnameBtn = null;
             fetching = false;
+            html = null;
         });
 
         /***** Register and define API *****/
