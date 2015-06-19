@@ -290,7 +290,7 @@ define(function(require, exports, module) {
                 if (stats.listening) {
                     // display running server & provide a link to host
                     html.server.innerHTML = "Yes (" + stats.server + ")";
-                    html.hostname.innerHTML = '<a href="https://'+ stats.host +
+                    html.hostname.innerHTML = '<a href="//'+ stats.host +
                         '" target="_blank">' + stats.host + '</a>';
                 }
                 else {
