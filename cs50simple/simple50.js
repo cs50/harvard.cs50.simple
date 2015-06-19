@@ -351,12 +351,12 @@ define(function(require, exports, module) {
             menus.addItemByPath("View/Terminal Font Size/Increase Terminal Font Size",
                 new ui.item({
                     caption: "Increase Terminal Font Size",
-                    command: "increaseterminalfont"
+                    command: "largerterminalfont"
                 }), 100, plugin);
             menus.addItemByPath("View/Terminal Font Size/Decrease Terminal Font Size",
                 new ui.item({
                     caption: "Decrease Terminal Font Size",
-                    command: "decreaseterminalfont",
+                    command: "smallerterminalfont",
                 }), 200, plugin);
 
         }
