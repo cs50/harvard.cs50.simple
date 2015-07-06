@@ -1,0 +1,22 @@
+{
+  "name": "c9.ide.simple",
+  "description": "Renders and submits code in the CS50 IDE to PDF.",
+  "version": "0.0.1",
+  "author": "Dino Rodriguez",
+  "contributors": [
+    {
+      "name": "Dan Armendariz",
+      "email": ""
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "plugins": {
+    "cs50Dialog": {},
+    "cs50Submit": {}
+  },
+  "categories": ["CS50"],
+  "licenses": []
+}
