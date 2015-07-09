@@ -1,0 +1,8 @@
+cli/rpm/BUILD/
+cli/rpm/BUILDROOT/
+cli/rpm/RPMS/
+cli/rpm/SRPMS/
+web/BUILD/
+web/BUILDROOT/
+web/RPMS/
+web/SRPMS/
