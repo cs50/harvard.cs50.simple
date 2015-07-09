@@ -1,17 +1,21 @@
 {
   "name": "c9.ide.simple",
-  "description": "Renders and submits code in the CS50 IDE to PDF.",
+  "description": "Renders code in the CS50 IDE to PDF, and then zips the files and PDF.",
   "version": "0.0.1",
-  "author": "Dino Rodriguez",
+  "author": "CS50",
   "contributors": [
     {
+      "name": "Dino Rodriguez",
+      "email": "dinorodriguez@college.harvard.edu"
+    },
+    {
       "name": "Dan Armendariz",
-      "email": ""
+      "email": "danallan@cs.harvard.edu"
     }
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/cs50/ide50-plugin.git"
   },
   "plugins": {
     "cs50Dialog": {},

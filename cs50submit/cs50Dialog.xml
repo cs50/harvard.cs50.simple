@@ -10,7 +10,7 @@
       skin      = "bk-window2"
       kbclose   = "true"
       resizable = "true"
-      title     = "Save As"
+      title     = "Render"
       width     = "560"
       class     = "dark"
       draggable = "true">
@@ -26,13 +26,14 @@
             <a:hbox
               align     = "center"
               padding   = "5">
-                <a:label class="lbl_saveas" width="70">PDF Name:</a:label>
+                <a:label class="lbl_saveas" width="70">Zip Name:</a:label>
                 <a:textbox
                 id           = "fileOutput"
                 flex         = "7"
                 class        = "directory ace_searchbox tb_textbox searchbox searchTxt tb_console tb_textboxInitial"
                 focusselect  = "true" 
-                visible      = "true" />
+                visible      = "true"
+                value        = "Untitled" />
             </a:hbox>
             
             <a:hbox edge="23 0 0" pack="end" padding="8">

@@ -18,7 +18,6 @@
 
 .dgLikeContaier {
     background-color: rgba(255, 255, 255, 0.04);
-    border: @filesave-tree-border;
     box-shadow: 1px 1px rgba(255,255,255,0.06), inset 1px 1px rgba(255,255,255,0.06);
     color: #333333;
     cursor: default;
@@ -36,8 +35,4 @@
 
 .filesave-inner-padding{
     position: absolute;
-    left: @filesave-inner-padding-left;
-    top: @filesave-inner-padding-top;
-    right: @filesave-inner-padding-right;
-    bottom: @filesave-inner-padding-bottom;
 }

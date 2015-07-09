@@ -1,46 +1,31 @@
 define(function(require, exports, module) {
      main.consumes = [
-        "Plugin", "Dialog", "ace", "ace.status", "commands", "console", "Divider",
-        "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
-        "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "Tree", "ui", "util", "fs", "fs.cache",
-        "dialog.alert", "dialog.file", "proc", "dialog.fileoverwrite", "List", "Form","cs50Dialog"
+        "Plugin", "ui", "layout", "proc", "dialog.fileoverwrite",
+        "dialog.alert_internal", "dialog.alert", "dialog.error", 
+        "cs50Dialog", "fs.cache"
     ];
     main.provides = ["cs50Submit"];
     return main;
 
     function main(options, imports, register) {
         var Plugin = imports.Plugin;
-        var Dialog = imports.Dialog
-        var fs = imports.fs;
-        var fsCache = imports["fs.cache"];
-        var dialogAlert = imports["dialog.alert"];
-        var dialogFile = imports["dialog.file"];
-        var Tree = imports.Tree;
         var ui = imports.ui;
-        var menus = imports.menus;
         var layout = imports.layout;
-        var tabs = imports.tabManager;
-        var settings = imports.settings;
-        var status = imports["ace.status"];
-        var basename = require("path").basename;
-        var commands = imports.commands;
-        var util = imports.util;
         var proc = imports.proc;
         var dialogFileOverwrite = imports["dialog.fileoverwrite"];
-        var List = imports.List;
-        var Form = imports.Form;
         var cs50submit = imports.cs50Dialog;
+        var alertInternal = imports["dialog.alert_internal"];
+        var alert = imports["dialog.alert"];
+        var showError = imports["dialog.error"].show;
+        var fsCache = imports["fs.cache"];
   
         /***** Initialization *****/
         
-        var plugin = new Plugin("CS50", main.consumes);
-        
+        var plugin = new Plugin("CS50", main.consumes); // main plugin for CS50 submit
         var cs50SubmitButton; // ui button in preview bar
 
-        function load(){
-            
-            // Brings up CS50 submit dialog box 
+        function load() {
+            // CS50 Submit ui button, which brings up CS50 Dialog
             cs50SubmitButton = new ui.button({
                 id       : "cs50SubmitButton",
                 caption  : "CS50 Submit",
@@ -49,83 +34,137 @@ define(function(require, exports, module) {
                 onclick  : function() {showDialog()},
                 visible  : true
             });
+            // Insert CS50 Submit button in proper location in ui
             var toolbar = layout.findParent({ name: "preview" });
             ui.insertByIndex(toolbar, cs50SubmitButton, 10, plugin);
             
-            // Change skip caption to Cancel in overwrite dialog box
+            // Change Skip caption to Cancel in overwrite dialog box
             dialogFileOverwrite.update([{id: "no", caption: "Cancel"}]);
+            // Disable close in rendering dialog
+            alertInternal.allowClose = false;
         } 
         
         /***** Methods *****/
         
-        /*
-        * Runs render50 by spawning child process
-        */
-        function render(args, fileName){
-            proc.spawn("render50", {args}, function(err, process) {
-                if (err) throw err;
-                
-                process.stdout.on("data", function(chunk) {
-                    console.log(chunk);
-                    if(chunk.indexOf("overwrite", 0) != -1)
-                        console.log("fix this");
-                });
-            });
-        }
-
-        
-        /*
-        * Shows render dialog
-        */
-        function showDialog(){
-            cs50submit.show("Render to PDF", "",
+        /**
+         * Brings up CS50 Submit dialog box
+         */
+        function showDialog() {
+            cs50submit.show("CS50 Submit", "",
                 function(path, stat, done){
-                    console.log("Chosen path is ", path, " and is currently a ", stat.mime);
                     var txtBox = cs50submit.getElement("fileOutput");
-                    var args = ["workspace/" + txtBox.value, "workspace" + path];
-                    render(args, txtBox.value);
+                    var main = fsCache.findNode("/");
+                    path.splice(0, 0, txtBox.value);
+                    overwriteDialog(main, path);
                 }, 
-                function(){
-                    console.log("Action cancelled");
+                function() {
                 }, 
-            {
-                createFolderButton: false,
-                showFilesCheckbox: true,
-                chooseCaption: "Render"
+                {
+                    createFolderButton: false,
+                    showFilesCheckbox: false,
+                    chooseCaption: "Render"
             });
         }
         
-        /*
-        * Overwrites previous pdf if needed
-        */
-        function overwrite(){
-            proc.execFile("y", function(err, process) {
-                if (err) console.log("asdg");
-            
+        /**
+         * Runs CS50 Render, and prompts for overwrite if necessary
+         */
+        function render(args) {
+            proc.spawn("render50", {args : args, cwd: "/home/ubuntu/workspace"}, function(err, process) {
+                if (err) 
+                    return showError("Process halted. The render did not complete successfully!");
+                
+                var limiter = 0; // Prevents too many alert boxes from being created
+                
                 process.stdout.on("data", function(chunk) {
-                    console.log(chunk);
-                    console.log(process);
+                    // Handles rendering dialog
+                    if (limiter == 0) {
+                        cs50submit.hide();
+                        alert.show("Rendering..", 
+                            "Please do not close your browser, the render is in progress.");
+                        limiter++;
+                    }
+                });
+                
+                process.on("exit", function(code) {
+                    // On successful render, commence zipping PDF and files
+                    if (code == 0) {
+                        args.splice(0, 0, "-r");
+                        args.push("-xi");
+                        args.push(args[1] + ".pdf");
+                        zip(args);
+                    }
+                    // On unsuccessful render, display error dialog
+                    if (code == null) {
+                        alert.hide();
+                        showError("The render did not complete successfully!");
+                    }
                 });
             });
         }
         
-        /*
-        * Shows overwrite Dialog 
-        */
-        function overwriteDialog(fileName, process){
-            dialogFileOverwrite.show("Rendering", 
-            "File " + fileName + " already exists", 
-            "Would you like to overwrite " + fileName + "?",
-            function(all){
-                console.log("Overwrite" + (all ? " for all" : ""));
-                console.log(process);
+         /**
+         * Brings up Overwrite dialog if a zip with the same name already exists  
+         */
+        function overwriteDialog(node, args) {
+            var present;
+            var fileName = args[0] + ".zip";
+            
+            //Prevents user from entering dot, which can accidentally overwrite incorrectly
+            if (args[0].indexOf(".") > -1) {
+                alert.show("Invalid Filename", 
+                    "The symbol \".\" is invalid for the filename.");
+            }
+            
+            // Searches for file in directory
+            node.children.forEach(function(n){
+                if (fileName === n.label)
+                    present = true;
+            });
+            // Overwrite dialog
+            if (present) {
+                dialogFileOverwrite.show("Overwrite", 
+                "The file \"" + fileName + "\" already exists", 
+                "Would you like to overwrite \"" + fileName + "\"?",
+                function(all){
+                    render(args);
+                    cs50submit.hide();
+                }, 
+                function(all){
+                },{ 
+                    all: false, 
+                    cancel: false
+                });
+            }
+            else
+                render(args);
+        }
+        
+        /**
+         * Zips all the selected files, along with the PDF
+         */
+        function zip(args){
+            proc.spawn("zip", {args: args, cwd: "/home/ubuntu/workspace"}, function(err, process) {
+                if (err) 
+                    return showError("Process halted. The render did not complete successfully!");
+            
+                process.on("exit", function(code) {
+                    removePdf(args);
+                });
+            });
+        }
+        
+        /**
+         * Removes the extra PDF after the zip is created
+         */
+        function removePdf(args){
+            proc.spawn("rm", {args: [args[1] + ".pdf"], cwd: "/home/ubuntu/workspace"}, function(err, process) {
+                if (err) 
+                    return showError("Process halted. The render did not complete successfully!");
                 
-            }, 
-            function(all){
-                console.log("Do not overwrite" + (all ? " for all" : ""));
-            }, {
-                all: false,
-                cancel: false
+                process.on("exit", function(code) {
+                    alert.hide();
+                });
             });
         }
         
@@ -143,28 +182,26 @@ define(function(require, exports, module) {
         plugin.freezePublicAPI({
             _events: [
                 /**
-                 * Fires when the form is drawn.
-                 * @event draw
-                 */
-                "draw",
-                /**
-                 * Fires when the form becomes visible. This happens when
-                 * it's attached to an HTML element using the {@link #attachTo}
-                 * method, or by calling the {@link #method-show} method.
-                 * @event show
+                 * Fires when plugin is shown
                  */
                 "show",
                 /**
-                 * Fires when the form becomes hidden. This happens when
-                 * it's detached from an HTML element using the {@link #detach}
-                 * method, or by calling the {@link #method-hide} method.
-                 * @event hide
+                 * Fires when plugin is drawn
                  */
                 "hide"
+            
             ],
+            
+            /**
+             * Shows plugin
+             */
             show: plugin.show,
+            
+            /**
+             * Shows plugin
+             */
             hide: plugin.hide
-        });
+    });
         
         register(null, {
             "cs50Submit": plugin
