@@ -1,6 +1,5 @@
 # cs50submit
 =================
-
 This is the CS50 IDE's [CS50 Render Plugin] ("github.com/cs50/render50").
 
 It enables the user to select the files they wish to render (into a PDF), 
