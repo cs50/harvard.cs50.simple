@@ -114,13 +114,18 @@ define(function(require, exports, module) {
             var complexMenus = [];
 
             // Cloud9 Menu
-            complexMenus.push(menus.get("Cloud9"));
+            complexMenus.push(menus.get("Cloud9/Open Your Project Settings"));
+            complexMenus.push(menus.get("Cloud9/Open Your User Settings"));
+            complexMenus.push(menus.get("Cloud9/Open Your Keymap"));
+            complexMenus.push(menus.get("Cloud9/Open Your Init Script"));
+            complexMenus.push(menus.get("Cloud9/Open Your Stylesheet"));
 
             // File Menu
             complexMenus.push(menus.get("File/Revert to Saved"));
             complexMenus.push(menus.get("File/Revert All to Saved"));
             complexMenus.push(menus.get("File/Mount FTP or SFTP server"));
             complexMenus.push(menus.get("File/Line Endings"));
+            complexMenus.push(menus.get("File/New Plugin"));
 
             // Edit Menu
             complexMenus.push(menus.get("Edit/Line/Move Line Up"));
@@ -155,8 +160,13 @@ define(function(require, exports, module) {
             // Tools Menu
             complexMenus.push(menus.get("Tools"));
 
-            return complexMenus;
+            // Window Menu
+            complexMenus.push(menus.get("Window/New Immediate Window"));
+            complexMenus.push(menus.get("Window/Installer..."));
+            complexMenus.push(menus.get("Window/Navigate"));
+            complexMenus.push(menus.get("Window/Commands"));
 
+            return complexMenus;
         }
 
         /*
@@ -297,7 +307,7 @@ define(function(require, exports, module) {
             });
 
             // places it in View
-            menus.addItemByPath("View/Less Comfortable", toggle, 800, plugin);
+            menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
         }
 
         /*
