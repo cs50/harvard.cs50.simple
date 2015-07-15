@@ -188,6 +188,7 @@ define(function(require, exports, module) {
                 }
             });
 
+
             // Tidy up dividers
             menus.get("File").menu.childNodes[14].setAttribute("visible", !lessComfortable);
             menus.get("Edit").menu.childNodes[6].setAttribute("visible", !lessComfortable);
@@ -306,8 +307,30 @@ define(function(require, exports, module) {
                 onclick: toggleSimpleMode
             });
 
-            // places it in View
+            // creates divider below toggle
+            var div = new ui.divider();
+
+            // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
+            menus.addItemByPath("View/Div", div, 10, plugin);
+        }
+
+        function loadMainMenuInfo(plugin) {
+
+            // creates the "About CS50 IDE" item
+            var about = new ui.item({
+                type: "check",
+                caption: "About CS50 IDE",
+                onclick: toggleSimpleMode
+            });
+
+            // creates divider below toggle
+            var div = new ui.divider();
+
+            // places it in CS50 IDE tab
+            menus.addItemByPath("Cloud9/About CS50 IDE", about, 0, plugin);
+            menus.addItemByPath("Cloud9/Div", div, 10, plugin);
+            //menus.get("Cloud9").menu.childNodes[3].setAttribute("visible", false);
         }
 
         /*
@@ -368,7 +391,6 @@ define(function(require, exports, module) {
                     caption: "Decrease Terminal Font Size",
                     command: "smallerterminalfont",
                 }), 200, plugin);
-
         }
 
         /*
@@ -419,6 +441,7 @@ define(function(require, exports, module) {
             addTooltips();
             runToDebug();
             terminalFontSizeButton();
+            loadMainMenuInfo(plugin);
 
             // initialize less comfortable mode by default and when requested
             if (getCookie(COOKIE_NAME) != "more")
