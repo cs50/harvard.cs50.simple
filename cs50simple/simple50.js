@@ -10,7 +10,7 @@ define(function(require, exports, module) {
         "Plugin", "ace", "ace.status", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui"
+        "tabManager", "terminal", "tooltip", "tree", "ui", "tabManager"
     ];
     main.provides = ["cs50.simple"];
     return main;
@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var status = imports["ace.status"];
         var basename = require("path").basename;
         var commands = imports.commands;
+        var tabManager = imports.tabManager;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -119,6 +120,7 @@ define(function(require, exports, module) {
             complexMenus.push(menus.get("Cloud9/Open Your Keymap"));
             complexMenus.push(menus.get("Cloud9/Open Your Init Script"));
             complexMenus.push(menus.get("Cloud9/Open Your Stylesheet"));
+
 
             // File Menu
             complexMenus.push(menus.get("File/Revert to Saved"));
@@ -315,13 +317,36 @@ define(function(require, exports, module) {
             menus.addItemByPath("View/Div", div, 10, plugin);
         }
 
+        /*
+         * Show the CS50 IDE readme in a new tab when the "About CS50 IDE"
+         * button is clicked
+         */
+        function displayReadme () {
+
+            // Shows CS50 IDE readme
+            tabManager.open({
+            value      : "https://cs50.readme.io/",
+            editorType : "urlview",
+            active     : true,
+            document   : {title : "CS50 Readme"},
+            }, function(err, tab) {
+                 if(err) return err;
+            })
+
+        }
+
+        /*
+         * Edit the "Cloud9" menu to be appropriately tailored to CS50 IDE
+         */
         function loadMainMenuInfo(plugin) {
+
+            // edits "Cloud9" main tab to display "CS50 IDE"
+            menus.get("Cloud9").item.setAttribute("caption", "CS50 IDE");
 
             // creates the "About CS50 IDE" item
             var about = new ui.item({
-                type: "check",
                 caption: "About CS50 IDE",
-                onclick: toggleSimpleMode
+                onclick: displayReadme
             });
 
             // creates divider below toggle
@@ -330,13 +355,24 @@ define(function(require, exports, module) {
             // places it in CS50 IDE tab
             menus.addItemByPath("Cloud9/About CS50 IDE", about, 0, plugin);
             menus.addItemByPath("Cloud9/Div", div, 10, plugin);
-            //menus.get("Cloud9").menu.childNodes[3].setAttribute("visible", false);
+
+            // hide quit and restart cloud9 ui elements in CS50 IDE section
+            menus.get("Cloud9/Restart Cloud9").item.setAttribute("visible", false);
+            menus.get("Cloud9/Quit Cloud9").item.setAttribute("visible", false);
+        }
+
+        /*
+         * Change logout to take back to dashboard rather than sign in
+         */
+        function redirectLogout () {
+           var test = layout.findParent({name : "preview"});
+           console.log(test.nextSibling.childNodes);
         }
 
         /*
          * Creates a button to change Terminal font size
          */
-        function terminalFontSizeButton(){
+        function terminalFontSizeButton() {
 
             // Add keyboard hotkeys
             commands.addCommand({
@@ -442,6 +478,7 @@ define(function(require, exports, module) {
             runToDebug();
             terminalFontSizeButton();
             loadMainMenuInfo(plugin);
+            redirectLogout();
 
             // initialize less comfortable mode by default and when requested
             if (getCookie(COOKIE_NAME) != "more")
