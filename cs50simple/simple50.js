@@ -7,10 +7,10 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "Plugin", "ace", "ace.status", "commands", "console", "Divider",
+        "Plugin", "ace", "ace.status", "auth", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "tabManager"
+        "tabManager", "terminal", "tooltip", "tree", "ui"
     ];
     main.provides = ["cs50.simple"];
     return main;
@@ -26,6 +26,8 @@ define(function(require, exports, module) {
         var basename = require("path").basename;
         var commands = imports.commands;
         var tabManager = imports.tabManager;
+        var panels = imports.panels;
+        var auth = imports.auth;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -244,16 +246,10 @@ define(function(require, exports, module) {
          * Toggles the left Navigate and Commands side tabs
          */
         function toggleSideTabs(lessComfortable) {
-            var navigate = menus.get("Window/Navigate").item;
-            var commands = menus.get("Window/Commands").item;
 
-            // toggle Navigate: hide if less comfortable, show otherwise
-            if (navigate.checked == lessComfortable)
-                menus.click("Window/Navigate");
-
-            // toggle Commands: hide if less comfortable, show otherwise
-            if (commands.checked == lessComfortable)
-                menus.click("Window/Commands");
+            // Only shows tabs automatically when less comfortable is disabled
+            lessComfortable ? panels.disablePanel("navigate") : panels.enablePanel("navigate");
+            lessComfortable ? panels.disablePanel("commands.panel") : panels.enablePanel("commands.panel");
         }
 
         /*
@@ -321,7 +317,7 @@ define(function(require, exports, module) {
          * Show the CS50 IDE readme in a new tab when the "About CS50 IDE"
          * button is clicked
          */
-        function displayReadme () {
+        function displayReadme() {
 
             // Shows CS50 IDE readme
             tabManager.open({
@@ -331,8 +327,7 @@ define(function(require, exports, module) {
             document   : {title : "CS50 Readme"},
             }, function(err, tab) {
                  if(err) return err;
-            })
-
+            });
         }
 
         /*
@@ -362,11 +357,41 @@ define(function(require, exports, module) {
         }
 
         /*
+         * New logout function, redirects to appropriate page
+         */
+        function customLogout() {
+
+            // Logs out, then redirects to CS50 login page
+            auth.logout();
+            window.location.assign("https://cs50.io/web/login");
+        }
+
+        /*
          * Change logout to take back to dashboard rather than sign in
          */
-        function redirectLogout () {
-           var test = layout.findParent({name : "preview"});
-           console.log(test.nextSibling.childNodes);
+        function redirectLogout(plugin) {
+
+            // Locate current user's profile menu and hide old log out
+            var bar = layout.findParent({ name: "preview" }).nextSibling;
+            var profiles = bar.childNodes;
+            var profileMenu;
+            for (var p in profiles) {
+                if (profiles[p].$position == 600) {
+                    profileMenu = profiles[p].submenu;
+                    profileMenu.lastChild.setAttribute("visible", false);
+                    break;
+                }
+            }
+
+            // Create new log out ui item
+            var newLogout = ui.item({
+                caption: "Log out",
+                tooltip: "Log out",
+                onclick: customLogout
+            });
+
+            // Place in submenu
+            menus.addItemToMenu(profileMenu, newLogout, 1000, plugin);
         }
 
         /*
@@ -478,14 +503,12 @@ define(function(require, exports, module) {
             runToDebug();
             terminalFontSizeButton();
             loadMainMenuInfo(plugin);
-            redirectLogout();
+            redirectLogout(plugin);
 
             // initialize less comfortable mode by default and when requested
             if (getCookie(COOKIE_NAME) != "more")
                 menus.click("View/Less Comfortable");
         }
-
-
 
         /***** Lifecycle *****/
 

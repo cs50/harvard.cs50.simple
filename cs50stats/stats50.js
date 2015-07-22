@@ -35,7 +35,6 @@ define(function(require, exports, module) {
         var showing;                // is the dialog showing
         var stats = null;           // last recorded stats
         var timer = null;           // javascript interval ID
-        var verbose;                // current verbosity: do buttons show stats
 
         function load() {
             showing = false;
@@ -44,8 +43,7 @@ define(function(require, exports, module) {
             // set default values
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/stats", [
-                    ["refreshRate", DEFAULT_REFRESH],
-                    ["verboseButtons", true]
+                    ["refreshRate", DEFAULT_REFRESH]
                 ]);
             });
 
@@ -53,7 +51,6 @@ define(function(require, exports, module) {
             settings.on("write", function() {
                 // fetch new rate, stopping timer to allow restart with new val
                 var rate = settings.getNumber("user/cs50/stats/@refreshRate");
-                var ver = settings.getBool("user/cs50/stats/@verboseButtons");
 
                 if (delay != rate) {
                     // validate new rate, overwriting bad value if necessary
@@ -67,18 +64,12 @@ define(function(require, exports, module) {
                     // update stats and timer interval
                     updateStats();
                     stopTimer();
-                    if (ver) startTimer();
-                }
-
-                if (verbose != ver) {
-                    verbose = ver;
-                    updateVerbosity();
+                    startTimer();
                 }
             });
 
             // fetch setting information
             delay = settings.getNumber("user/cs50/stats/@refreshRate");
-            verbose = settings.getBool("user/cs50/stats/@verboseButtons");
 
             // notify UI of the function to run to open the dialog
             commands.addCommand({
@@ -88,19 +79,27 @@ define(function(require, exports, module) {
                 exec: toggle
             }, plugin);
 
+            // notify UI of the function to open the host in a new tab
+            commands.addCommand({
+                name: "openDomain",
+                hint: "CS50 IDE Workspace Host",
+                group: "General",
+                exec: loadHost
+            }, plugin);
+
             // add a menu item to show the dialog
             menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
             menus.addItemByPath("Window/CS50 Workspace Stats...", new ui.item({
                 command: "cs50statsDialog"
             }), 34, plugin);
 
-            // create (non-verbose) CS50 button, hidden by default
+            // create CS50 button
             cs50Btn = new ui.button({
                 "skin"    : "c9-menu-btn",
-                "caption" : "CS50",
+                "caption" : "",
                 "tooltip" : "CS50 IDE Workspace Stats",
                 "command" : "cs50statsDialog",
-                "visible" : false
+                "visible" : true
             });
 
             // place CS50 button
@@ -108,13 +107,13 @@ define(function(require, exports, module) {
                 name: "preferences"
             }), cs50Btn, 860, plugin);
 
-            // create (verbose) version button, hidden by default
+            // create version button
             versionBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
                 "tooltip" : "CS50 IDE Workspace Version",
                 "command" : "cs50statsDialog",
-                "visible" : false
+                "visible" : true
             });
 
             // place version button
@@ -122,13 +121,13 @@ define(function(require, exports, module) {
                 name: "preferences"
             }), versionBtn, 860, plugin);
 
-            // create hostname button, hidden by default
+            // create hostname button
             hostnameBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
                 "tooltip" : "CS50 IDE Workspace Hostname",
-                "command" : "cs50statsDialog",
-                "visible" : false
+                "command" : "openDomain",
+                "visible" : true
             });
 
             // place button
@@ -142,11 +141,6 @@ define(function(require, exports, module) {
                     position: 5,
                     "Workspace Stats" : {
                         position: 10,
-                        "Show version and host directly in menu bar" : {
-                            type: "checkbox",
-                            path: "user/cs50/stats/@verboseButtons",
-                            position: 100
-                        },
                         "Information refresh rate (in seconds)" : {
                             type: "spinner",
                             path: "user/cs50/stats/@refreshRate",
@@ -161,28 +155,8 @@ define(function(require, exports, module) {
             // fetch data
             updateStats();
 
-            // show appropriate buttons based on user's settings
-            updateVerbosity();
-        }
-
-        /*
-         * Sets visibility of buttons to reflect user's verbosity preference.
-         * Verbose buttons require a timer to automatically refresh data
-         * based on a rate specified by the user.
-         */
-        function updateVerbosity() {
-            if (verbose) {
-                cs50Btn.setAttribute("visible", false);
-                versionBtn.setAttribute("visible", true);
-                hostnameBtn.setAttribute("visible", true);
-                startTimer();
-            }
-            else {
-                stopTimer();
-                versionBtn.setAttribute("visible", false);
-                hostnameBtn.setAttribute("visible", false);
-                cs50Btn.setAttribute("visible", true);
-            }
+            // always verbose, start timer
+            startTimer();
         }
 
         /*
@@ -253,10 +227,18 @@ define(function(require, exports, module) {
             // parse the JSON returned by stats50 output
             stats = JSON.parse(stdout);
 
+            //grey out hostnameBtn if no server running
+            if(!stats.listening) {
+                hostnameBtn.setAttribute("disabled", true);
+            }
+            else {
+                hostnameBtn.setAttribute("disabled", false);
+            }
+
             // update UI
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
-            cs50Btn.setCaption("CS50");
+            cs50Btn.$ext.innerHTML = "&#9432;";
 
             updateDialog();
         }
@@ -314,6 +296,14 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Open domain page in new tab
+         */
+        function loadHost() {
+            window.open("//" + stats.host);
+            console.log(stats);
+        }
+
+        /*
          * Place initial HTML on the first drawing of the dialog
          */
         plugin.on("draw", function(e) {
@@ -351,9 +341,8 @@ define(function(require, exports, module) {
          * When dialog is hidden, reset state, stopping the timer if necessary
          */
         plugin.on("hide", function () {
-            updateVerbosity();
+            startTimer();
             showing = false;
-            if (!verbose) stopTimer();
         });
 
         /***** Lifecycle *****/
@@ -366,7 +355,6 @@ define(function(require, exports, module) {
             stopTimer();
 
             delay = 30;
-            verbose = true;
             timer = null;
             showing = false;
             cs50Btn = null;
