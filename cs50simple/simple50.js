@@ -35,6 +35,7 @@ define(function(require, exports, module) {
         var SETTINGS_VER = 1;
 
         var lessComfortable = false;
+        var profileMenu = null;
         var complexMenus = findComplexMenus();
 
         // code from gui.js
@@ -340,6 +341,7 @@ define(function(require, exports, module) {
 
             // creates the "About CS50 IDE" item
             var about = new ui.item({
+                id     : "aboutCS50IDE",
                 caption: "About CS50 IDE",
                 onclick: displayReadme
             });
@@ -357,34 +359,47 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Locates user profile and assigns to global variable
+         */
+        function locateProfile() {
+
+            // Locate current user's profile menu
+            var bar = layout.findParent({ name: "preview" }).nextSibling;
+            var profiles = bar.childNodes;
+            for (var p in profiles) {
+                if (profiles[p].$position == 600) {
+                    profileMenu = profiles[p].submenu;
+                    //profileMenu.lastChild.setAttribute("visible", false);
+                    break;
+                }
+            }
+        }
+
+        /*
          * New logout function, redirects to appropriate page
          */
         function customLogout() {
 
             // Logs out, then redirects to CS50 login page
             auth.logout();
-            window.location.assign("https://cs50.io/web/login");
+            window.location.replace("https://cs50.io/web/login");
         }
 
         /*
          * Change logout to take back to dashboard rather than sign in
          */
-        function redirectLogout(plugin) {
+        function editProfileMenu(plugin) {
 
-            // Locate current user's profile menu and hide old log out
-            var bar = layout.findParent({ name: "preview" }).nextSibling;
-            var profiles = bar.childNodes;
-            var profileMenu;
-            for (var p in profiles) {
-                if (profiles[p].$position == 600) {
-                    profileMenu = profiles[p].submenu;
-                    profileMenu.lastChild.setAttribute("visible", false);
-                    break;
-                }
-            }
+            // Hide old log out
+            profileMenu.lastChild.setAttribute("visible", false);
+
+            // Hide change plan portion of profile menu
+            console.log(profileMenu);
+            profileMenu.childNodes[0].setAttribute("visible", false);
 
             // Create new log out ui item
             var newLogout = ui.item({
+                id     : "newLogout",
                 caption: "Log out",
                 tooltip: "Log out",
                 onclick: customLogout
@@ -481,7 +496,6 @@ define(function(require, exports, module) {
 
         }
 
-
         /***** Initialization *****/
 
         var loaded = false;
@@ -502,8 +516,9 @@ define(function(require, exports, module) {
             addTooltips();
             runToDebug();
             terminalFontSizeButton();
+            locateProfile();
             loadMainMenuInfo(plugin);
-            redirectLogout(plugin);
+            editProfileMenu(plugin);
 
             // initialize less comfortable mode by default and when requested
             if (getCookie(COOKIE_NAME) != "more")
@@ -520,6 +535,7 @@ define(function(require, exports, module) {
             toggleSimpleMode(true);
             loaded = false;
             lessComfortable = false;
+            profileMenu = null;
         });
 
         /***** Register and define API *****/

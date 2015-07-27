@@ -22,7 +22,6 @@ define(function(require, exports, module) {
             name: "CS50 Stats",
             allowClose: true,
             title: "CS50 IDE Workspace Stats",
-            heading: "",
             modal: true
         });
 
@@ -250,6 +249,14 @@ define(function(require, exports, module) {
             // confirm dialog elements have been created
             if (html == null) return;
 
+            // removes button bar on darker themes
+            if (settings.get("user/general/@skin") != "flat-light") {
+               html.stats.parentElement.style.setProperty("background-color", "#DEDEDE");
+            }
+            else {
+                html.stats.parentElement.style.setProperty("background-color", "#FEFEFE");
+            }
+
             if (stats == null) {
                 // no information fetched yet
                 html.info.innerHTML = "Please wait, fetching information...";
@@ -300,7 +307,6 @@ define(function(require, exports, module) {
          */
         function loadHost() {
             window.open("//" + stats.host);
-            console.log(stats);
         }
 
         /*
@@ -314,6 +320,14 @@ define(function(require, exports, module) {
                 '<tr><td>Server Running</td><td id="server">...</td></tr>' +
                 '<tr><td>Hostname</td><td id="hostname">...</td></tr>' +
                 '</table>';
+
+            // Sets background on initial draw to prevent unecessary flicker
+            if (settings.get("user/general/@skin") != "flat-light") {
+               e.html.style.setProperty("background-color", "#DEDEDE");
+            }
+            else {
+                e.html.style.setProperty("background-color", "#FEFEFE");
+            }
 
             // find & connect to all of the following in the dialog's DOM
             var els = ["version", "server", "hostname", "info", "stats"];
