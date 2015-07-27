@@ -4,34 +4,34 @@ define(function(require, module, exports) {
     ];
     main.provides = ["cs50Dialog"];
     return main;
-    
+
     function main(options, imports, register) {
         var Plugin = imports.Plugin;
         var util = imports.util;
         var ui = imports.ui;
         var fsCache = imports["fs.cache"];
         var fileTree = imports.tree;
-        
+
         var Tree = require("ace_tree/tree");
         var TreeData = require("ace_tree/data_provider_mirror");
         var TreeEditor = require("ace_tree/edit");
-        
+
         /***** Initialization *****/
-        
+
         var plugin = new Plugin("CS50", main.consumes);
         var emit = plugin.getEmitter();
-        
+
         var dialog, container, btnChoose, btnCancel;
         var tree, cbShowFiles, fileOutput;
         var globalPath = null;
         var showFiles = true;
-        
+
         var loaded;
         function load() {
             if (loaded) return;
             loaded = true;
         }
-    
+
         /**
          * Create CS50 Dialog box
          */
@@ -39,13 +39,13 @@ define(function(require, module, exports) {
         function draw(htmlNode) {
             if (drawn) return;
             drawn = true;
-            
+
             // Markup
             ui.insertMarkup(null, require("text!./cs50Dialog.xml"), plugin);
-            
+
             // CSS
             ui.insertCss(require("text!./cs50Dialog.css"), plugin);
-            
+
             // Dynamic elements
             dialog = plugin.getElement("window");
             container = plugin.getElement("container");
@@ -53,14 +53,14 @@ define(function(require, module, exports) {
             btnCancel = plugin.getElement("btnCancel");
             cbShowFiles = plugin.getElement("cbShowFiles");
             fileOutput = plugin.getElement("fileOutput");
-            
+
             // Insert File Tree
             tree = new Tree(container.$int);
 
             tree.renderer.setScrollMargin(10, 10);
             tree.renderer.setTheme({cssClass: "filetree"});
             tree.edit = new TreeEditor(tree);
-            
+
             // Rename file/directory in tree
             tree.on("beforeRename", function(e) {
                 return fileTree.tree._emit("beforeRename", e);
@@ -68,13 +68,13 @@ define(function(require, module, exports) {
             tree.on("rename", function(e) {
                 return fileTree.tree._emit("rename", e);
             });
-            
+
             // Remove file/directory in tree
             tree.on("delete", function(e) {
                 var selection = tree.selection.getSelectedNodes();
                 fileTree.remove(selection);
             });
-            
+
             // Adjust to scrolling
             tree.renderer.on("scrollbarVisibilityChanged", updateScrollBarSize);
             tree.renderer.on("resize", updateScrollBarSize);
@@ -82,37 +82,37 @@ define(function(require, module, exports) {
                 var w = tree.renderer.scrollBarV.getWidth();
                 tree.renderer.scroller.style.right = Math.max(w, 10) + "px";
             }
-            
+
             // On user select, get path of directory/file
             tree.on("userSelect", function(e) {
                 var selected = tree.selection.getCursor();
                 globalPath = selected.path;
             });
-            
+
             // Handles visibility
             dialog.on("prop.visible", function(e) {
                 updateTreeModel(e.value);
                 if (e.value) emit("show");
                 else emit("hide");
             });
-            
+
             // Handles resizing of CS50 Dialog
             dialog.on("afterresize", function() {
                 tree.resize();
             });
-            
+
             emit.sticky("draw");
         }
-        
+
         /***** Method *****/
-        
+
         /**
          * Handles/Creates data in tree
          */
         function updateTreeModel(enable) {
             if (enable) {
                 var model = new TreeData();
-                
+
                 // Details, determining root, refreshing tree
                 var height = parseInt(ui.getStyleRule(".filetree .tree-row", "height"), 10);
                 model.rowHeightInner = height;
@@ -135,13 +135,13 @@ define(function(require, module, exports) {
                 };
                 // Adds in checkboxes
                 model.getCheckboxHTML = function(node){
-                            return "<span class='checkbox " 
-                                + (node.isChecked == -1 
-                                    ? "half-checked " 
+                            return "<span class='checkbox "
+                                + (node.isChecked == -1
+                                    ? "half-checked "
                                     : (node.isChecked ? "checked " : ""))
                                 + "'></span>";
                         };
-                
+
                 // Enable further checkbox usage
                 tree.commands.bindKey("Space", function(e) {
                     var nodes = tree.selection.getSelectedNodes();
@@ -158,7 +158,7 @@ define(function(require, module, exports) {
                     if (node.isRoot)
                         model.expand(node);
                 });
-                
+
                 // Handles checkboxes on expansion
                 model.on("expand", function (e){
                     if(e.isChecked && e.isChecked != -1){
@@ -167,19 +167,19 @@ define(function(require, module, exports) {
                         });
                     }
                 });
-                
+
                 // On check event
                 model.on("check", function (e){
                     updateParents(e[0], true);
                     updateChildren(e[0], true);
                 });
-                
+
                 // On uncheck event
                 model.on("uncheck", function (e){
                     updateParents(e[0], false);
                     updateChildren(e[0], false);
                 });
-                
+
                 var path = globalPath == null ? "/" : globalPath;
                 expandAndSelect(path, model);
 
@@ -191,14 +191,14 @@ define(function(require, module, exports) {
                 tree.setDataProvider(null);
             }
         }
-        
+
         /**
          * Updates all affected parent files' checkboxes from the checkbox events
          */
         function updateParents(node) {
             var fullCheck = true;
             var halfCheck = false;
-            
+
             if (node.parent != null) {
                 node.parent.children.forEach(function(n){
                     halfCheck = halfCheck || n.isChecked;
@@ -206,19 +206,17 @@ define(function(require, module, exports) {
                 });
                 if (fullCheck) {
                     node.parent.isChecked = true;
-                    updateParents(node.parent);
                 }
                 else if (halfCheck) {
                     node.parent.isChecked = -1;
-                    updateParents(node.parent);
                 }
                 else {
                     node.parent.isChecked = false;
-                    updateParents(node.parent);
                 }
+                updateParents(node.parent);
             }
         }
-        
+
         /**
          * Updates all affected child files' checkboxes from the checkbox events
          */
@@ -230,14 +228,14 @@ define(function(require, module, exports) {
                 });
             }
         }
-        
+
         /**
          * Loads the initial path and initiates the selection process for the files
          */
         function selectFiles(path, files) {
             var limiter = true;
             fsCache.loadNodes(path, function (e) {
-                if (e.node && limiter) { 
+                if (e.node && limiter) {
                     tree.reveal(e.node);
                     limiter = false;
                     files = selectLoop(e.node, path, files);
@@ -245,7 +243,7 @@ define(function(require, module, exports) {
             });
             return files;
         }
-        
+
         /**
          * Recursively goes through the file directory and selects all appropriate files
          */
@@ -258,9 +256,9 @@ define(function(require, module, exports) {
             }
             else if (node.children != null) {
                node.children.forEach(function(n){
-                    if (n.isChecked && (n.isChecked != -1)) 
+                    if (n.isChecked && (n.isChecked != -1))
                         files.push((n.path).slice(1));
-                    else if (n.children != null) 
+                    else if (n.children != null)
                         selectLoop(n, n.path, files);
                 });
                 return files;
@@ -286,16 +284,16 @@ define(function(require, module, exports) {
                 }
             });
         }
-        
+
         /**
-         * Get icons for nodes 
+         * Get icons for nodes
          */
-        function getIconHTML(node) {                
+        function getIconHTML(node) {
             var icon = node.map ? "folder" : util.getFileIcon(node.label);
             if (node.status === "loading") icon = "loading";
             return "<span class='filetree-icon " + icon + "'></span>";
         }
-        
+
         /**
          * Update tree filter and root
          */
@@ -312,11 +310,11 @@ define(function(require, module, exports) {
             var showFilesCheckbox = (options && options.showFilesCheckbox) !== false;
 
             plugin.title = title || "CS50 Submit";
-            
+
             btnChoose.setAttribute("caption", options && options.chooseCaption || "Render");
-            
+
             var choosen = false;
-            
+
             // On render, send file information
             btnChoose.onclick = function() {
                 var path = selectFiles("/", []);
@@ -330,7 +328,7 @@ define(function(require, module, exports) {
             btnCancel.onclick = function() {
                 dialog.hide();
             };
-            
+
             cbShowFiles.setAttribute("visible", showFilesCheckbox);
             cbShowFiles.setAttribute("checked", true);
             showFiles = true;
@@ -358,17 +356,17 @@ define(function(require, module, exports) {
 
             dialog.show();
         }
-        
+
         /**
          * Hides CS50 Dialog
          */
         function hide(){
             dialog && dialog.hide();
         }
-        
-        
+
+
         /***** Lifecycle *****/
-        
+
         plugin.on("load", function() {
             load();
         });
@@ -385,9 +383,9 @@ define(function(require, module, exports) {
             fileOutput = null;
             globalPath = null;
         });
-        
+
         /***** Register and define API *****/
-        
+
         plugin.freezePublicAPI({
             /**
              * The APF element that is the parent to all form elements
@@ -397,7 +395,7 @@ define(function(require, module, exports) {
              * Gets the tree inside the CS50 dialog box
              */
             get tree(){ return tree; },
-            
+
             /**
              * Enables getting/setting the title of the CS50 Dialog box
              */
@@ -439,7 +437,7 @@ define(function(require, module, exports) {
              */
             hide: hide
         });
-        
+
         register("", {
             "cs50Dialog" : plugin
         });
