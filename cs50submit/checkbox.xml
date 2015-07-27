@@ -10,13 +10,13 @@
       skin      = "bk-window2"
       kbclose   = "true"
       resizable = "true"
-      title     = "Render"
+      title     = "Files"
       width     = "560"
       class     = "dark"
       draggable = "true">
         <a:vbox
           class     = "filesave-inner-padding"
-          padding   = "5">
+          padding   = "0">
             <div class="dgLikeContaier" margin="5 0 5 0" flex="1">
                 <a:hbox id="container"
                   anchors  = "0 0 0 0"
@@ -26,7 +26,7 @@
             <a:hbox
               align     = "center"
               padding   = "5">
-                <a:label class="lbl_saveas" width="70">Zip Name:</a:label>
+                <a:label class="lbl_saveas" width="70">File Output:</a:label>
                 <a:textbox
                 id           = "fileOutput"
                 flex         = "7"

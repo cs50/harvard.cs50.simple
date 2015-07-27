@@ -202,7 +202,7 @@ define(function(require, module, exports) {
         function updateParents(node) {
             var fullCheck = true;
             var halfCheck = false;
-
+            
             if (node.parent != null) {
                 node.parent.children.forEach(function(n){
                     halfCheck = halfCheck || n.isChecked;
@@ -308,18 +308,18 @@ define(function(require, module, exports) {
         }
 
         /**
-         * Initializes CS50 Dialog, and handles sending information
+         * Initializes checkbox dialog
          */
         function init(title, path, onChoose, onCancel, options) {
             var showFilesCheckbox = (options && options.showFilesCheckbox) !== false;
 
-            plugin.title = title || "CS50 Submit";
+            plugin.title = title || "Files";
 
-            btnChoose.setAttribute("caption", options && options.chooseCaption || "Render");
+            btnChoose.setAttribute("caption", options && options.chooseCaption || "Submit");
 
             var choosen = false;
 
-            // On render, send file information
+            // On submit, send array with all selected paths
             btnChoose.onclick = function() {
                 var path = selectFiles("/", []);
                 choosen = true;
@@ -328,7 +328,7 @@ define(function(require, module, exports) {
                     });
             };
 
-            // On cancel
+            // On cancel, close
             btnCancel.onclick = function() {
                 dialog.hide();
             };
@@ -348,7 +348,7 @@ define(function(require, module, exports) {
         }
 
         /**
-         * Displays CS50 Dialog
+         * Displays checkbox dialog
          */
         function show(title, path, onChoose, onCancel, options) {
             if (!plugin.loaded)
@@ -362,7 +362,7 @@ define(function(require, module, exports) {
         }
 
         /**
-         * Hides CS50 Dialog
+         * Hides checkbox dialog
          */
         function hide(){
             dialog && dialog.hide();
@@ -396,12 +396,12 @@ define(function(require, module, exports) {
              */
             get aml(){ return dialog; },
             /**
-             * Gets the tree inside the CS50 dialog box
+             * Gets the tree inside the checkbox dialog
              */
             get tree(){ return tree; },
 
             /**
-             * Enables getting/setting the title of the CS50 Dialog box
+             * Enables getting/setting the title of the checkbox dialog
              */
             get title(){ },
             set title(value) {
@@ -409,7 +409,7 @@ define(function(require, module, exports) {
                     dialog.setAttribute("title", value);
             },
             /**
-             * Enables getting/setting the name of the PDF/zip that will be created
+             * Enables getting/setting the name of the output
              */
             get filename(){ return fileOutput.value; },
             set filename(value) {

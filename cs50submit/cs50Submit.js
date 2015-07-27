@@ -68,7 +68,6 @@ define(function(require, exports, module) {
                 function() {
                 },
                 {
-                    createFolderButton: false,
                     showFilesCheckbox: false,
                     chooseCaption: "Render"
             });
