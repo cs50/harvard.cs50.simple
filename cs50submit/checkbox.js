@@ -2,7 +2,7 @@ define(function(require, module, exports) {
     main.consumes = [
         "Plugin", "ui", "fs", "dialog.alert", "fs.cache", "util", "Dialog", "tree"
     ];
-    main.provides = ["cs50Dialog"];
+    main.provides = ["checkbox"];
     return main;
 
     function main(options, imports, register) {
@@ -33,7 +33,7 @@ define(function(require, module, exports) {
         }
 
         /**
-         * Create CS50 Dialog box
+         * Create dialog box
          */
         var drawn = false;
         function draw(htmlNode) {
@@ -41,10 +41,10 @@ define(function(require, module, exports) {
             drawn = true;
 
             // Markup
-            ui.insertMarkup(null, require("text!./cs50Dialog.xml"), plugin);
+            ui.insertMarkup(null, require("text!./checkbox.xml"), plugin);
 
             // CSS
-            ui.insertCss(require("text!./cs50Dialog.css"), plugin);
+            ui.insertCss(require("text!./checkbox.css"), plugin);
 
             // Dynamic elements
             dialog = plugin.getElement("window");
@@ -96,7 +96,7 @@ define(function(require, module, exports) {
                 else emit("hide");
             });
 
-            // Handles resizing of CS50 Dialog
+            // Handles resizing of dialog box
             dialog.on("afterresize", function() {
                 tree.resize();
             });
@@ -133,16 +133,16 @@ define(function(require, module, exports) {
                         model.open(node);
                     }
                 };
+                
                 // Adds in checkboxes
-                model.getCheckboxHTML = function(node){
-                            return "<span class='checkbox "
-                                + (node.isChecked == -1
-                                    ? "half-checked "
-                                    : (node.isChecked ? "checked " : ""))
-                                + "'></span>";
-                        };
+                model.getCheckboxHTML = 
+                    function(node) {
+                        return "<span class='checkbox " + (node.isChecked == -1
+                            ? "half-checked " : (node.isChecked ? "checked " : ""))
+                            + "'></span>";
+                    };
 
-                // Enable further checkbox usage
+                // Set checkbox controls
                 tree.commands.bindKey("Space", function(e) {
                     var nodes = tree.selection.getSelectedNodes();
                     var node = tree.selection.getCursor();
@@ -152,8 +152,11 @@ define(function(require, module, exports) {
                     model._signal("change");
                 });
 
+                // Update filter and root
                 updateFilter(model);
                 tree.setDataProvider(model);
+                
+                // Initial expand
                 model.getChildren(model.root).forEach(function(node) {
                     if (node.isRoot)
                         model.expand(node);
@@ -168,18 +171,19 @@ define(function(require, module, exports) {
                     }
                 });
 
-                // On check event
+                // On check event updates parents and children
                 model.on("check", function (e){
                     updateParents(e[0], true);
                     updateChildren(e[0], true);
                 });
 
-                // On uncheck event
+                // On uncheck event updates parents and children
                 model.on("uncheck", function (e){
                     updateParents(e[0], false);
                     updateChildren(e[0], false);
                 });
-
+                
+                // Assign clicked path, else root
                 var path = globalPath == null ? "/" : globalPath;
                 expandAndSelect(path, model);
 
@@ -439,7 +443,7 @@ define(function(require, module, exports) {
         });
 
         register("", {
-            "cs50Dialog" : plugin
+            "checkbox" : plugin
         });
     }
 });

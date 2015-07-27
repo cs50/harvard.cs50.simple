@@ -2,7 +2,7 @@ define(function(require, exports, module) {
      main.consumes = [
         "Plugin", "ui", "layout", "proc", "dialog.fileoverwrite",
         "dialog.alert_internal", "dialog.alert", "dialog.error",
-        "cs50Dialog", "fs.cache", "menus"
+        "checkbox", "fs.cache", "menus"
     ];
     main.provides = ["cs50Submit"];
     return main;
@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         var layout = imports.layout;
         var proc = imports.proc;
         var dialogFileOverwrite = imports["dialog.fileoverwrite"];
-        var cs50submit = imports.cs50Dialog;
+        var cs50submit = imports.checkbox;
         var alertInternal = imports["dialog.alert_internal"];
         var alert = imports["dialog.alert"];
         var showError = imports["dialog.error"].show;

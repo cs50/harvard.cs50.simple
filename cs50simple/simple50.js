@@ -28,6 +28,7 @@ define(function(require, exports, module) {
         var tabManager = imports.tabManager;
         var panels = imports.panels;
         var auth = imports.auth;
+        var con = imports.console;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -403,7 +404,7 @@ define(function(require, exports, module) {
             // Place in submenu
             menus.addItemToMenu(profileMenu, newLogout, 1000, plugin);
         }
-
+        
         /*
          * Creates a button to change Terminal font size
          */

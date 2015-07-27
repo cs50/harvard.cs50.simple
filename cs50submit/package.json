@@ -18,7 +18,7 @@
     "url": "https://github.com/cs50/ide50-plugin.git"
   },
   "plugins": {
-    "cs50Dialog": {},
+    "checkbox": {},
     "cs50Submit": {}
   },
   "categories": ["CS50"],
