@@ -32,7 +32,7 @@ define(function(require, exports, module) {
         var plugin = new Plugin("CS50", main.consumes);
 
         var COOKIE_NAME = "cs50ide-comfort";
-        var SETTINGS_VER = 1;
+        var SETTINGS_VER = 2;
 
         var lessComfortable = false;
         var profileMenu = null;
@@ -369,7 +369,6 @@ define(function(require, exports, module) {
             for (var p in profiles) {
                 if (profiles[p].$position == 600) {
                     profileMenu = profiles[p].submenu;
-                    //profileMenu.lastChild.setAttribute("visible", false);
                     break;
                 }
             }
@@ -503,6 +502,9 @@ define(function(require, exports, module) {
             if (loaded)
                return false;
             loaded = true;
+
+            // Set asterisk no tabs to true
+            settings.set("user/tabs/@asterisk", true);
 
             // Turn off auto-save by default
             var ver = settings.getNumber("user/cs50/@simple");
