@@ -392,10 +392,6 @@ define(function(require, exports, module) {
             // Hide old log out
             profileMenu.lastChild.setAttribute("visible", false);
 
-            // Hide change plan portion of profile menu
-            console.log(profileMenu);
-            profileMenu.childNodes[0].setAttribute("visible", false);
-
             // Create new log out ui item
             var newLogout = ui.item({
                 id     : "newLogout",
