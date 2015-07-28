@@ -28,11 +28,10 @@ define(function(require, exports, module) {
         var tabManager = imports.tabManager;
         var panels = imports.panels;
         var auth = imports.auth;
-        var con = imports.console;
+        var prefs = imports.preferences;
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var COOKIE_NAME = "cs50ide-comfort";
         var SETTINGS_VER = 2;
 
         var lessComfortable = false;
@@ -57,31 +56,6 @@ define(function(require, exports, module) {
             }
 
             return false;
-        }
-
-        /*
-         * Cookie functions to remember comfort level
-         * From http://www.w3schools.com/js/js_cookies.asp
-         */
-        function setCookie(cname, cvalue, exdays) {
-            var d = new Date();
-            d.setTime(d.getTime() + (exdays*24*60*60*1000));
-            var expires = "expires="+d.toUTCString();
-            document.cookie = cname + "=" + cvalue + "; " + expires;
-        }
-
-        function getCookie(cname) {
-            var name = cname + "=";
-            var ca = document.cookie.split(';');
-            for(var i=0; i<ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0)==' ')
-                    c = c.substring(1);
-
-                if (c.indexOf(name) == 0)
-                    return c.substring(name.length, c.length);
-            }
-            return "";
         }
 
         /*
@@ -296,7 +270,7 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Adds the button to toggle comfort level
+         * Adds the buttons to toggle comfort level
          */
         function addToggle(plugin) {
 
@@ -313,6 +287,23 @@ define(function(require, exports, module) {
             // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
             menus.addItemByPath("View/Div", div, 10, plugin);
+            
+            // Add preference pane button
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "Less Comfortable" : {
+                        position: 10,
+                        "Toggle less comfortable mode" : {
+                            type: "checkbox",
+                            setting: "user/cs50/@lessComfortable",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
         }
 
         /*
@@ -358,7 +349,7 @@ define(function(require, exports, module) {
             menus.get("Cloud9/Restart Cloud9").item.setAttribute("visible", false);
             menus.get("Cloud9/Quit Cloud9").item.setAttribute("visible", false);
         }
-
+        
         /*
          * Locates user profile and assigns to global variable
          */
@@ -476,7 +467,7 @@ define(function(require, exports, module) {
             else {
                 // Toggles comfort level
                 lessComfortable = !lessComfortable;
-                setCookie(COOKIE_NAME, lessComfortable ? "less" : "more", 150);
+                settings.set("user/cs50/@lessComfortable", lessComfortable);
             }
 
             // Toggles features
@@ -500,6 +491,15 @@ define(function(require, exports, module) {
                return false;
             loaded = true;
 
+            // Adds the permanent changes
+            addToggle(plugin);
+            addTooltips();
+            runToDebug();
+            terminalFontSizeButton();
+            locateProfile();
+            loadMainMenuInfo(plugin);
+            editProfileMenu(plugin);
+            
             // Set asterisk no tabs to true
             settings.set("user/tabs/@asterisk", true);
 
@@ -509,19 +509,24 @@ define(function(require, exports, module) {
                 settings.set("user/general/@autosave", false);
                 settings.set("user/cs50/@simple", SETTINGS_VER);
             }
-
-            // Adds the permanent changes
-            addToggle(plugin);
-            addTooltips();
-            runToDebug();
-            terminalFontSizeButton();
-            locateProfile();
-            loadMainMenuInfo(plugin);
-            editProfileMenu(plugin);
-
-            // initialize less comfortable mode by default and when requested
-            if (getCookie(COOKIE_NAME) != "more")
-                menus.click("View/Less Comfortable");
+            
+            // Set default values
+            settings.on("read", function(){
+                
+                // If not already stored
+                if (settings.get("user/cs50/@lessComfortable") != false) {
+                    settings.set("user/cs50/lessComfortable", true);
+                    menus.click("View/Less Comfortable");
+                }
+            });
+            
+            // When less comfortable option is changed 
+            settings.on("write", function(){
+                if (settings.get("user/cs50/@lessComfortable") != lessComfortable) {
+                    menus.click("View/Less Comfortable");
+                }
+            });
+            
         }
 
         /***** Lifecycle *****/
