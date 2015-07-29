@@ -27,6 +27,7 @@ define(function(require, exports, module) {
 
         var versionBtn, hostnameBtn, cs50Btn;   // UI button elements
 
+        var RUN_MESSAGE = "Please run <tt>update50</tt>!"; // update50 message
         var DEFAULT_REFRESH = 30;   // default refresh rate
         var delay;                  // current refresh rate
         var fetching;               // are we fetching data
@@ -204,12 +205,11 @@ define(function(require, exports, module) {
                 }
                 else if (err.code == "ENOENT") {
                     // command not found
-                    long = "Please run <tt>update50</tt>!";
+                    long = RUN_MESSAGE;
                 }
                 else {
                     long = "Unknown error from workspace: <em>" + err.message +
-                           " (" + err.code + ")</em><br /><br />"+
-                           "Please run <tt>update50</tt>!";
+                           " (" + err.code + ")</em><br /><br />"+ RUN_MESSAGE;
                 }
 
                 // notify user through button text
@@ -275,6 +275,20 @@ define(function(require, exports, module) {
                 html.stats.style.display = "block";
 
                 html.version.innerHTML = stats.version;
+                
+                // Add MySQL username and password field
+                if (stats.hasOwnProperty("user")) {
+                    html.user.innerHTML = stats.user;
+                }
+                else {
+                    html.user.innerHTML = RUN_MESSAGE;
+                }
+                if (stats.hasOwnProperty("passwd")) {
+                    html.passwd.innerHTML = stats.passwd;
+                }
+                else {
+                    html.passwd.innerHTML = RUN_MESSAGE;
+                }
 
                 if (stats.listening) {
                     // display running server & provide a link to host
@@ -319,6 +333,8 @@ define(function(require, exports, module) {
                 '<tr><td>IDE Version</td><td id="version">...</td></tr>' +
                 '<tr><td>Server Running</td><td id="server">...</td></tr>' +
                 '<tr><td>Hostname</td><td id="hostname">...</td></tr>' +
+                '<tr><td>MySQL User</td><td id="user">...</td></tr>' +
+                '<tr><td>MySQL Password</td><td id="passwd">...</td></tr>' +
                 '</table>';
 
             // Sets background on initial draw to prevent unecessary flicker
@@ -330,7 +346,7 @@ define(function(require, exports, module) {
             }
 
             // find & connect to all of the following in the dialog's DOM
-            var els = ["version", "server", "hostname", "info", "stats"];
+            var els = ["version", "server", "hostname", "info", "stats", "user", "passwd"];
             html = {};
             for (var i = 0, j = els.length; i < j; i++)
                 html[els[i]] = e.html.querySelector("#" + els[i]);
