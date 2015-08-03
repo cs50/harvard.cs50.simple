@@ -1,7 +1,7 @@
 {
   "name": "c9.ide.simple",
   "description": "Renders code in the CS50 IDE to PDF, and then zips the files and PDF.",
-  "version": "0.0.1",
+  "version": "1.1",
   "author": "CS50",
   "contributors": [
     {

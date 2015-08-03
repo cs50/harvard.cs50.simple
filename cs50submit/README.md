@@ -9,9 +9,12 @@ and then then proceeds to create a zip of all the files and the PDF.
 -----------------
 * Create a Cloud9 workspace
 * Clone this plugin into ~/.c9/plugins/
+* Install CS50 Render in the workspace
 * Run your workspace with: http://ide.c9.io/user/workspace?sdk=1&debug=2
 ** More info here: [http://cloud9-sdk.readme.io/v0.1/docs/running-the-sdk] ("http://cloud9-sdk.readme.io/v0.1/docs/running-the-sdk").
 
 ## Usage
 -----------------
-Click the button at the top of the ui, select files, and render.
+When CS50 Render and the plugin have been successfully installed, you can navigate to the plugin by going to File -> CS50 Render. 
+Clicking this opens a GUI which enables you to check off the files and directories you want to render, and then by you need only 
+press the render button to get a zip of all the files and the rendered PDF.

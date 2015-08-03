@@ -21,6 +21,7 @@ define(function(require, exports, module) {
         var plugin = new Dialog("CS50", main.consumes, {
             name: "CS50 Stats",
             allowClose: true,
+            textselect: true,
             title: "CS50 IDE Workspace Stats",
             modal: true
         });
@@ -245,7 +246,7 @@ define(function(require, exports, module) {
         /*
          * Update the Dialog text based on latest stats info
          */
-        function updateDialog(e) {
+        function updateDialog() {
             // confirm dialog elements have been created
             if (html == null) return;
 
@@ -355,7 +356,7 @@ define(function(require, exports, module) {
             for (var i = 0, j = els.length; i < j; i++)
                 html[els[i]] = e.html.querySelector("#" + els[i]);
 
-            updateDialog(e);
+            updateDialog();
         });
 
         /*
