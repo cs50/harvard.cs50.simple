@@ -35,7 +35,6 @@
                 visible      = "true"
                 value        = "Untitled" />
             </a:hbox>
-            
             <a:hbox edge="23 0 0" pack="end" padding="8">
                   <!--class    = "btnIconOnly smallCaption"-->
                 <a:checkbox
