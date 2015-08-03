@@ -21,8 +21,13 @@ define(function(require, module, exports) {
         var plugin = new Plugin("CS50", main.consumes);
         var emit = plugin.getEmitter();
 
-        var dialog, container, btnChoose, btnCancel;
-        var tree, cbShowFiles, fileOutput;
+        var dialog; 
+        var container; 
+        var btnChoose; 
+        var btnCancel;
+        var tree; 
+        var cbShowFiles; 
+        var fileOutput;
         var globalPath = null;
         var showFiles = true;
 
@@ -33,7 +38,7 @@ define(function(require, module, exports) {
         }
 
         /**
-         * Create dialog box
+         * Redefine draw function to create dialog box
          */
         var drawn = false;
         function draw(htmlNode) {
@@ -56,7 +61,6 @@ define(function(require, module, exports) {
 
             // Insert File Tree
             tree = new Tree(container.$int);
-
             tree.renderer.setScrollMargin(10, 10);
             tree.renderer.setTheme({cssClass: "filetree"});
             tree.edit = new TreeEditor(tree);
@@ -142,7 +146,7 @@ define(function(require, module, exports) {
                             + "'></span>";
                     };
 
-                // Set checkbox controls
+                // Set checkbox controls to use space bar as a hotkey
                 tree.commands.bindKey("Space", function(e) {
                     var nodes = tree.selection.getSelectedNodes();
                     var node = tree.selection.getCursor();
@@ -163,22 +167,22 @@ define(function(require, module, exports) {
                 });
 
                 // Handles checkboxes on expansion
-                model.on("expand", function (e){
-                    if(e.isChecked && e.isChecked != -1){
-                        e.children.forEach(function(n){
+                model.on("expand", function (e) {
+                    if(e.isChecked && e.isChecked != -1) {
+                        e.children.forEach(function(n) {
                             n.isChecked = true;
                         });
                     }
                 });
 
                 // On check event updates parents and children
-                model.on("check", function (e){
+                model.on("check", function (e) {
                     updateParents(e[0], true);
                     updateChildren(e[0], true);
                 });
 
                 // On uncheck event updates parents and children
-                model.on("uncheck", function (e){
+                model.on("uncheck", function (e) {
                     updateParents(e[0], false);
                     updateChildren(e[0], false);
                 });
@@ -204,7 +208,7 @@ define(function(require, module, exports) {
             var halfCheck = false;
             
             if (node.parent != null) {
-                node.parent.children.forEach(function(n){
+                node.parent.children.forEach(function(n) {
                     halfCheck = halfCheck || n.isChecked;
                     fullCheck = (fullCheck && n.isChecked) && (n.isChecked != -1);
                 });
@@ -226,7 +230,7 @@ define(function(require, module, exports) {
          */
         function updateChildren(node, checkBool) {
             if (node.children != null) {
-                node.children.forEach(function(n){
+                node.children.forEach(function(n) {
                     n.isChecked = checkBool;
                     updateChildren(n, checkBool);
                 });
@@ -238,7 +242,7 @@ define(function(require, module, exports) {
          */
         function selectFiles(path, files) {
             var limiter = true;
-            fsCache.loadNodes(path, function (e) {
+            fsCache.loadNodes(path, function(e) {
                 if (e.node && limiter) {
                     tree.reveal(e.node);
                     limiter = false;
@@ -251,19 +255,21 @@ define(function(require, module, exports) {
         /**
          * Recursively goes through the file directory and selects all appropriate files
          */
-        function selectLoop (node, path, files){
+        function selectLoop (node, path, files) {
             if ((path == "/") && node.isChecked && (node.isChecked != -1)) {
-                node.children.forEach(function(n){
+                node.children.forEach(function(n) {
                     files.push((n.path).slice(1));
                 });
                 return files;
             }
             else if (node.children != null) {
-               node.children.forEach(function(n){
-                    if (n.isChecked && (n.isChecked != -1))
+               node.children.forEach(function(n) {
+                    if (n.isChecked && (n.isChecked != -1)) {
                         files.push((n.path).slice(1));
-                    else if (n.children != null)
+                    }
+                    else if (n.children != null) {
                         selectLoop(n, n.path, files);
+                    }
                 });
                 return files;
             }
@@ -364,7 +370,7 @@ define(function(require, module, exports) {
         /**
          * Hides checkbox dialog
          */
-        function hide(){
+        function hide() {
             dialog && dialog.hide();
         }
 
@@ -394,37 +400,50 @@ define(function(require, module, exports) {
             /**
              * The APF element that is the parent to all form elements
              */
-            get aml(){ return dialog; },
+            get aml() { 
+                return dialog; 
+            },
+            
             /**
              * Gets the tree inside the checkbox dialog
              */
-            get tree(){ return tree; },
+            get tree() {
+                return tree; 
+            },
 
             /**
              * Enables getting/setting the title of the checkbox dialog
              */
-            get title(){ },
+            get title() { 
+                return plugin.title;
+            },
             set title(value) {
                 if (drawn)
                     dialog.setAttribute("title", value);
             },
+            
             /**
              * Enables getting/setting the name of the output
              */
-            get filename(){ return fileOutput.value; },
+            get filename() { 
+                return fileOutput.value; 
+            },
             set filename(value) {
                 if (drawn)
                     fileOutput.setAttribute("value", value);
             },
+            
             _events: [
                 /**
                  * Fires when the plugin is drawn
                  */
                 "draw",
+                
                 /**
                  * Fires when the plugin is shown
                  */
                 "show",
+                
                 /**
                  * Fires when the plugin is hidden
                  */
