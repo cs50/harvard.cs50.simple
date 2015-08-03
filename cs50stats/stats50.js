@@ -245,7 +245,7 @@ define(function(require, exports, module) {
         /*
          * Update the Dialog text based on latest stats info
          */
-        function updateDialog() {
+        function updateDialog(e) {
             // confirm dialog elements have been created
             if (html == null) return;
 
@@ -327,16 +327,20 @@ define(function(require, exports, module) {
          * Place initial HTML on the first drawing of the dialog
          */
         plugin.on("draw", function(e) {
+
             e.html.innerHTML =
                 '<p id="info">...</p>' +
-                '<table id="stats"><col width="100">' +
+                '<table id="stats"><col width="110">' +
                 '<tr><td>IDE Version</td><td id="version">...</td></tr>' +
                 '<tr><td>Server Running</td><td id="server">...</td></tr>' +
                 '<tr><td>Hostname</td><td id="hostname">...</td></tr>' +
                 '<tr><td>MySQL User</td><td id="user">...</td></tr>' +
                 '<tr><td>MySQL Password</td><td id="passwd">...</td></tr>' +
                 '</table>';
-
+            
+            // Prevents column wrapping in any instance
+            e.html.style.whiteSpace = "nowrap";
+            
             // Sets background on initial draw to prevent unecessary flicker
             if (settings.get("user/general/@skin") != "flat-light") {
                e.html.style.setProperty("background-color", "#DEDEDE");
@@ -351,7 +355,7 @@ define(function(require, exports, module) {
             for (var i = 0, j = els.length; i < j; i++)
                 html[els[i]] = e.html.querySelector("#" + els[i]);
 
-            updateDialog();
+            updateDialog(e);
         });
 
         /*
@@ -359,12 +363,12 @@ define(function(require, exports, module) {
          */
         plugin.on("show", function () {
             showing = true;
-
+            
             // make sure dialog has latest info
             updateStats();
 
             // keep dialog up-to-date
-            startTimer();
+            startTimer(); 
         });
 
         /*
