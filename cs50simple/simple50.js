@@ -467,7 +467,7 @@ define(function(require, exports, module) {
             else {
                 // Toggles comfort level
                 lessComfortable = !lessComfortable;
-                settings.set("user/cs50/@lessComfortable", lessComfortable);
+                settings.set("user/cs50/simple/@lessComfortable", lessComfortable);
             }
 
             // Toggles features
@@ -517,12 +517,12 @@ define(function(require, exports, module) {
 
             // When less comfortable option is changed
             settings.on("write", function(){
-                if (settings.get("user/cs50/@lessComfortable") != lessComfortable) {
+                if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
             });
 
-            toggleSimpleMode(settings.get("user/cs50/@lessComfortable"));
+            toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
         }
 
