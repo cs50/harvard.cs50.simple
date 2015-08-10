@@ -229,9 +229,11 @@ define(function(require, exports, module) {
 
             //grey out hostnameBtn if no server running
             if(!stats.listening) {
+                hostnameBtn.setAttribute("tooltip", "Run `apache50` to start a server!");
                 hostnameBtn.setAttribute("disabled", true);
             }
             else {
+                hostnameBtn.setAttribute("tooltip", "Click to load the website served on this workspace");
                 hostnameBtn.setAttribute("disabled", false);
             }
 
