@@ -287,7 +287,7 @@ define(function(require, exports, module) {
             // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
             menus.addItemByPath("View/Div", div, 10, plugin);
-            
+
             // Add preference pane button
             prefs.add({
                "CS50" : {
@@ -349,7 +349,7 @@ define(function(require, exports, module) {
             menus.get("Cloud9/Restart Cloud9").item.setAttribute("visible", false);
             menus.get("Cloud9/Quit Cloud9").item.setAttribute("visible", false);
         }
-        
+
         /*
          * Locates user profile and assigns to global variable
          */
@@ -395,7 +395,7 @@ define(function(require, exports, module) {
             // Place in submenu
             menus.addItemToMenu(profileMenu, newLogout, 1000, plugin);
         }
-        
+
         /*
          * Creates a button to change Terminal font size
          */
@@ -459,11 +459,11 @@ define(function(require, exports, module) {
         /*
         * Toggles whether or not simple mode is enabled
         */
-        function toggleSimpleMode(unload) {
+        function toggleSimpleMode(override) {
 
             // if we're unloading, remove menu customizations but don't save
-            if (unload === true)
-                lessComfortable = false;
+            if (typeof override === "boolean")
+                lessComfortable = override;
             else {
                 // Toggles comfort level
                 lessComfortable = !lessComfortable;
@@ -499,34 +499,31 @@ define(function(require, exports, module) {
             locateProfile();
             loadMainMenuInfo(plugin);
             editProfileMenu(plugin);
-            
-            // Set asterisk no tabs to true
-            settings.set("user/tabs/@asterisk", true);
 
-            // Turn off auto-save by default
-            var ver = settings.getNumber("user/cs50/@simple");
+            var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
+                // show asterisks for unsaved documents
+                settings.set("user/tabs/@asterisk", true);
+                // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
-                settings.set("user/cs50/@simple", SETTINGS_VER);
+                settings.set("user/cs50/simple/@ver", SETTINGS_VER);
             }
-            
-            // Set default values
+
             settings.on("read", function(){
-                
-                // If not already stored
-                if (settings.get("user/cs50/@lessComfortable") != false) {
-                    settings.set("user/cs50/lessComfortable", true);
-                    menus.click("View/Less Comfortable");
-                }
+                settings.setDefaults("user/cs50/simple", [
+                    ["lessComfortable", true]
+                ]);
             });
-            
-            // When less comfortable option is changed 
+
+            // When less comfortable option is changed
             settings.on("write", function(){
                 if (settings.get("user/cs50/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
             });
-            
+
+            toggleSimpleMode(settings.get("user/cs50/@lessComfortable"));
+
         }
 
         /***** Lifecycle *****/
@@ -536,7 +533,7 @@ define(function(require, exports, module) {
         });
 
         plugin.on("unload", function() {
-            toggleSimpleMode(true);
+            toggleSimpleMode(false);
             loaded = false;
             lessComfortable = false;
             profileMenu = null;

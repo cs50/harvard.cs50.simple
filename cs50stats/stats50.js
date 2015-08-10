@@ -126,7 +126,7 @@ define(function(require, exports, module) {
             hostnameBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
-                "tooltip" : "CS50 IDE Workspace Hostname",
+                "tooltip" : "CS50 IDE Workspace Host",
                 "command" : "openDomain",
                 "visible" : true
             });
@@ -276,7 +276,7 @@ define(function(require, exports, module) {
                 html.stats.style.display = "block";
 
                 html.version.innerHTML = stats.version;
-                
+
                 // Add MySQL username and password field
                 if (stats.hasOwnProperty("user")) {
                     html.user.innerHTML = stats.user;
@@ -332,16 +332,16 @@ define(function(require, exports, module) {
             e.html.innerHTML =
                 '<p id="info">...</p>' +
                 '<table id="stats"><col width="110">' +
-                '<tr><td>IDE Version</td><td id="version">...</td></tr>' +
-                '<tr><td>Server Running</td><td id="server">...</td></tr>' +
-                '<tr><td>Hostname</td><td id="hostname">...</td></tr>' +
-                '<tr><td>MySQL User</td><td id="user">...</td></tr>' +
-                '<tr><td>MySQL Password</td><td id="passwd">...</td></tr>' +
+                '<tr><td><strong>IDE Version</strong></td><td id="version">...</td></tr>' +
+                '<tr><td><strong>Server Running</strong></td><td id="server">...</td></tr>' +
+                '<tr><td><strong>Host</strong></td><td id="hostname">...</td></tr>' +
+                '<tr><td><strong>MySQL Username</strong></td><td id="user">...</td></tr>' +
+                '<tr><td><strong>MySQL Password</strong></td><td id="passwd">...</td></tr>' +
                 '</table>';
-            
+
             // Prevents column wrapping in any instance
             e.html.style.whiteSpace = "nowrap";
-            
+
             // Sets background on initial draw to prevent unecessary flicker
             if (settings.get("user/general/@skin") != "flat-light") {
                e.html.style.setProperty("background-color", "#DEDEDE");
@@ -364,12 +364,12 @@ define(function(require, exports, module) {
          */
         plugin.on("show", function () {
             showing = true;
-            
+
             // make sure dialog has latest info
             updateStats();
 
             // keep dialog up-to-date
-            startTimer(); 
+            startTimer();
         });
 
         /*
