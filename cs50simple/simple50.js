@@ -34,7 +34,7 @@ define(function(require, exports, module) {
 
         var SETTINGS_VER = 2;
 
-        var lessComfortable = false;
+        var lessComfortable = true;
         var profileMenu = null;
         var complexMenus = findComplexMenus();
 
