@@ -34,6 +34,9 @@ define(function(require, exports, module) {
 
         var SETTINGS_VER = 2;
 
+        // the title to set Terminal tabs
+        var TERMINAL_TITLE = "Terminal";
+
         var lessComfortable = true;
         var profileMenu = null;
         var complexMenus = findComplexMenus();
@@ -483,6 +486,38 @@ define(function(require, exports, module) {
 
         }
 
+        /*
+         * Disable Tmux title update and force Terminal tabs to one title
+         */
+        function disableTmuxTitle(tab) {
+            if (tab && tab.editorType == "terminal") {
+                var terminal = tab.document.getSession().terminal;
+                if (terminal)
+                    terminal.removeAllListeners("title"); // disable updating title
+                tab.document.title = TERMINAL_TITLE;
+                tab.document.on("setTitle", function(e) {
+                    if (e.title != TERMINAL_TITLE)
+                        tab.document.title = TERMINAL_TITLE;
+                }, plugin);
+            }
+        }
+
+        /*
+         * Ensure that existing and new Terminal tabs follow our name convention
+         */
+        function setTerminalTitles() {
+            // existing tabs
+            tabManager.getTabs().forEach(function(tab) {
+                disableTmuxTitle(tab);
+            });
+
+            // future tabs
+            tabManager.on("open", function wait(e) {
+                disableTmuxTitle(e.tab);
+            }, plugin);
+        }
+
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -499,6 +534,7 @@ define(function(require, exports, module) {
             locateProfile();
             loadMainMenuInfo(plugin);
             editProfileMenu(plugin);
+            setTerminalTitles();
 
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
