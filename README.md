@@ -6,7 +6,7 @@
 
 More information here: http://cloud9-sdk.readme.io/v0.1/docs/running-the-sdk
 
-## 
+##
 
 ## Publishing
 
@@ -16,8 +16,8 @@ IDE users and Offline.
 ### Online
 
 1. Zip up the plugins you want updated into a file called `ide50-plugins`:
-    zip -r ide50-plugins cs50stats
-    zip -r ide50-plugins cs50simple
+    zip -r ide50-plugins c9.ide.cs50.simple
+    zip -r ide50-plugins c9.ide.cs50.stats
 
 1. Email that bundle to Nikolai Onken, nikolai@c9.io
 
@@ -26,5 +26,5 @@ IDE users and Offline.
 1. Make sure the changes for each plugin are committed to this repo's master
    branch.
 
-1. [Build and release a new ide50 deb](https://github.com/cs50/ide50), the 
+1. [Build and release a new ide50 deb](https://github.com/cs50/ide50), the
    process incorporates the latest revisions of each plugin in the deb.
