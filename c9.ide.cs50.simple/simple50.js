@@ -520,7 +520,6 @@ define(function(require, exports, module) {
             // set terminal titles and document title based on existing tabs
             tabManager.getTabs().forEach(function(tab) {
                 disableTmuxTitle(tab);
-                updateTitle(tab);
             });
 
             // future tabs
@@ -528,7 +527,10 @@ define(function(require, exports, module) {
                 disableTmuxTitle(e.tab);
             }, plugin);
 
-            // udpate document title
+            // udpate document title once
+            updateTitle(tabManager.focussedTab);
+
+            // update document title when tabs change
             tabManager.on("focusSync", function(e){ updateTitle(e.tab); });
             tabManager.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
             settings.on("user/tabs", function(){ updateTitle(tabManager.focussedTab); });
