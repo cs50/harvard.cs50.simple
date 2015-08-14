@@ -10,13 +10,14 @@ define(function(require, exports, module) {
         "Plugin", "ace", "ace.status", "auth", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui"
+        "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
     ];
     main.provides = ["cs50.simple"];
     return main;
 
     function main(options, imports, register) {
         var Plugin = imports.Plugin;
+        var c9 = imports.c9;
         var ui = imports.ui;
         var menus = imports.menus;
         var layout = imports.layout;
@@ -504,20 +505,34 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Ensure that existing and new Terminal tabs follow our name convention
+         * Set the HTML page title based on a tab's title
          */
-        function setTerminalTitles() {
-            // existing tabs
+        function updateTitle(tab) {
+            document.title = tab && settings.getBool("user/tabs/@title") && tab.title
+                ? tab.title + " - CS50 IDE"
+                : c9.projectName + " - CS50 IDE";
+        }
+
+        /*
+         * Set all Terminal tab titles and HTML document title based on tab
+         */
+        function setTitlesFromTabs() {
+            // set terminal titles and document title based on existing tabs
             tabManager.getTabs().forEach(function(tab) {
                 disableTmuxTitle(tab);
+                updateTitle(tab);
             });
 
             // future tabs
             tabManager.on("open", function wait(e) {
                 disableTmuxTitle(e.tab);
             }, plugin);
-        }
 
+            // udpate document title
+            tabManager.on("focusSync", function(e){ updateTitle(e.tab); });
+            tabManager.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
+            settings.on("user/tabs", function(){ updateTitle(tabManager.focussedTab); });
+        }
 
         /***** Initialization *****/
 
@@ -535,7 +550,7 @@ define(function(require, exports, module) {
             locateProfile();
             loadMainMenuInfo(plugin);
             editProfileMenu(plugin);
-            setTerminalTitles();
+            setTitlesFromTabs();
 
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
