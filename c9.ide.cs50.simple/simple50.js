@@ -383,6 +383,7 @@ define(function(require, exports, module) {
          * Change logout to take back to dashboard rather than sign in
          */
         function editProfileMenu(plugin) {
+            if (profileMenu === null) return;
 
             // Hide old log out
             profileMenu.lastChild.setAttribute("visible", false);
