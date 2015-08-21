@@ -298,9 +298,9 @@ define(function(require, exports, module) {
                     position: 5,
                     "Less Comfortable" : {
                         position: 10,
-                        "Toggle less comfortable mode" : {
+                        "Less Comfortable mode" : {
                             type: "checkbox",
-                            setting: "user/cs50/@lessComfortable",
+                            setting: "user/cs50/simple/@lessComfortable",
                             min: 1,
                             max: 200,
                             position: 190
