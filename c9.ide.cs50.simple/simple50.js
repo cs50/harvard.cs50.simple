@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 2;
+        var SETTINGS_VER = 3;
 
         // the title to set Terminal tabs
         var TERMINAL_TITLE = "Terminal";
@@ -554,12 +554,21 @@ define(function(require, exports, module) {
             editProfileMenu(plugin);
             setTitlesFromTabs();
 
+            // variables.model.columns[0].caption = "Ohai";
+            console.log(layout.findParent({ name: "panelsbar" }));
+            layout.findParent({ name: "debugcontainer" }).childNodes[0].childNodes[2].childNodes[0].childNodes[1].innerHTML="ohaiiii";
+
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
                 settings.set("user/tabs/@asterisk", true);
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
+
+                // disable autocomplete (temporarily?)
+                settings.set("user/language/@continuousCompletion", false);
+                settings.set("user/language/@enterCompletion", false);
+
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
             }
 
