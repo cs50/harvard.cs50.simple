@@ -554,10 +554,6 @@ define(function(require, exports, module) {
             editProfileMenu(plugin);
             setTitlesFromTabs();
 
-            // variables.model.columns[0].caption = "Ohai";
-            console.log(layout.findParent({ name: "panelsbar" }));
-            layout.findParent({ name: "debugcontainer" }).childNodes[0].childNodes[2].childNodes[0].childNodes[1].innerHTML="ohaiiii";
-
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
