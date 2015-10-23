@@ -187,13 +187,14 @@ define(function(require, exports, module) {
             fetching = true;
 
             // notify the instance of the domain the IDE is loaded on
-            var hostname = window.location.hostname;
+            var domain = window.location.hostname;
 
             // we only want the domain; e.g., "cs50.io" from "ide.cs50.io"
-            if (hostname.substring(0, 3) == "ide")
-                hostname = hostname.substring(4);
+            if (domain.substring(0, 3) == "ide")
+                domain = domain.substring(4);
 
-            proc.execFile("stats50", hostname, {
+            proc.execFile("stats50", {
+                args: [domain],
                 cwd: "/home/ubuntu/workspace"
             }, parseStats);
         }
