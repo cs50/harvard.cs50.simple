@@ -223,6 +223,7 @@ define(function(require, exports, module) {
 
                 // notify user through button text
                 hostnameBtn.setCaption("Run update50!");
+                hostnameBtn.setAttribute("disabled", true);
                 versionBtn.setCaption("");
                 cs50Btn.setCaption("Run update50!");
 
@@ -235,17 +236,9 @@ define(function(require, exports, module) {
             // parse the JSON returned by stats50 output
             stats = JSON.parse(stdout);
 
-            //grey out hostnameBtn if no server running
-            if(!stats.listening) {
-                hostnameBtn.setAttribute("tooltip", "Run `apache50` to start a server!");
-                hostnameBtn.setAttribute("disabled", true);
-            }
-            else {
-                hostnameBtn.setAttribute("tooltip", "Click to load the website served on this workspace");
-                hostnameBtn.setAttribute("disabled", false);
-            }
-
             // update UI
+            hostnameBtn.setAttribute("tooltip", "Click to load the website served by this workspace");
+            hostnameBtn.setAttribute("disabled", false);
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
             cs50Btn.$ext.innerHTML = "&#9432;";
@@ -302,16 +295,18 @@ define(function(require, exports, module) {
                 }
 
                 if (stats.listening) {
-                    // display running server & provide a link to host
                     html.server.innerHTML = "Yes (" + stats.server + ")";
-                    html.hostname.innerHTML = '<a href="//'+ stats.host +
-                        '" target="_blank">' + stats.host + '</a>';
                 }
                 else {
-                    // still show host, but no link, since no running server
                     html.server.innerHTML = "No";
-                    html.hostname.innerHTML = stats.host;
                 }
+
+                html.hostname.innerHTML = '<a href="//'+ stats.host +
+                    '" target="_blank">' + stats.host + '</a>';
+
+                var pma = stats.host + '/phpmyadmin';
+                html.phpmyadmin.innerHTML = '<a href="//' + pma +
+                    '" target="_blank">' + pma + '</a>';
             }
         }
 
@@ -347,6 +342,7 @@ define(function(require, exports, module) {
                 '<tr><td><strong>Host</strong></td><td id="hostname">...</td></tr>' +
                 '<tr><td><strong>MySQL Username</strong></td><td id="user">...</td></tr>' +
                 '<tr><td><strong>MySQL Password</strong></td><td id="passwd">...</td></tr>' +
+                '<tr><td><strong>phpMyAdmin</strong></td><td id="phpmyadmin">...</td></tr>' +
                 '</table>';
 
             // Prevents column wrapping in any instance
@@ -361,7 +357,8 @@ define(function(require, exports, module) {
             }
 
             // find & connect to all of the following in the dialog's DOM
-            var els = ["version", "server", "hostname", "info", "stats", "user", "passwd"];
+            var els = ["version", "server", "hostname", "phpmyadmin", "info",
+                       "stats", "user", "passwd"];
             html = {};
             for (var i = 0, j = els.length; i < j; i++)
                 html[els[i]] = e.html.querySelector("#" + els[i]);
