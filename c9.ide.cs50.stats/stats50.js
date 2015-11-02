@@ -295,13 +295,13 @@ define(function(require, exports, module) {
                 }
 
                 html.hostname.innerHTML = '<a href="//'+ stats.host +
-                    '" target="_blank">' + location.protocol + "//" +
-                    stats.host + '</a>';
+                    '/" target="_blank">' + location.protocol + "//" +
+                    stats.host + '/</a>';
 
                 var pma = stats.host + '/phpmyadmin';
                 html.phpmyadmin.innerHTML = '<a href="//' + pma +
-                    '" target="_blank">' + location.protocol + "//" + pma +
-                    '</a>';
+                    '/" target="_blank">' + location.protocol + "//" + pma +
+                    '/</a>';
             }
         }
 
