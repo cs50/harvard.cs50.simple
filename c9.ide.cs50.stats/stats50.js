@@ -22,7 +22,7 @@ define(function(require, exports, module) {
             name: "CS50 Stats",
             allowClose: true,
             textselect: true,
-            title: "CS50 IDE Workspace Stats",
+            title: "CS50 IDE Workspace Info",
             modal: true
         });
 
@@ -90,7 +90,7 @@ define(function(require, exports, module) {
 
             // add a menu item to show the dialog
             menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
-            menus.addItemByPath("Window/CS50 Workspace Stats...", new ui.item({
+            menus.addItemByPath("Window/CS50 Workspace Info...", new ui.item({
                 command: "cs50statsDialog"
             }), 34, plugin);
 
@@ -98,7 +98,7 @@ define(function(require, exports, module) {
             cs50Btn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
-                "tooltip" : "CS50 IDE Workspace Stats",
+                "tooltip" : "CS50 IDE Workspace Info",
                 "command" : "cs50statsDialog",
                 "visible" : true
             });
@@ -294,13 +294,6 @@ define(function(require, exports, module) {
                     html.passwd.innerHTML = RUN_MESSAGE;
                 }
 
-                if (stats.listening) {
-                    html.server.innerHTML = "Yes (" + stats.server + ")";
-                }
-                else {
-                    html.server.innerHTML = "No";
-                }
-
                 html.hostname.innerHTML = '<a href="//'+ stats.host +
                     '" target="_blank">' + stats.host + '</a>';
 
@@ -337,12 +330,11 @@ define(function(require, exports, module) {
             e.html.innerHTML =
                 '<p id="info">...</p>' +
                 '<table id="stats"><col width="110">' +
-                '<tr><td><strong>IDE Version</strong></td><td id="version">...</td></tr>' +
-                '<tr><td><strong>Server Running</strong></td><td id="server">...</td></tr>' +
-                '<tr><td><strong>Host</strong></td><td id="hostname">...</td></tr>' +
+                '<tr><td><strong>Version</strong></td><td id="version">...</td></tr>' +
+                '<tr><td><strong>Web Server</strong></td><td id="hostname">...</td></tr>' +
+                '<tr><td><strong>phpMyAdmin</strong></td><td id="phpmyadmin">...</td></tr>' +
                 '<tr><td><strong>MySQL Username</strong></td><td id="user">...</td></tr>' +
                 '<tr><td><strong>MySQL Password</strong></td><td id="passwd">...</td></tr>' +
-                '<tr><td><strong>phpMyAdmin</strong></td><td id="phpmyadmin">...</td></tr>' +
                 '</table>';
 
             // Prevents column wrapping in any instance
@@ -357,7 +349,7 @@ define(function(require, exports, module) {
             }
 
             // find & connect to all of the following in the dialog's DOM
-            var els = ["version", "server", "hostname", "phpmyadmin", "info",
+            var els = ["version", "hostname", "phpmyadmin", "info",
                        "stats", "user", "passwd"];
             html = {};
             for (var i = 0, j = els.length; i < j; i++)
