@@ -22,7 +22,7 @@ define(function(require, exports, module) {
             name: "CS50 Stats",
             allowClose: true,
             textselect: true,
-            title: "CS50 IDE Workspace Info",
+            title: "CS50 IDE Info",
             modal: true
         });
 
@@ -75,7 +75,7 @@ define(function(require, exports, module) {
             // notify UI of the function to run to open the dialog
             commands.addCommand({
                 name: "cs50statsDialog",
-                hint: "CS50 IDE Workspace Stats",
+                hint: "CS50 IDE Info Window",
                 group: "General",
                 exec: toggle
             }, plugin);
@@ -83,14 +83,14 @@ define(function(require, exports, module) {
             // notify UI of the function to open the host in a new tab
             commands.addCommand({
                 name: "openDomain",
-                hint: "CS50 IDE Workspace Host",
+                hint: "CS50 IDE Host",
                 group: "General",
                 exec: loadHost
             }, plugin);
 
             // add a menu item to show the dialog
             menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
-            menus.addItemByPath("Window/CS50 Workspace Info...", new ui.item({
+            menus.addItemByPath("Window/CS50 IDE Info...", new ui.item({
                 command: "cs50statsDialog"
             }), 34, plugin);
 
@@ -98,7 +98,7 @@ define(function(require, exports, module) {
             cs50Btn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
-                "tooltip" : "CS50 IDE Workspace Info",
+                "tooltip" : "CS50 IDE Info",
                 "command" : "cs50statsDialog",
                 "visible" : true
             });
@@ -112,7 +112,7 @@ define(function(require, exports, module) {
             versionBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
-                "tooltip" : "CS50 IDE Workspace Version",
+                "tooltip" : "CS50 IDE Version",
                 "command" : "cs50statsDialog",
                 "visible" : true
             });
@@ -126,7 +126,7 @@ define(function(require, exports, module) {
             hostnameBtn = new ui.button({
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
-                "tooltip" : "CS50 IDE Workspace Host",
+                "tooltip" : "CS50 IDE Host",
                 "command" : "openDomain",
                 "visible" : true
             });
@@ -140,7 +140,7 @@ define(function(require, exports, module) {
             prefs.add({
                "CS50" : {
                     position: 5,
-                    "Workspace Stats" : {
+                    "IDE Information" : {
                         position: 10,
                         "Information refresh rate (in seconds)" : {
                             type: "spinner",
@@ -295,11 +295,13 @@ define(function(require, exports, module) {
                 }
 
                 html.hostname.innerHTML = '<a href="//'+ stats.host +
-                    '" target="_blank">' + location.protocol + stats.host + '</a>';
+                    '" target="_blank">' + location.protocol + "//" +
+                    stats.host + '</a>';
 
                 var pma = stats.host + '/phpmyadmin';
                 html.phpmyadmin.innerHTML = '<a href="//' + pma +
-                    '" target="_blank">' + location.protocol + pma + '</a>';
+                    '" target="_blank">' + location.protocol + "//" + pma +
+                    '</a>';
             }
         }
 
