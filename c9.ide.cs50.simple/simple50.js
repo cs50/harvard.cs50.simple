@@ -149,6 +149,22 @@ define(function(require, exports, module) {
             complexMenus.push(menus.get("Window/Installer..."));
             complexMenus.push(menus.get("Window/Navigate"));
             complexMenus.push(menus.get("Window/Commands"));
+            
+            // extraneous templates
+            complexMenus.push(menus.get("File/New From Template/Text file"));
+            complexMenus.push(menus.get("File/New From Template/CoffeeScript file"));
+            complexMenus.push(menus.get("File/New From Template/XML file"));
+            complexMenus.push(menus.get("File/New From Template/XQuery file"));
+            complexMenus.push(menus.get("File/New From Template/SCSS file"));
+            complexMenus.push(menus.get("File/New From Template/LESS file"));
+            complexMenus.push(menus.get("File/New From Template/SVG file"));
+            complexMenus.push(menus.get("File/New From Template/Python file"));
+            complexMenus.push(menus.get("File/New From Template/Ruby file"));
+            complexMenus.push(menus.get("File/New From Template/Ocaml file"));
+            complexMenus.push(menus.get("File/New From Template/Clojure file"));
+            complexMenus.push(menus.get("File/New From Template/Markdown"));
+            complexMenus.push(menus.get("File/New From Template/Express file"));
+            complexMenus.push(menus.get("File/New From Template/Node.js web server file"));
 
             return complexMenus;
         }
@@ -564,11 +580,11 @@ define(function(require, exports, module) {
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
-
-                settings.set("user/cs50/simple/@ver", SETTINGS_VER);
                 
                 // disable detection of unmarked variables (jterm 2015)
                 settings.set("project/language/@undeclaredVars",false);
+
+                settings.set("user/cs50/simple/@ver", SETTINGS_VER);
             }
 
             settings.on("read", function(){
