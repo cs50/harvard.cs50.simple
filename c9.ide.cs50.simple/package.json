@@ -1,0 +1,36 @@
+{
+  "name": "cs50.simple",
+  "description": "CS50IDE Menu simplification for those less comfortable",
+  "version": "2.5.2",
+  "author": "CS50",
+  "contributors": [
+    {
+      "name": "Nicholas Joseph"
+    },
+    {
+      "name": "Dan Bradley",
+      "email": "dbradley@cs50.net"
+    },
+    {
+      "name": "Dan Armendariz",
+      "email": "danallan@cs.harvard.edu"
+    },
+    {
+      "name": "Dino Rodriguez",
+      "email": "dinorodriguez@college.harvard.edu"
+    }
+    {
+      "name": "Annaleah Ernst",
+      "email": "annaleahernst@college.harvard.edu"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/cs50/ide50-plugin.git"
+  },
+  "plugins": {
+    "simple50": {}
+  },
+  "categories": ["miscellaneous"],
+  "licenses": []
+}
