@@ -333,7 +333,7 @@ define(function(require, exports, module) {
 
             // Shows CS50 IDE readme
             tabManager.open({
-            value      : "https://www.xkcd.com",
+            value      : "https://cs50.readme.io/",
             editorType : "urlview",
             active     : true,
             document   : {title : "CS50 Readme"},
