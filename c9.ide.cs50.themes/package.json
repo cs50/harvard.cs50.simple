@@ -1,0 +1,21 @@
+{
+  "name": "cs50.themes",
+  "description": "Provides a toggle night/day theme button",
+  "version": "0.0.1",
+  "author": "CS50",
+  "contributors": [
+    {
+      "name": "Victor Domene",
+      "email": "victordomene@college.harvard.edu"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "plugins": {
+    "themes": {}
+  },
+  "categories": ["miscellaneous"],
+  "licenses": []
+}

@@ -1,0 +1,1 @@
+Plugin that adds Night/Day Toggle Button to Preview bar
