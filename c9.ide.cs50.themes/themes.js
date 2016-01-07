@@ -11,6 +11,9 @@ define(function(require, exports, module) {
         var layout = imports.layout;
         var ace = imports.ace;
 
+        var night = "https://raw.githubusercontent.com/victordomene/ide50-plugin/toggle-themes/c9.ide.cs50.themes/images/night.png?token=AK1JR196D-0am6rfbpZkNnK3baji5R1Mks5Wl92owA%3D%3D";
+        var day = "https://raw.githubusercontent.com/victordomene/ide50-plugin/toggle-themes/c9.ide.cs50.themes/images/day.png?token=AK1JRwPiAFt9Y3x4oN1QfMXIMf4deWXLks5Wl92BwA%3D%3D";
+
         /***** Initialization *****/
     
         var plugin = new Plugin("CS50", main.consumes);
@@ -67,9 +70,9 @@ define(function(require, exports, module) {
             current = settings.get("user/general/@skin");
             
             if (current == "flat-dark" || current == "dark")
-                img = "background-image: url(https://www.dropbox.com/s/yj62nb8ui25u340/day.png?raw=1)";
+                img = "background-image: url(" + day + ")";
             else
-                img = "background-image: url(https://www.dropbox.com/s/71g1adoxa9q6deg/night.png?raw=1);";
+                img = "background-image: url(" + night + ")";
                 
             var toggle_button = plugin.getElement("toggle_button", function(btn) {
                btn.setAttribute("style", "background-size: contain; width: 40px;" + img); 
