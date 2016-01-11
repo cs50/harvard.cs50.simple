@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 4;
+        var SETTINGS_VER = 5;
 
         // the title to set Terminal tabs
         var TERMINAL_TITLE = "Terminal";
