@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 5;
+        var SETTINGS_VER = 4;
 
         // the title to set Terminal tabs
         var TERMINAL_TITLE = "Terminal";
@@ -580,9 +580,6 @@ define(function(require, exports, module) {
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
-                
-                // disable detection of unmarked variables (jterm 2015)
-                settings.set("project/language/@undeclaredVars",false);
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
             }
