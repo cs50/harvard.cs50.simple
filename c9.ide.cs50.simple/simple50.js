@@ -10,7 +10,7 @@ define(function(require, exports, module) {
         "Plugin", "ace", "ace.status", "auth", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
+        "tabManager", "terminal", "tooltip", "tree", "ui", "c9", "tabManager"
     ];
     main.provides = ["cs50.simple"];
     return main;
@@ -30,6 +30,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var auth = imports.auth;
         var prefs = imports.preferences;
+        var tabManager= imports.tabManager;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -61,6 +62,16 @@ define(function(require, exports, module) {
 
             return false;
         }
+        
+        // stop marking undeclared variables for javascript files
+        tabManager.on('focus', function(e) {
+            if (e.tab.path != undefined && e.tab.path.slice(-3) == ".js") {
+                settings.set("project/language/@undeclaredVars",false);
+            }
+            else {
+                settings.set("project/language/@undeclaredVars",true);
+            }
+        });
 
         /*
          * Hides the given div by changing CSS
