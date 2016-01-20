@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "settings", "proc", "preferences", "collab.workspace", "info"
+        "settings", "proc", "preferences", "collab.workspace"
     ];
     main.provides = ["cs50.info"];
     return main;
@@ -16,7 +16,6 @@ define(function(require, exports, module) {
         var settings = imports.settings;
         var prefs = imports.preferences;
         var workspace = imports["collab.workspace"];
-        var info = imports["info"];
 
         /***** Initialization *****/
 
@@ -197,7 +196,7 @@ define(function(require, exports, module) {
             fetching = true;
 
             // hash that uniquely determines this client
-            var myID = info.getUser().id;
+            var myID = workspace.myUserId;
             var myClientID = workspace.myClientId;
             var hash = myID + '-' + myClientID;
 
@@ -443,7 +442,7 @@ define(function(require, exports, module) {
             /**
              * @property showing hostname50
              */
-            get host() { return (stats && stats.hasOwnProperty("host")) ? stats.host : null; }
+            get host() { return (stats && stats.hasOwnProperty("host")) ? stats.host : null; },
 
             /**
              * @property showing whether info50 has run at least once
