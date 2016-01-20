@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "http://github.com/cs50/ide50-plugin.git"
   },
   "plugins": {
     "themes": {}

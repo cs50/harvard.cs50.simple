@@ -1,5 +1,8 @@
 define(function(require, exports, module) {
-    main.consumes = ["Plugin", "settings", "commands", "ui", "layout", "ace"];
+    main.consumes = [
+        "Plugin", "settings", "commands", "ui", "layout"
+    ];
+    
     main.provides = ["cs50.themes"];
     return main;
 
@@ -9,47 +12,57 @@ define(function(require, exports, module) {
         var commands = imports.commands;
         var ui = imports.ui;
         var layout = imports.layout;
-        var ace = imports.ace;
-
-        var night = "https://raw.githubusercontent.com/victordomene/ide50-plugin/toggle-themes/c9.ide.cs50.themes/images/night.png?token=AK1JR196D-0am6rfbpZkNnK3baji5R1Mks5Wl92owA%3D%3D";
-        var day = "https://raw.githubusercontent.com/victordomene/ide50-plugin/toggle-themes/c9.ide.cs50.themes/images/day.png?token=AK1JRwPiAFt9Y3x4oN1QfMXIMf4deWXLks5Wl92BwA%3D%3D";
 
         /***** Initialization *****/
     
         var plugin = new Plugin("CS50", main.consumes);
+        var toggleButton = null;
 
         function load() {
-            settings.on("write", function(e) {
-                style_button();
-            }, plugin);
+            // includes style.css (night/day toggle classes)
+            ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
             
+            // change button when there is a change of theme
+            settings.on("write", function(e) {
+                styleButton();
+            }, plugin);
+        
+            // add the command for the toggle button
             commands.addCommand({
                 name: "cs50toggleThemes",
                 hint: "CS50 Toggle Theme",
                 group: "General",
-                exec: toggle_theme
+                exec: toggleTheme
             }, plugin);
                 
-            var toggle_button = new ui.button({
+            // create the button
+            toggleButton = new ui.button({
                 "skin"      : "c9-menu-btn",
-                "id"        : "toggle_button",
-                "localName" : "toggle_button",
+                "id"        : "toggleButton",
+                "localName" : "toggleButton",
                 "caption"   : "",
                 "tooltip"   : "CS50 Toggle Theme",
                 "command"   : "cs50toggleThemes",
                 "visible"   : true
             });
+
+            // style the button, of course!
+            styleButton();
             
-            style_button();
-            
+            // finally insert it in the preview bar
             ui.insertByIndex(layout.findParent({
                 name: "preview"
-            }), toggle_button, 800, plugin);
+            }), toggleButton, 800, plugin);
         }
         
         /***** Methods *****/
         
-        function toggle_theme() {
+        /*
+         * Switches skin/theme accordingly
+         * By default, if dark skin, change to light skin with cloud9_day theme (vice-versa)
+         */ 
+
+        function toggleTheme() {
             var current = settings.get("user/general/@skin");
             var theme, skin;
             
@@ -65,18 +78,19 @@ define(function(require, exports, module) {
             settings.set("user/general/@skin", skin);
         }
         
-        function style_button() {
-            var img, current;
+        /*
+         * Styles the toggle button according to skin type
+         */
+        function styleButton() {
+            var btnClass, current;
             current = settings.get("user/general/@skin");
             
             if (current == "flat-dark" || current == "dark")
-                img = "background-image: url(" + day + ")";
+                btnClass = "day-toggle";
             else
-                img = "background-image: url(" + night + ")";
-                
-            var toggle_button = plugin.getElement("toggle_button", function(btn) {
-               btn.setAttribute("style", "background-size: contain; width: 40px;" + img); 
-            });
+                btnClass = "night-toggle";
+            
+            toggleButton.setAttribute("class", btnClass);
         }
         
         /***** Lifecycle *****/
@@ -86,11 +100,12 @@ define(function(require, exports, module) {
         });
         
         plugin.on("unload", function() {
-        
+            toggleButton = null;
         });
         
         /***** Register and define API *****/
         
+        // api is just show and hide anyway
         plugin.freezePublicAPI({
              _events: [
                 /**
