@@ -1,9 +1,9 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "settings", "proc", "preferences"
+        "settings", "proc", "preferences", "collab.workspace"
     ];
-    main.provides = ["cs50.stats"];
+    main.provides = ["cs50.info"];
     return main;
 
     function main(options, imports, register) {
@@ -15,6 +15,7 @@ define(function(require, exports, module) {
         var proc = imports.proc;
         var settings = imports.settings;
         var prefs = imports.preferences;
+        var workspace = imports["collab.workspace"];
 
         /***** Initialization *****/
 
@@ -36,14 +37,22 @@ define(function(require, exports, module) {
         var showing;                // is the dialog showing
         var stats = null;           // last recorded stats
         var timer = null;           // javascript interval ID
+        var domain = null;          // current domain
 
         function load() {
             showing = false;
             fetching = false;
 
+            // notify the instance of the domain the IDE is loaded on
+            domain = window.location.hostname;
+
+            // we only want the domain; e.g., "cs50.io" from "ide.cs50.io"
+            if (domain.substring(0, 3) == "ide")
+                domain = domain.substring(4);
+
             // set default values
             settings.on("read", function(){
-                settings.setDefaults("user/cs50/stats", [
+                settings.setDefaults("user/cs50/info", [
                     ["refreshRate", DEFAULT_REFRESH]
                 ]);
             });
@@ -51,13 +60,13 @@ define(function(require, exports, module) {
             // watch for settings change and update accordingly
             settings.on("write", function() {
                 // fetch new rate, stopping timer to allow restart with new val
-                var rate = settings.getNumber("user/cs50/stats/@refreshRate");
+                var rate = settings.getNumber("user/cs50/info/@refreshRate");
 
                 if (delay != rate) {
                     // validate new rate, overwriting bad value if necessary
                     if (rate < 1) {
                         delay = DEFAULT_REFRESH;
-                        settings.set("user/cs50/stats/@refreshRate", delay);
+                        settings.set("user/cs50/info/@refreshRate", delay);
                     } else {
                         delay = rate;
                     }
@@ -70,11 +79,11 @@ define(function(require, exports, module) {
             });
 
             // fetch setting information
-            delay = settings.getNumber("user/cs50/stats/@refreshRate");
+            delay = settings.getNumber("user/cs50/info/@refreshRate");
 
             // notify UI of the function to run to open the dialog
             commands.addCommand({
-                name: "cs50statsDialog",
+                name: "cs50infoDialog",
                 hint: "CS50 IDE Info Window",
                 group: "General",
                 exec: toggle
@@ -91,7 +100,7 @@ define(function(require, exports, module) {
             // add a menu item to show the dialog
             menus.addItemByPath("Window/~", new ui.divider(), 33, plugin);
             menus.addItemByPath("Window/CS50 IDE Info...", new ui.item({
-                command: "cs50statsDialog"
+                command: "cs50infoDialog"
             }), 34, plugin);
 
             // create CS50 button
@@ -99,7 +108,7 @@ define(function(require, exports, module) {
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
                 "tooltip" : "CS50 IDE Info",
-                "command" : "cs50statsDialog",
+                "command" : "cs50infoDialog",
                 "visible" : true
             });
 
@@ -113,7 +122,7 @@ define(function(require, exports, module) {
                 "skin"    : "c9-menu-btn",
                 "caption" : "",
                 "tooltip" : "CS50 IDE Version",
-                "command" : "cs50statsDialog",
+                "command" : "cs50infoDialog",
                 "visible" : true
             });
 
@@ -144,7 +153,7 @@ define(function(require, exports, module) {
                         position: 10,
                         "Information refresh rate (in seconds)" : {
                             type: "spinner",
-                            path: "user/cs50/stats/@refreshRate",
+                            path: "user/cs50/info/@refreshRate",
                             min: 1,
                             max: 200,
                             position: 200
@@ -178,7 +187,7 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Initiate an info refresh by calling `stats50`
+         * Initiate an info refresh by calling `info50`
          */
         function updateStats(callback) {
             // respect the lock
@@ -186,21 +195,23 @@ define(function(require, exports, module) {
 
             fetching = true;
 
-            // notify the instance of the domain the IDE is loaded on
-            var domain = window.location.hostname;
+            // hash that uniquely determines this client
+            var myID = workspace.myUserId;
+            var myClientID = workspace.myClientId;
+            var hash = myID + '-' + myClientID;
 
-            // we only want the domain; e.g., "cs50.io" from "ide.cs50.io"
-            if (domain.substring(0, 3) == "ide")
-                domain = domain.substring(4);
+            // extra buffer time for info50
+            // refer to info50 for more documentation on this
+            var buffer = delay + 2;
 
-            proc.execFile("stats50", {
-                args: [domain],
+            proc.execFile("info50", {
+                args: [domain, hash, buffer],
                 cwd: "/home/ubuntu/workspace"
             }, parseStats);
         }
 
         /*
-         * Process output from stats50 and update UI with new info
+         * Process output from info50 and update UI with new info
          */
         function parseStats(err, stdout, stderr) {
             // release lock
@@ -233,21 +244,23 @@ define(function(require, exports, module) {
                 return;
             }
 
-            // parse the JSON returned by stats50 output
+            // parse the JSON returned by info50 output
             stats = JSON.parse(stdout);
 
             // update UI
             hostnameBtn.setAttribute("tooltip", "Click to load the website served by this workspace");
-            hostnameBtn.setAttribute("disabled", false);
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
             cs50Btn.$ext.innerHTML = "&#9432;";
+
+            // the button should be disabled if the domain do not match the docker instance's domain
+            hostnameBtn.setAttribute("disabled", !canPreview());
 
             updateDialog();
         }
 
         /*
-         * Update the Dialog text based on latest stats info
+         * Update the Dialog text based on latest info50
          */
         function updateDialog() {
             // confirm dialog elements have been created
@@ -325,6 +338,13 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Checks if user can preview local server
+         */
+        function canPreview() {
+            return (stats && domain == "c9.io" && stats.host.endsWith("c9users.io")) || stats.host.endsWith(domain);
+        }
+
+        /*
          * Place initial HTML on the first drawing of the dialog
          */
         plugin.on("draw", function(e) {
@@ -399,6 +419,7 @@ define(function(require, exports, module) {
             fetching = false;
             html = null;
             stats = null;
+            domain = null;
         });
 
         /***** Register and define API *****/
@@ -412,6 +433,21 @@ define(function(require, exports, module) {
              * @property showing whether this plugin is being shown
              */
             get showing(){ return showing; },
+
+            /**
+             * @property showing whether this client can preview 
+             */
+            get canPreview(){ return canPreview(); },
+
+            /**
+             * @property showing hostname50
+             */
+            get host() { return (stats && stats.hasOwnProperty("host")) ? stats.host : null; },
+
+            /**
+             * @property showing whether info50 has run at least once
+             */
+            get hasLoaded(){ return (stats != null); },
 
             _events: [
                 /**
@@ -437,7 +473,7 @@ define(function(require, exports, module) {
         });
 
         register(null, {
-            "cs50.stats": plugin
+            "cs50.info": plugin
         });
     }
 });
