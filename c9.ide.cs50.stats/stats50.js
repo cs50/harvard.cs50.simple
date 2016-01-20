@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "settings", "proc", "preferences"
+        "settings", "proc", "preferences", "collab.workspace", "info"
     ];
     main.provides = ["cs50.stats"];
     return main;
@@ -15,6 +15,8 @@ define(function(require, exports, module) {
         var proc = imports.proc;
         var settings = imports.settings;
         var prefs = imports.preferences;
+        var workspace = imports["collab.workspace"];
+        var info = imports["info"];
 
         /***** Initialization *****/
 
@@ -36,10 +38,18 @@ define(function(require, exports, module) {
         var showing;                // is the dialog showing
         var stats = null;           // last recorded stats
         var timer = null;           // javascript interval ID
+        var domain = null;          // current domain
 
         function load() {
             showing = false;
             fetching = false;
+
+            // notify the instance of the domain the IDE is loaded on
+            domain = window.location.hostname;
+
+            // we only want the domain; e.g., "cs50.io" from "ide.cs50.io"
+            if (domain.substring(0, 3) == "ide")
+                domain = domain.substring(4);
 
             // set default values
             settings.on("read", function(){
@@ -178,7 +188,7 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Initiate an info refresh by calling `stats50`
+         * Initiate an info refresh by calling `info50`
          */
         function updateStats(callback) {
             // respect the lock
@@ -186,15 +196,17 @@ define(function(require, exports, module) {
 
             fetching = true;
 
-            // notify the instance of the domain the IDE is loaded on
-            var domain = window.location.hostname;
+            // hash that uniquely determines this client
+            var myID = info.getUser().id;
+            var myClientID = workspace.myClientId;
+            var hash = myID + '-' + myClientID;
 
-            // we only want the domain; e.g., "cs50.io" from "ide.cs50.io"
-            if (domain.substring(0, 3) == "ide")
-                domain = domain.substring(4);
+            // extra buffer time for info50
+            // refer to info50 for more documentation on this
+            var buffer = delay + 2;
 
-            proc.execFile("stats50", {
-                args: [domain],
+            proc.execFile("info50", {
+                args: [domain, hash, buffer],
                 cwd: "/home/ubuntu/workspace"
             }, parseStats);
         }
@@ -238,10 +250,12 @@ define(function(require, exports, module) {
 
             // update UI
             hostnameBtn.setAttribute("tooltip", "Click to load the website served by this workspace");
-            hostnameBtn.setAttribute("disabled", false);
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
             cs50Btn.$ext.innerHTML = "&#9432;";
+
+            // the button should be disabled if the domain do not match the docker instance's domain
+            hostnameBtn.setAttribute("disabled", !stats.host.endsWith(domain));
 
             updateDialog();
         }
@@ -412,6 +426,21 @@ define(function(require, exports, module) {
              * @property showing whether this plugin is being shown
              */
             get showing(){ return showing; },
+
+            /**
+             * @property showing whether this client can preview 
+             */
+            get canPreview(){ return stats && stats.host.endsWith(domain); },
+
+            /**
+             * @property showing hostname50
+             */
+            get host(){ return stats && stats.host; },
+
+            /**
+             * @property showing whether info50 has run at least once
+             */
+            get hasLoaded(){ return (stats != null); },
 
             _events: [
                 /**
