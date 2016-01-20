@@ -92,17 +92,25 @@ define(function(require, exports, module) {
                 args: ["start", selectionPath]
             }, function(err, stdout, stderr) {
                 if (err) {
-                    if (err.code == "EDISCONNECT")
+                    if (err.code == "EDISCONNECT") {
                         return;
-                    else if (err.code == "ENOENT")
+                    }
+                    else if (err.code == "ENOENT") {
                         error.show("Apache50 error. Consider running update50!");
-                    else if (err.code == 2)
+                    }
+                    else if (err.code == 2) {
                         window.open(baseURL + file);
+                        alert.hide();
+                    }
+                    else {
+                        error.show("Something went wrong!");
+                    }
                     
                     return;
                 }
 
                 window.open(baseURL + file);
+                alert.hide();
             });
             
             // alerts that the server is starting; it may take
