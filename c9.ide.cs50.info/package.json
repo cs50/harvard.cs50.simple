@@ -1,5 +1,5 @@
 {
-  "name": "cs50.stats",
+  "name": "cs50.info",
   "description": "Provides a dialog for CS50 workspace information",
   "version": "2.5.0",
   "author": "CS50",
@@ -26,7 +26,7 @@
     "url": "http://github.com/cs50/ide50-plugin.git"
   },
   "plugins": {
-    "stats50": {}
+    "info50": {}
   },
   "categories": ["miscellaneous"],
   "licenses": [],

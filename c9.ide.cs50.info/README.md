@@ -1,6 +1,6 @@
-# Stats50 Plugin
+# Info50 Plugin
 
-This plugin (**cs50.stats**) accesses information about a CS50 
+This plugin (**cs50.info**) accesses information about a CS50 
 IDE workspace in a GUI. It is also used for controlling which domains
 can preview a local server (as given by apache50).
 

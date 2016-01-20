@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Previewer", "commands", "tabManager", "settings", "preview", "tree",
-        "preview.browser", "proc", "dialog.error", "cs50.stats", "dialog.alert"
+        "preview.browser", "proc", "dialog.error", "cs50.info", "dialog.alert"
     ];
     main.provides = ["cs50.previewer"];
     
@@ -17,7 +17,7 @@ define(function(require, exports, module) {
         var tree = imports.tree;
         var proc = imports.proc;
         var error = imports["dialog.error"];
-        var stats = imports["cs50.stats"];
+        var info50 = imports["cs50.info"];
         var alert = imports["dialog.alert"];
         
         /***** Initialization *****/
@@ -62,7 +62,7 @@ define(function(require, exports, module) {
          */ 
         function startPreviewer() {
             // check if can preview
-            if (!stats.canPreview) {
+            if (!info50.canPreview) {
                 error.show("This IDE is running on a domain that does not match this client's domain. " + 
                     "Please, try to Preview your files in a different client.");
                 return;
@@ -70,7 +70,7 @@ define(function(require, exports, module) {
             
             // parse selection path
             var selection = tree.selectedNode;
-            var baseURL = 'https://' + stats.host;
+            var baseURL = 'https://' + info50.host;
             var file = "";
             
             // guarantees slash at the end of url

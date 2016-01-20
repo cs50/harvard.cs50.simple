@@ -18,7 +18,7 @@ IDE users and Offline.
 1. Zip up the plugins you want updated into a file called `ide50-plugins`:
     ```
     zip -r ide50-plugins c9.ide.cs50.simple
-    zip -r ide50-plugins c9.ide.cs50.stats
+    zip -r ide50-plugins c9.ide.cs50.info
     ```
 
 1. Email that bundle to Nikolai Onken, nikolai@c9.io
