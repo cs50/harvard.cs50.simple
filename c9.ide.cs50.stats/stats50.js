@@ -413,6 +413,7 @@ define(function(require, exports, module) {
             fetching = false;
             html = null;
             stats = null;
+            domain = null;
         });
 
         /***** Register and define API *****/

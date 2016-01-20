@@ -139,7 +139,7 @@ define(function(require, exports, module) {
             
             // adds event handler to avoid switching tabs while using the previewer
             tabs.on("blur", saveLastTab);
-            tabs.on("beforeOpen", parseOptions)
+            tabs.on("beforeOpen", parseOptions);
             
             // add cs50runApache command
             commands.addCommand({
