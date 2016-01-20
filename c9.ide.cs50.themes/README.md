@@ -6,4 +6,4 @@ changing from "flat-dark" skin to "flat-light" skin causes the Preview bar to
 slightly shrink. Reloading the IDE fixes it, and it is Cloud9 related.
 
 *Developed by CS50*
-*Last Update: January 20th, 2016
+*Last Update: January 20th, 2016*

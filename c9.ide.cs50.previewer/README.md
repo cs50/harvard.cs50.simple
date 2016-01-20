@@ -6,4 +6,4 @@ and opens the selected file in a new tab. This also disables the
 original preview.browser plugin.
 
 *Developed by CS50*
-*Last Update: January 20th, 2016
+*Last Update: January 20th, 2016*
