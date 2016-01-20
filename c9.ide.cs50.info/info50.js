@@ -255,7 +255,7 @@ define(function(require, exports, module) {
             cs50Btn.$ext.innerHTML = "&#9432;";
 
             // the button should be disabled if the domain do not match the docker instance's domain
-            hostnameBtn.setAttribute("disabled", !stats.host.endsWith(domain));
+            hostnameBtn.setAttribute("disabled", !canPreview());
 
             updateDialog();
         }
@@ -336,6 +336,13 @@ define(function(require, exports, module) {
          */
         function loadHost() {
             window.open("//" + stats.host);
+        }
+
+        /*
+         * Checks if user can preview local server
+         */
+        function canPreview() {
+            return (stats && domain == "c9.io" && stats.host.endsWith("c9users.io")) || stats.host.endsWith(domain);
         }
 
         /*
@@ -431,12 +438,12 @@ define(function(require, exports, module) {
             /**
              * @property showing whether this client can preview 
              */
-            get canPreview(){ return stats && stats.host.endsWith(domain); },
+            get canPreview(){ return canPreview(); },
 
             /**
              * @property showing hostname50
              */
-            get host(){ return stats && stats.host; },
+            get host() { return (stats && stats.hasOwnProperty("host")) ? stats.host : null; }
 
             /**
              * @property showing whether info50 has run at least once
