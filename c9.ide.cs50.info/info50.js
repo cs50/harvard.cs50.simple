@@ -341,7 +341,14 @@ define(function(require, exports, module) {
          * Checks if user can preview local server
          */
         function canPreview() {
-            return (stats && domain == "c9.io" && stats.host.endsWith("c9users.io")) || stats.host.endsWith(domain);
+             if (!stats) return false;
+ 
+             // remove port from domain if present
+             var host = stats.host.split(":", 1)[0];
+ 
+             // host must match, except c9 IDEs must be on c9users domain
+             return (domain == "c9.io" && host.endsWith("c9users.io")) ||
+                     host.endsWith(domain);
         }
 
         /*

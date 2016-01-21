@@ -70,7 +70,7 @@ define(function(require, exports, module) {
             
             // parse selection path
             var selection = tree.selectedNode;
-            var baseURL = 'https://' + info50.host;
+            var baseURL = '//' + info50.host;
             var file = "";
             
             // guarantees slash at the end of url
