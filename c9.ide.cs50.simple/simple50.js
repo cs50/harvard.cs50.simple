@@ -10,7 +10,7 @@ define(function(require, exports, module) {
         "Plugin", "ace", "ace.status", "auth", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "c9", "tabManager"
+        "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
     ];
     main.provides = ["cs50.simple"];
     return main;
@@ -30,7 +30,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var auth = imports.auth;
         var prefs = imports.preferences;
-        var tabManager= imports.tabManager;
+        var tabManager = imports.tabManager;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -341,7 +341,7 @@ define(function(require, exports, module) {
                     position: 5,
                     "Mark Undeclared Variables" : {
                         position: 10,
-                        "Mark Undeclared Vars" : {
+                        "Mark Undeclared Variables" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@undeclaredVars",
                             min: 1,
