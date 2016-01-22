@@ -18,7 +18,6 @@ define(function(require, exports, module) {
         var proc = imports.proc;
         var error = imports["dialog.error"];
         var info50 = imports["cs50.info"];
-        var alert = imports["dialog.alert"];
         
         /***** Initialization *****/
         
@@ -67,6 +66,10 @@ define(function(require, exports, module) {
                     "Please, try to Preview your files in a different client.");
                 return;
             }
+
+            var newTab = window.open('', '_blank');
+            newTab.document.write('<h1>Starting apache50...</h1>' + 
+                '<p>Please wait! The page will reload automatically.</p>');
             
             // parse selection path
             var selection = tree.selectedNode;
@@ -99,8 +102,7 @@ define(function(require, exports, module) {
                         error.show("Apache50 error. Consider running update50!");
                     }
                     else if (err.code == 2) {
-                        window.open(baseURL + file);
-                        alert.hide();
+                        newTab.location.href = baseURL + file;
                     }
                     else {
                         error.show("Something went wrong!");
@@ -109,24 +111,7 @@ define(function(require, exports, module) {
                     return;
                 }
 
-                window.open(baseURL + file);
-                alert.hide();
-            });
-            
-            // alerts that the server is starting; it may take
-            // a couple seconds to open the new tab
-            if (settings.getBool("user/previewer50/@no-alert")) 
-                return;
-                
-            alert.show("Starting Server", 
-            "Please wait while your server starts. It may take a few seconds.", 
-            "The server is being started at: <strong>" + selectionPath + "</strong>",
-            function() {
-                if (alert.dontShow)
-                    settings.set("user/previewer50/@no-alert", true);
-            }, {
-                isHTML: true,
-                showDontShow: true
+                newTab.location.href = baseURL + file;
             });
         }
         
