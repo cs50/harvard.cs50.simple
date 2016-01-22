@@ -10,7 +10,7 @@ define(function(require, exports, module) {
         "Plugin", "ace", "ace.status", "auth", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
+        "tabManager", "terminal", "tooltip", "tree", "ui", "c9", "tabManager"
     ];
     main.provides = ["cs50.simple"];
     return main;
@@ -30,10 +30,11 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var auth = imports.auth;
         var prefs = imports.preferences;
+        var tabManager= imports.tabManager;
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 3;
+        var SETTINGS_VER = 4;
 
         // the title to set Terminal tabs
         var TERMINAL_TITLE = "Terminal";
@@ -61,6 +62,17 @@ define(function(require, exports, module) {
 
             return false;
         }
+        
+        // stop marking undeclared variables for javascript files
+        tabManager.on('focus', function(e) {
+            if (e.tab.path != undefined && e.tab.path.slice(-3) == ".js") {
+                settings.set("project/language/@undeclaredVars",false);
+            }
+            else {
+                var markUndecVars = settings.getBool("user/cs50/simple/@undeclaredVars");
+                settings.set("project/language/@undeclaredVars", markUndecVars);
+            }
+        });
 
         /*
          * Hides the given div by changing CSS
@@ -149,6 +161,22 @@ define(function(require, exports, module) {
             complexMenus.push(menus.get("Window/Installer..."));
             complexMenus.push(menus.get("Window/Navigate"));
             complexMenus.push(menus.get("Window/Commands"));
+            
+            // extraneous templates
+            complexMenus.push(menus.get("File/New From Template/Text file"));
+            complexMenus.push(menus.get("File/New From Template/CoffeeScript file"));
+            complexMenus.push(menus.get("File/New From Template/XML file"));
+            complexMenus.push(menus.get("File/New From Template/XQuery file"));
+            complexMenus.push(menus.get("File/New From Template/SCSS file"));
+            complexMenus.push(menus.get("File/New From Template/LESS file"));
+            complexMenus.push(menus.get("File/New From Template/SVG file"));
+            complexMenus.push(menus.get("File/New From Template/Python file"));
+            complexMenus.push(menus.get("File/New From Template/Ruby file"));
+            complexMenus.push(menus.get("File/New From Template/OCaml file"));
+            complexMenus.push(menus.get("File/New From Template/Clojure file"));
+            complexMenus.push(menus.get("File/New From Template/Markdown"));
+            complexMenus.push(menus.get("File/New From Template/Express file"));
+            complexMenus.push(menus.get("File/New From Template/Node.js web server"));
 
             return complexMenus;
         }
@@ -301,6 +329,21 @@ define(function(require, exports, module) {
                         "Less Comfortable mode" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@lessComfortable",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "Mark Undeclared Variables" : {
+                        position: 10,
+                        "Mark Undeclared Vars" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@undeclaredVars",
                             min: 1,
                             max: 200,
                             position: 190
@@ -570,7 +613,8 @@ define(function(require, exports, module) {
 
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
-                    ["lessComfortable", true]
+                    ["lessComfortable", true],
+                    ["undeclaredVars", true]       
                 ]);
             });
 
