@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "settings", "proc", "preferences", "collab.workspace"
+        "settings", "proc", "preferences", "collab.workspace", "api", "c9"
     ];
     main.provides = ["cs50.info"];
     return main;
@@ -15,6 +15,8 @@ define(function(require, exports, module) {
         var proc = imports.proc;
         var settings = imports.settings;
         var prefs = imports.preferences;
+        var api = imports.api;
+        var c9 = imports.c9;
         var workspace = imports["collab.workspace"];
 
         /***** Initialization *****/
@@ -54,6 +56,10 @@ define(function(require, exports, module) {
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/info", [
                     ["refreshRate", DEFAULT_REFRESH]
+                ]);
+                
+                settings.setDefaults("project/cs50/info", [
+                    ["public", false]
                 ]);
             });
 
@@ -187,6 +193,20 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Updates the shared status (public or private).
+         */ 
+        function fetchSharedStatus() {
+            api.project.get("", function(err, data) {
+                if (err || workspace.myUserId != data.owner.id) 
+                    return;
+
+                settings.set("project/cs50/info/@public", 
+                    data["visibility"] == "public" || 
+                    data["appAccess"] == "public");
+            });
+        }
+
+        /*
          * Initiate an info refresh by calling `info50`
          */
         function updateStats(callback) {
@@ -194,6 +214,9 @@ define(function(require, exports, module) {
             if (fetching) return;
 
             fetching = true;
+
+            // check for shared state
+            if (c9.hosted) fetchSharedStatus();
 
             // hash that uniquely determines this client
             var myID = workspace.myUserId;
@@ -343,12 +366,16 @@ define(function(require, exports, module) {
         function canPreview() {
              if (!stats) return false;
  
+             if (!c9.hosted) return true;
+
+             if (settings.getBool("project/cs50/info/@public")) return true;
+
              // remove port from domain if present
              var host = stats.host.split(":", 1)[0];
  
              // host must match, except c9 IDEs must be on c9users domain
              return (domain == "c9.io" && host.endsWith("c9users.io")) ||
-                     host.endsWith(domain);
+                            host.endsWith(domain);
         }
 
         /*

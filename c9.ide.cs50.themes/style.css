@@ -1,15 +1,15 @@
 .night-toggle {
     background-image: url("@{image-path}/night_small.png");
-    width: 15px;
-    background-size: contain;
+    background-size: 25px 25px;
     background-position: center center;
     background-repeat: no-repeat;
+    padding: 15px;
 }
 
 .day-toggle {
     background-image: url("@{image-path}/day_small.png");
-    width: 15px;
-    background-size: contain;
+    background-size: 25px 25px;
     background-position: center center;
     background-repeat: no-repeat;
+    padding: 15px;
 }

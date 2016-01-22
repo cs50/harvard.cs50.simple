@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Plugin", "settings", "commands", "ui", "layout"
+        "Plugin", "settings", "commands", "ui", "layout", "menus"
     ];
     
     main.provides = ["cs50.themes"];
