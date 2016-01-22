@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "settings", "proc", "preferences", "collab.workspace", "api", "c9"
+        "proc", "preferences", "collab.workspace", "api", "c9"
     ];
     main.provides = ["cs50.info"];
     return main;
@@ -65,6 +65,10 @@ define(function(require, exports, module) {
 
             // watch for settings change and update accordingly
             settings.on("write", function() {
+                // if theme changes, update dialog background color
+                if (html != null) 
+                    setBackgroundColor(html.stats.parentElement);
+
                 // fetch new rate, stopping timer to allow restart with new val
                 var rate = settings.getNumber("user/cs50/info/@refreshRate");
 
@@ -289,14 +293,6 @@ define(function(require, exports, module) {
             // confirm dialog elements have been created
             if (html == null) return;
 
-            // removes button bar on darker themes
-            if (settings.get("user/general/@skin") != "flat-light") {
-               html.stats.parentElement.style.setProperty("background-color", "#DEDEDE");
-            }
-            else {
-                html.stats.parentElement.style.setProperty("background-color", "#FEFEFE");
-            }
-
             if (stats == null) {
                 // no information fetched yet
                 html.info.innerHTML = "Please wait, fetching information...";
@@ -379,6 +375,25 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Set the background color of the dialog based on the theme
+         */
+        function setBackgroundColor(html) {
+            var bgcolor;
+            switch (settings.get("user/general/@skin")) {
+                case "flat-light":
+                    bgcolor = "#FEFEFE";
+                    break;
+                case "flat-dark":
+                    bgcolor = "#222222";
+                    break;
+                default:
+                    bgcolor = "#DEDEDE";
+            }
+            html.style.setProperty("background-color", bgcolor);
+        }
+
+
+        /*
          * Place initial HTML on the first drawing of the dialog
          */
         plugin.on("draw", function(e) {
@@ -397,12 +412,7 @@ define(function(require, exports, module) {
             e.html.style.whiteSpace = "nowrap";
 
             // Sets background on initial draw to prevent unecessary flicker
-            if (settings.get("user/general/@skin") != "flat-light") {
-               e.html.style.setProperty("background-color", "#DEDEDE");
-            }
-            else {
-                e.html.style.setProperty("background-color", "#FEFEFE");
-            }
+            setBackgroundColor(e.html);
 
             // find & connect to all of the following in the dialog's DOM
             var els = ["version", "hostname", "phpmyadmin", "info",
