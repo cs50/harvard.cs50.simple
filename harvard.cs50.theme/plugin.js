@@ -8,7 +8,7 @@ define(function(require, exports, module) {
     // APIs provided
     main.provides = ["harvard.cs50.theme"];
 
-    // plugin's API
+    // plugin
     return main;
 
     /**
