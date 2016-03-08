@@ -4,6 +4,7 @@ body:after {
     display: none;
 }
 
+/* dark theme */
 .harvard-cs50-theme-dark {
     background-image: url("@{image-path}/off.png");
     background-position: center center;
@@ -11,6 +12,7 @@ body:after {
     background-size: 24px 24px;
 }
 
+/* light theme */
 .harvard-cs50-theme-light {
     background-image: url("@{image-path}/on.png");
     background-position: center center;
