@@ -531,21 +531,21 @@ define(function(require, exports, module) {
 
         }
 
-        /*
-         * Disable Tmux title update and force Terminal tabs to one title
-         */
-        function disableTmuxTitle(tab) {
-            if (tab && tab.editorType == "terminal") {
-                var terminal = tab.document.getSession().terminal;
-                if (terminal)
-                    terminal.removeAllListeners("title"); // disable updating title
-                tab.document.title = TERMINAL_TITLE;
-                tab.document.on("setTitle", function(e) {
-                    if (e.title != TERMINAL_TITLE)
-                        tab.document.title = TERMINAL_TITLE;
-                }, plugin);
-            }
-        }
+         /*
+          * Disable Tmux title update and force Terminal tabs to one title
+          */
+         function disableTmuxTitle(tab) {
+             if (tab && tab.editorType == "terminal") {
+                 var session = tab.document.getSession();
+                 if (session && session.terminal)
+                     session.terminal.removeAllListeners("title"); // disable updating title
+                 tab.document.title = TERMINAL_TITLE;
+                 tab.document.on("setTitle", function(e) {
+                     if (e.title != TERMINAL_TITLE)
+                         tab.document.title = TERMINAL_TITLE;
+                 }, plugin);
+             }
+         }
 
         /*
          * Set the HTML page title based on a tab's title
