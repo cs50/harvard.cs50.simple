@@ -1,5 +1,5 @@
 {
-  "name": "harvard.cs50.theme",
+  "name": "c9.ide.cs50.theme",
   "description": "Adds a button to Cloud9 IDE that toggles theme between flat-dark and flat-light.",
   "version": "0.1.0",
   "author": "CS50",
