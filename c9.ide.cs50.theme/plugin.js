@@ -6,7 +6,7 @@ define(function(require, exports, module) {
     ];
 
     // APIs provided
-    main.provides = ["harvard.cs50.theme"];
+    main.provides = ["c9.ide.cs50.theme"];
 
     // plugin
     return main;
@@ -64,7 +64,7 @@ define(function(require, exports, module) {
 
         // register plugin
         register(null, {
-            "harvard.cs50.theme": plugin
+            "c9.ide.cs50.theme": plugin
         });
 
         /**
@@ -72,17 +72,26 @@ define(function(require, exports, module) {
          */
         function styleButton() {
             var theme = imports.settings.get("user/general/@skin");
-            var btnClass = (theme === "flat-dark") ? "harvard-cs50-theme-dark" : "harvard-cs50-theme-light";
-            button.setAttribute("class", btnClass);
+            if (theme === "dark" || theme === "flat-dark") {
+                button.setAttribute("class", "cs50-theme-dark");
+            }
+            else {
+                button.setAttribute("class", "cs50-theme-light");
+            }
         }
         
         /**
          * Toggles theme from dark to light or from light to dark.
          */
         function toggleTheme() {
-            var theme = imports.settings.get("user/general/@skin");
-            var kind = (theme === "flat-dark" || theme === "dark") ? "light" : "dark";
-            imports.layout.proposeLayoutChange(kind, true);
+            if (button.getAttribute("class") === "cs50-theme-dark") {
+                imports.layout.resetTheme("flat-light", "ace");
+                imports.settings.set("user/ace/@theme", "ace/theme/cloud9_day");
+            }
+            else {
+                imports.layout.resetTheme("flat-dark", "ace");
+                imports.settings.set("user/ace/@theme", "ace/theme/cloud9_night");
+            }
         }
     }
 });
