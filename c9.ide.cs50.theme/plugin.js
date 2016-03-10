@@ -72,7 +72,7 @@ define(function(require, exports, module) {
          */
         function styleButton() {
             var theme = imports.settings.get("user/general/@skin");
-            if (theme === "dark" || theme === "flat-dark") {
+            if (theme === "dark" || theme === "dark-gray" || theme === "flat-dark") {
                 button.setAttribute("class", "cs50-theme-dark");
             }
             else {
