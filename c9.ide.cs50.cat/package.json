@@ -1,0 +1,15 @@
+{
+  "name": "c9.ide.cs50.cat",
+  "description": "Adds a cat to Cloud9 IDE.",
+  "version": "0.1.0",
+  "author": "CS50",
+  "contributors": [
+    {
+      "email": "malan@harvard.edu",
+      "name": "David J. Malan"
+    }
+  ],
+  "plugins": {
+    "plugin": {}
+  }
+}
