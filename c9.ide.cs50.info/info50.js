@@ -362,13 +362,13 @@ define(function(require, exports, module) {
          * Checks if user can preview local server
          */
         function canPreview() {
-            if (!stats) return false;
-
             if (!c9.hosted) return true;
 
             if (settings.getBool("project/cs50/info/@public")) return true;
 
             // remove port from domain if present
+            if (!stats || typeof stats.host !== "string") return false;
+
             var host = stats.host.split(":", 1)[0];
 
             // host must match, except c9 IDEs must be on c9users domain
