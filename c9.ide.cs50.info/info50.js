@@ -261,7 +261,7 @@ define(function(require, exports, module) {
 
                 // notify user through button text
                 hostnameBtn.setCaption("Run update50!");
-                hostnameBtn.disabled = true;
+                hostnameBtn.setAttribute("disabled", true);
                 versionBtn.hide();
                 cs50Btn.hide();
 
@@ -284,7 +284,7 @@ define(function(require, exports, module) {
 
 
             // the button should be disabled if the domain do not match the docker instance's domain
-            hostnameBtn.disabled = !canPreview();
+            hostnameBtn.setAttribute("disabled", !canPreview());
 
             updateDialog();
         }
