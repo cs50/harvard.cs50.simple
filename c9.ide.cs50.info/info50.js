@@ -261,9 +261,9 @@ define(function(require, exports, module) {
 
                 // notify user through button text
                 hostnameBtn.setCaption("Run update50!");
-                hostnameBtn.setAttribute("disabled", true);
-                versionBtn.setAttribute("visible", false);
-                cs50Btn.setAttribute("visible", false);
+                hostnameBtn.disabled = true;
+                versionBtn.hide();
+                cs50Btn.hide();
 
                 // update dialog with error
                 stats = {"error":long};
@@ -278,12 +278,13 @@ define(function(require, exports, module) {
             hostnameBtn.setAttribute("tooltip", "Click to load the website served by this workspace");
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
-            versionBtn.setAttribute("visible", true);
             cs50Btn.$ext.innerHTML = "&#9432;";
-            cs50Btn.setAttribute("visible", true);
+            versionBtn.show();
+            cs50Btn.show();
+
 
             // the button should be disabled if the domain do not match the docker instance's domain
-            hostnameBtn.setAttribute("disabled", !canPreview());
+            hostnameBtn.disabled = !canPreview();
 
             updateDialog();
         }
