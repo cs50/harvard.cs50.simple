@@ -19,7 +19,7 @@
   },
   "plugins": {
     "checkbox": {},
-    "cs50submit": {}
+    "render50": {}
   },
   "categories": ["CS50"],
   "licenses": []
