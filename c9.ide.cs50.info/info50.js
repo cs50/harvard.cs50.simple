@@ -57,7 +57,7 @@ define(function(require, exports, module) {
                 settings.setDefaults("user/cs50/info", [
                     ["refreshRate", DEFAULT_REFRESH]
                 ]);
-                
+
                 settings.setDefaults("project/cs50/info", [
                     ["public", false]
                 ]);
@@ -66,7 +66,7 @@ define(function(require, exports, module) {
             // watch for settings change and update accordingly
             settings.on("write", function() {
                 // if theme changes, update dialog background color
-                if (html != null) 
+                if (html != null)
                     setBackgroundColor(html.stats.parentElement);
 
                 // fetch new rate, stopping timer to allow restart with new val
@@ -198,14 +198,14 @@ define(function(require, exports, module) {
 
         /*
          * Updates the shared status (public or private).
-         */ 
+         */
         function fetchSharedStatus() {
             api.project.get("", function(err, data) {
-                if (err || workspace.myUserId != data.owner.id) 
+                if (err || workspace.myUserId != data.owner.id)
                     return;
 
-                settings.set("project/cs50/info/@public", 
-                    data["visibility"] == "public" || 
+                settings.set("project/cs50/info/@public",
+                    data["visibility"] == "public" ||
                     data["appAccess"] == "public");
             });
         }
@@ -262,8 +262,8 @@ define(function(require, exports, module) {
                 // notify user through button text
                 hostnameBtn.setCaption("Run update50!");
                 hostnameBtn.setAttribute("disabled", true);
-                versionBtn.setCaption("");
-                cs50Btn.setCaption("Run update50!");
+                versionBtn.setAttribute("visible", false);
+                cs50Btn.setAttribute("visible", false);
 
                 // update dialog with error
                 stats = {"error":long};
@@ -278,7 +278,9 @@ define(function(require, exports, module) {
             hostnameBtn.setAttribute("tooltip", "Click to load the website served by this workspace");
             hostnameBtn.setCaption(stats.host);
             versionBtn.setCaption(stats.version);
+            versionBtn.setAttribute("visible", true);
             cs50Btn.$ext.innerHTML = "&#9432;";
+            cs50Btn.setAttribute("visible", true);
 
             // the button should be disabled if the domain do not match the docker instance's domain
             hostnameBtn.setAttribute("disabled", !canPreview());
@@ -361,14 +363,14 @@ define(function(require, exports, module) {
          */
         function canPreview() {
              if (!stats) return false;
- 
+
              if (!c9.hosted) return true;
 
              if (settings.getBool("project/cs50/info/@public")) return true;
 
              // remove port from domain if present
              var host = stats.host.split(":", 1)[0];
- 
+
              // host must match, except c9 IDEs must be on c9users domain
              return (domain == "c9.io" && host.endsWith("c9users.io")) ||
                             host.endsWith(domain);
@@ -479,7 +481,7 @@ define(function(require, exports, module) {
             get showing(){ return showing; },
 
             /**
-             * @property showing whether this client can preview 
+             * @property showing whether this client can preview
              */
             get canPreview(){ return canPreview(); },
 
