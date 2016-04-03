@@ -40,7 +40,6 @@ define(function(require, exports, module) {
 
         var lessComfortable = true;
         var profileMenu = null;
-        var complexMenus = findComplexMenus();
 
         // code from gui.js
         function findTabToRun(){
@@ -73,10 +72,14 @@ define(function(require, exports, module) {
             }
         });
         
+        /*
+         * Sets visibility of menu item with specified path.
+         */
         function setMenuVisibility(path, visible) {
-            var el = typeof path == "string" ? menus.get(path) : el;
-            if (el && el.item)
-                el.item.setAttribute("visible", visible);
+            var menu = menus.get(path);
+            if (menu && menu.item) {
+                menu.item.setAttribute("visible", visible);
+            }
         }
 
         /*
@@ -108,85 +111,6 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Finds the complex menus that this plugin removes
-         */
-        function findComplexMenus() {
-            var complexMenus = [];
-
-            // Cloud9 Menu
-            complexMenus.push(menus.get("Cloud9/Open Your Project Settings"));
-            complexMenus.push(menus.get("Cloud9/Open Your User Settings"));
-            complexMenus.push(menus.get("Cloud9/Open Your Keymap"));
-            complexMenus.push(menus.get("Cloud9/Open Your Init Script"));
-            complexMenus.push(menus.get("Cloud9/Open Your Stylesheet"));
-
-
-            // File Menu
-            complexMenus.push(menus.get("File/Revert to Saved"));
-            complexMenus.push(menus.get("File/Revert All to Saved"));
-            complexMenus.push(menus.get("File/Mount FTP or SFTP server"));
-            complexMenus.push(menus.get("File/Line Endings"));
-            complexMenus.push(menus.get("File/New Plugin"));
-
-            // Edit Menu
-            complexMenus.push(menus.get("Edit/Line/Move Line Up"));
-            complexMenus.push(menus.get("Edit/Line/Move Line Down"));
-            complexMenus.push(menus.get("Edit/Line/Copy Lines Up"));
-            complexMenus.push(menus.get("Edit/Line/Copy Lines Down"));
-            complexMenus.push(menus.get("Edit/Line/Remove Line"));
-            complexMenus.push(menus.get("Edit/Line/Remove to Line End"));
-            complexMenus.push(menus.get("Edit/Line/Remove to Line Start"));
-            complexMenus.push(menus.get("Edit/Line/Split Line"));
-            complexMenus.push(menus.get("Edit/Keyboard Mode"));
-            complexMenus.push(menus.get("Edit/Selection"));
-            complexMenus.push(menus.get("Edit/Text"));
-            complexMenus.push(menus.get("Edit/Code Folding"));
-            complexMenus.push(menus.get("Edit/Code Formatting"));
-
-            // View Menu
-            complexMenus.push(menus.get("View/Syntax"));
-            complexMenus.push(menus.get("View/Wrap Lines"));
-            complexMenus.push(menus.get("View/Wrap to Print Margin"));
-
-            // Goto Menu
-            complexMenus.push(menus.get("Goto/Goto Anything..."));
-            complexMenus.push(menus.get("Goto/Goto Symbol..."));
-            complexMenus.push(menus.get("Goto/Word Right"));
-            complexMenus.push(menus.get("Goto/Word Left"));
-            complexMenus.push(menus.get("Goto/Scroll to Selection"));
-
-            // Run Menu
-            complexMenus.push(menus.get("Run"));
-
-            // Tools Menu
-            complexMenus.push(menus.get("Tools"));
-
-            // Window Menu
-            complexMenus.push(menus.get("Window/New Immediate Window"));
-            complexMenus.push(menus.get("Window/Installer..."));
-            complexMenus.push(menus.get("Window/Navigate"));
-            complexMenus.push(menus.get("Window/Commands"));
-            
-            // extraneous templates
-            complexMenus.push(menus.get("File/New From Template/Text file"));
-            complexMenus.push(menus.get("File/New From Template/CoffeeScript file"));
-            complexMenus.push(menus.get("File/New From Template/XML file"));
-            complexMenus.push(menus.get("File/New From Template/XQuery file"));
-            complexMenus.push(menus.get("File/New From Template/SCSS file"));
-            complexMenus.push(menus.get("File/New From Template/LESS file"));
-            complexMenus.push(menus.get("File/New From Template/SVG file"));
-            complexMenus.push(menus.get("File/New From Template/Python file"));
-            complexMenus.push(menus.get("File/New From Template/Ruby file"));
-            complexMenus.push(menus.get("File/New From Template/OCaml file"));
-            complexMenus.push(menus.get("File/New From Template/Clojure file"));
-            complexMenus.push(menus.get("File/New From Template/Markdown"));
-            complexMenus.push(menus.get("File/New From Template/Express file"));
-            complexMenus.push(menus.get("File/New From Template/Node.js web server"));
-
-            return complexMenus;
-        }
-
-        /*
          * Toggles the status bar in the bottom right corner of Ace
          */
         function toggleStatusBar(lessComfortable) {
@@ -196,11 +120,112 @@ define(function(require, exports, module) {
         /*
          * Toggles simplification of the menus at the top of Cloud 9
          */
-        function toggleMenus(complexMenus, lessComfortable) {
+        function toggleMenus(lessComfortable) {
 
-            // toggles visibility of each menu item
-            complexMenus.forEach(function(element) {
-                setMenuVisibility(element, !lessComfortable);
+            // less comfortable
+            if (lessComfortable) {
+                menus.get("Goto").item.setAttribute("caption", "Go");
+                menus.get("Goto/Goto Line...").item.setAttribute("caption", "Line...");
+                menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Cloud9 Status");
+                menus.get("Support/Read Documentation").item.setAttribute("caption", "Cloud9 Documentation");
+            }
+
+            // more comfortable
+            else {
+                menus.get("Goto").item.setAttribute("caption", "Goto");
+                menus.get("Goto/Goto Line...").item.setAttribute("caption", "Goto Line...");
+                menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Check Cloud9 Status");
+                menus.get("Support/Read Documentation").item.setAttribute("caption", "Read Documentation");
+            }
+
+            // toggle visibility of each menu item
+            [
+                // Cloud9 Menu
+                "Cloud9/Open Your Project Settings",
+                "Cloud9/Open Your User Settings",
+                "Cloud9/Open Your Keymap",
+                "Cloud9/Open Your Init Script",
+                "Cloud9/Open Your Stylesheet",
+ 
+                // File Menu
+                "File/Revert to Saved",
+                "File/Revert All to Saved",
+                "File/Mount FTP or SFTP server",
+                "File/Line Endings",
+                "File/New Plugin",
+ 
+                // Edit Menu
+                "Edit/Line/Move Line Up",
+                "Edit/Line/Move Line Down",
+                "Edit/Line/Copy Lines Up",
+                "Edit/Line/Copy Lines Down",
+                "Edit/Line/Remove Line",
+                "Edit/Line/Remove to Line End",
+                "Edit/Line/Remove to Line Start",
+                "Edit/Line/Split Line",
+                "Edit/Keyboard Mode",
+                "Edit/Selection",
+                "Edit/Text",
+                "Edit/Code Folding",
+                "Edit/Code Formatting",
+ 
+                // Find Menu
+                "Find/Replace Next",
+                "Find/Replace Previous",
+                "Find/Replace All",
+ 
+                // View Menu
+                "View/Editors",
+                "View/Syntax",
+                "View/Wrap Lines",
+                "View/Wrap To Print Margin",
+
+                // Goto Menu
+                "Goto/Goto Anything...",
+                "Goto/Goto Symbol...",
+                "Goto/Goto Command...",
+                "Goto/Next Error",
+                "Goto/Previous Error",
+                "Goto/Word Right",
+                "Goto/Word Left",
+                "Goto/Scroll to Selection",
+ 
+                // Run Menu
+                "Run",
+ 
+                // Tools Menu
+                "Tools",
+ 
+                // Window Menu
+                "Window/New Immediate Window",
+                "Window/Installer...",
+                "Window/Navigate",
+                "Window/Commands",
+                "Window/Presets",
+ 
+                // Support menu
+                "Support/Show Guided Tour",
+                "Support/Get Help (Community)",
+                "Support/Request a Feature",
+                "Support/Go To YouTube Channel",
+ 
+                // extraneous templates
+                "File/New From Template/Text file",
+                "File/New From Template/CoffeeScript file",
+                "File/New From Template/XML file",
+                "File/New From Template/XQuery file",
+                "File/New From Template/SCSS file",
+                "File/New From Template/LESS file",
+                "File/New From Template/SVG file",
+                "File/New From Template/Python file",
+                "File/New From Template/Ruby file",
+                "File/New From Template/OCaml file",
+                "File/New From Template/Clojure file",
+                "File/New From Template/Markdown",
+                "File/New From Template/Express file",
+                "File/New From Template/Node.js web server",
+            ].forEach(function(path) {
+                setMenuVisibility(path, !lessComfortable);
             });
         }
 
@@ -254,6 +279,7 @@ define(function(require, exports, module) {
             // Only shows tabs automatically when less comfortable is disabled
             lessComfortable ? panels.disablePanel("navigate") : panels.enablePanel("navigate");
             lessComfortable ? panels.disablePanel("commands.panel") : panels.enablePanel("commands.panel");
+            lessComfortable ? panels.disablePanel("scm") : panels.enablePanel("scm");
         }
 
         /*
@@ -360,7 +386,7 @@ define(function(require, exports, module) {
             value      : "https://cs50.readme.io/",
             editorType : "urlview",
             active     : true,
-            document   : {title : "CS50 Readme"},
+            document   : {title : "About CS50 IDE"},
             }, function(err, tab) {
                 if (err) return err;
             });
@@ -388,9 +414,8 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/About CS50 IDE", about, 0, plugin);
             menus.addItemByPath("Cloud9/Div", div, 10, plugin);
 
-            // hide quit and restart cloud9 ui elements in CS50 IDE section
-            setMenuVisibility("Cloud9/Restart Workspace", false);
-            setMenuVisibility("Cloud9/Quit Cloud9", false);
+            // hide option as unneeded
+            setMenuVisibility("Cloud9/Restart Cloud9", false);
         }
 
         /*
@@ -431,8 +456,8 @@ define(function(require, exports, module) {
             // Create new log out ui item
             var newLogout = ui.item({
                 id     : "newLogout",
-                caption: "Log out",
-                tooltip: "Log out",
+                caption: "Log Out",
+                tooltip: "Log Out",
                 onclick: customLogout
             });
 
@@ -515,7 +540,7 @@ define(function(require, exports, module) {
             }
 
             // Toggles features
-            toggleMenus(complexMenus, lessComfortable);
+            toggleMenus(lessComfortable);
             togglePreview(lessComfortable);
             toggleStatusBar(lessComfortable);
             toggleMiniButton(lessComfortable);
