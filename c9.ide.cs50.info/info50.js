@@ -232,7 +232,7 @@ define(function(require, exports, module) {
                 }
 
                 // notify user through button text
-                cs50Btn.setCaption("Run update50!");
+                cs50Btn.$ext.innerHTML = "<tt>update50</tt>";
 
                 // update dialog with error
                 stats = {"error":long};
