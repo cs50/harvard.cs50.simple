@@ -30,7 +30,6 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var auth = imports.auth;
         var prefs = imports.preferences;
-        var tabManager = imports.tabManager;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -73,6 +72,12 @@ define(function(require, exports, module) {
                 settings.set("project/language/@undeclaredVars", markUndecVars);
             }
         });
+        
+        function setMenuVisibility(path, visible) {
+            var el = typeof path == "string" ? menus.get(path) : el;
+            if (el && el.item)
+                el.item.setAttribute("visible", visible);
+        }
 
         /*
          * Hides the given div by changing CSS
@@ -194,18 +199,9 @@ define(function(require, exports, module) {
         function toggleMenus(complexMenus, lessComfortable) {
 
             // toggles visibility of each menu item
-            complexMenus.forEach(function(element, index, array) {
-                if (element.item) {
-                    element.item.setAttribute("visible", !lessComfortable);
-                }
+            complexMenus.forEach(function(element) {
+                setMenuVisibility(element, !lessComfortable);
             });
-
-
-            // Tidy up dividers
-            menus.get("File").menu.childNodes[14].setAttribute("visible", !lessComfortable);
-            menus.get("Edit").menu.childNodes[6].setAttribute("visible", !lessComfortable);
-            menus.get("Goto").menu.childNodes[7].setAttribute("visible", !lessComfortable);
-            menus.get("Goto").menu.childNodes[16].setAttribute("visible", !lessComfortable);
         }
 
         /*
@@ -366,7 +362,7 @@ define(function(require, exports, module) {
             active     : true,
             document   : {title : "CS50 Readme"},
             }, function(err, tab) {
-                 if(err) return err;
+                if (err) return err;
             });
         }
 
@@ -393,8 +389,8 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/Div", div, 10, plugin);
 
             // hide quit and restart cloud9 ui elements in CS50 IDE section
-            menus.get("Cloud9/Restart Cloud9").item.setAttribute("visible", false);
-            menus.get("Cloud9/Quit Cloud9").item.setAttribute("visible", false);
+            setMenuVisibility("Cloud9/Restart Workspace", false);
+            setMenuVisibility("Cloud9/Quit Cloud9", false);
         }
 
         /*
@@ -531,21 +527,21 @@ define(function(require, exports, module) {
 
         }
 
-         /*
-          * Disable Tmux title update and force Terminal tabs to one title
-          */
-         function disableTmuxTitle(tab) {
-             if (tab && tab.editorType == "terminal") {
-                 var session = tab.document.getSession();
-                 if (session && session.terminal)
-                     session.terminal.removeAllListeners("title"); // disable updating title
-                 tab.document.title = TERMINAL_TITLE;
-                 tab.document.on("setTitle", function(e) {
-                     if (e.title != TERMINAL_TITLE)
-                         tab.document.title = TERMINAL_TITLE;
-                 }, plugin);
-             }
-         }
+        /*
+         * Disable Tmux title update and force Terminal tabs to one title
+         */
+        function disableTmuxTitle(tab) {
+            if (tab && tab.editorType == "terminal") {
+                var session = tab.document.getSession();
+                if (session && session.terminal)
+                    session.terminal.removeAllListeners("title"); // disable updating title
+                tab.document.title = TERMINAL_TITLE;
+                tab.document.on("setTitle", function(e) {
+                    if (e.title != TERMINAL_TITLE)
+                        tab.document.title = TERMINAL_TITLE;
+                }, plugin);
+            }
+        }
 
         /*
          * Set the HTML page title based on a tab's title
