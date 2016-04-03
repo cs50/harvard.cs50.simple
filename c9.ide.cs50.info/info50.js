@@ -29,7 +29,7 @@ define(function(require, exports, module) {
             modal: true
         });
 
-        var versionBtn, hostnameBtn, cs50Btn;   // UI button elements
+        var cs50Btn;   // UI button
 
         var RUN_MESSAGE = "Please run <tt>update50</tt>!"; // update50 message
         var DEFAULT_REFRESH = 30;   // default refresh rate
@@ -126,34 +126,6 @@ define(function(require, exports, module) {
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
             }), cs50Btn, 860, plugin);
-
-            // create version button
-            versionBtn = new ui.button({
-                "skin"    : "c9-menu-btn",
-                "caption" : "",
-                "tooltip" : "CS50 IDE Version",
-                "command" : "cs50infoDialog",
-                "visible" : true
-            });
-
-            // place version button
-            ui.insertByIndex(layout.findParent({
-                name: "preferences"
-            }), versionBtn, 860, plugin);
-
-            // create hostname button
-            hostnameBtn = new ui.button({
-                "skin"    : "c9-menu-btn",
-                "caption" : "",
-                "tooltip" : "CS50 IDE Host",
-                "command" : "openDomain",
-                "visible" : true
-            });
-
-            // place button
-            ui.insertByIndex(layout.findParent({
-                name: "preferences"
-            }), hostnameBtn, 860, plugin);
 
             // Add preference pane
             prefs.add({
@@ -260,10 +232,7 @@ define(function(require, exports, module) {
                 }
 
                 // notify user through button text
-                hostnameBtn.setCaption("Run update50!");
-                hostnameBtn.setAttribute("disabled", true);
-                versionBtn.hide();
-                cs50Btn.hide();
+                cs50Btn.setCaption("Run update50!");
 
                 // update dialog with error
                 stats = {"error":long};
@@ -275,16 +244,8 @@ define(function(require, exports, module) {
             stats = JSON.parse(stdout);
 
             // update UI
-            hostnameBtn.setAttribute("tooltip", "Click to load the website served by this workspace");
-            hostnameBtn.setCaption(stats.host);
-            versionBtn.setCaption(stats.version);
             cs50Btn.$ext.innerHTML = "&#9432;";
-            versionBtn.show();
             cs50Btn.show();
-
-
-            // the button should be disabled if the domain do not match the docker instance's domain
-            hostnameBtn.setAttribute("disabled", !canPreview());
 
             updateDialog();
         }
@@ -461,8 +422,6 @@ define(function(require, exports, module) {
             timer = null;
             showing = false;
             cs50Btn = null;
-            versionBtn = null;
-            hostnameBtn = null;
             fetching = false;
             html = null;
             stats = null;
