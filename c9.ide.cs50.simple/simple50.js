@@ -122,6 +122,16 @@ define(function(require, exports, module) {
          */
         function toggleMenus(lessComfortable) {
 
+            // remove gear icon as redundant from both modes
+            var bar = layout.findParent({name: "preferences"});
+            if (bar.childNodes) {
+                bar.childNodes.forEach(function(node) {
+                    if (node.class === "preferences") {
+                        hide(node);
+                    }
+                });
+            }
+
             // less comfortable
             if (lessComfortable) {
                 menus.get("Goto").item.setAttribute("caption", "Go");
