@@ -278,14 +278,18 @@ define(function(require, exports, module) {
          */
         function toggleMiniButton(lessComfortable) {
             var miniButton = layout.findParent(menus).childNodes[0].childNodes[0];
-            var bar = layout.findParent(menus);
+            var bar = document.querySelector(".c9-menu-bar .c9-mbar-cont");
             if (lessComfortable) {
                 hide(miniButton);
-                document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingLeft = "0";
+                if (bar) {
+                    bar.style.paddingLeft = "0";
+                }
             }
             else {
                 show(miniButton);
-                document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingLeft = "";
+                if (bar) {
+                    bar.style.paddingLeft = "";
+                }
             }
         }
 
