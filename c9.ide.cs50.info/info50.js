@@ -113,6 +113,9 @@ define(function(require, exports, module) {
                 command: "cs50infoDialog"
             }), 34, plugin);
 
+            // load CSS for button
+            imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
+
             // create CS50 button
             cs50Btn = new ui.button({
                 "skin"    : "c9-menu-btn",
