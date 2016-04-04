@@ -1,7 +1,8 @@
+/* https://github.com/c9/core/pull/282 */
+.c9-menu-btnEmpty {
+    padding-left: 9px;
+}
+
 .selectable {
- -moz-user-select: all;
- -khtml-user-select: all;
- -webkit-user-select: all;
- -ms-user-select: all;
- user-select: all;
+    user-select: all;
 }
