@@ -2,7 +2,7 @@ define(function(require, exports, module) {
 
     // APIs consumed
     main.consumes = [
-        'commands', 'layout', 'menus', 'Plugin', 'settings', 'ui'
+        'layout', 'Plugin', 'settings', 'ui'
     ];
 
     // APIs provided
