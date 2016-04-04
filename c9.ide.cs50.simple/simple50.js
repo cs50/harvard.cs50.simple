@@ -278,7 +278,15 @@ define(function(require, exports, module) {
          */
         function toggleMiniButton(lessComfortable) {
             var miniButton = layout.findParent(menus).childNodes[0].childNodes[0];
-            lessComfortable ? hide(miniButton) : show(miniButton);
+            var bar = layout.findParent(menus);
+            if (lessComfortable) {
+                hide(miniButton);
+                document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingLeft = "0";
+            }
+            else {
+                show(miniButton);
+                document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingLeft = "";
+            }
         }
 
         /*
