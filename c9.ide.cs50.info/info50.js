@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "settings", "layout", "Dialog",
-        "proc", "preferences", "collab.workspace", "api", "c9"
+        "proc", "preferences", "collab.workspace", "api", "c9", "console"
     ];
     main.provides = ["cs50.info"];
     return main;
@@ -22,16 +22,15 @@ define(function(require, exports, module) {
         /***** Initialization *****/
 
         var plugin = new Dialog("CS50", main.consumes, {
-            name: "CS50 Stats",
             allowClose: true,
+            modal: true,
             textselect: true,
-            title: "CS50 IDE Info",
-            modal: true
+            title: "Services"
         });
 
-        var cs50Btn;   // UI button
+        var infoBtn, versionBtn;   // UI button
 
-        var RUN_MESSAGE = "Please run <tt>update50</tt>!"; // update50 message
+        var RUN_MESSAGE = "It's time to run <tt>update50</tt>!"; // update50 message
         var DEFAULT_REFRESH = 30;   // default refresh rate
         var delay;                  // current refresh rate
         var fetching;               // are we fetching data
@@ -99,6 +98,15 @@ define(function(require, exports, module) {
                 exec: toggle
             }, plugin);
 
+            /* TODO: decide if wanted
+            // 
+            commands.addCommand({
+                name: "update50",
+                group: "General",
+                exec: update50
+            }, plugin);
+            */
+
             // notify UI of the function to open the host in a new tab
             commands.addCommand({
                 name: "openDomain",
@@ -117,18 +125,34 @@ define(function(require, exports, module) {
             imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
 
             // create CS50 button
-            cs50Btn = new ui.button({
-                "skin"    : "c9-menu-btn",
-                "caption" : "",
-                "tooltip" : "CS50 IDE Info",
-                "command" : "cs50infoDialog",
-                "visible" : true
+            infoBtn = new ui.button({
+                command: "cs50infoDialog",
+                skin: "c9-menu-btn",
+                tooltip: "Services",
+                visible: true
             });
 
             // place CS50 button
             ui.insertByIndex(layout.findParent({
                 name: "preferences"
-            }), cs50Btn, 860, plugin);
+            }), infoBtn, 860, plugin);
+
+            // globe
+            // TODO: change to http://glyphicons.com/, &#xe371, <span class="glyphicons glyphicons-globe-af"></span>
+            infoBtn.$ext.innerHTML = "&#127760;";
+
+            // create version button
+            versionBtn = new ui.button({
+                skin: "c9-menu-btn",
+                visible: false
+            });
+            versionBtn.setAttribute('class', 'cs50-info-version');
+            imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
+
+            // place version button
+            ui.insertByIndex(layout.findParent({
+                name: "preferences"
+            }), versionBtn, 860, plugin);
 
             // Add preference pane
             prefs.add({
@@ -235,7 +259,7 @@ define(function(require, exports, module) {
                 }
 
                 // notify user through button text
-                cs50Btn.$ext.innerHTML = "<tt>update50</tt>";
+                versionBtn.$ext.innerHTML = RUN_MESSAGE;
 
                 // update dialog with error
                 stats = {"error":long};
@@ -247,9 +271,8 @@ define(function(require, exports, module) {
             stats = JSON.parse(stdout);
 
             // update UI
-            cs50Btn.$ext.innerHTML = "&#9432;";
-            cs50Btn.show();
-
+            versionBtn.setCaption(stats.version);
+            versionBtn.show();
             updateDialog();
         }
 
@@ -273,11 +296,12 @@ define(function(require, exports, module) {
                 html.stats.style.display = "none";
             }
             else {
+
+                // TODO: just fill modal with RUN_MESSAGE rather than per field
+
                 // have stats: update table of info in dialog window
                 html.info.style.display = "none";
                 html.stats.style.display = "block";
-
-                html.version.innerHTML = stats.version;
 
                 // Add MySQL username and password field
                 if (stats.hasOwnProperty("user")) {
@@ -315,6 +339,21 @@ define(function(require, exports, module) {
                 plugin.show();
             }
         }
+
+        /*
+         * Opens terminal within console and runs update50 therein.
+         */
+        /* TODO: decide if wanted
+        function update50() {
+            imports.console.openEditor("terminal", true, function(err, tab) {
+                if (!err) {
+                    tab.editor.on("draw", function(e) {
+                        tab.editor.write("update50\n");
+                    });
+                }
+            });
+        }
+        */
 
         /*
          * Open domain page in new tab
@@ -368,7 +407,6 @@ define(function(require, exports, module) {
             e.html.innerHTML =
                 '<p id="info">...</p>' +
                 '<table id="stats"><col width="110">' +
-                '<tr><td><strong>Version</strong></td><td id="version">...</td></tr>' +
                 '<tr><td><strong>Web Server</strong></td><td id="hostname">...</td></tr>' +
                 '<tr><td><strong>phpMyAdmin</strong></td><td id="phpmyadmin">...</td></tr>' +
                 '<tr><td><strong>MySQL Username</strong></td><td id="user">...</td></tr>' +
@@ -424,7 +462,8 @@ define(function(require, exports, module) {
             delay = 30;
             timer = null;
             showing = false;
-            cs50Btn = null;
+            infoBtn = null;
+            versionBtn = null;
             fetching = false;
             html = null;
             stats = null;

@@ -2,3 +2,7 @@
 .c9-menu-btnEmpty {
     padding-left: 9px !important;
 }
+
+.cs50-info-version {
+    background-color: inherit !important;
+}
