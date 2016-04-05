@@ -277,7 +277,11 @@ define(function(require, exports, module) {
          * Toggles the button in top left that minimizes the menu bar
          */
         function toggleMiniButton(lessComfortable) {
+
+            // toggle button
             var miniButton = layout.findParent(menus).childNodes[0].childNodes[0];
+
+            // left-align "CS50 IDE" within menu bar
             var bar = document.querySelector(".c9-menu-bar .c9-mbar-cont");
             if (lessComfortable) {
                 hide(miniButton);
