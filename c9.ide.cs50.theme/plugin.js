@@ -29,7 +29,7 @@ define(function(require, exports, module) {
             button = new imports.ui.button({
                 'command': 'toggleTheme',
                 'skin': 'c9-menu-btn',
-                'tooltip': 'Toggle Theme',
+                'tooltip': 'Theme',
                 'visible': true
             });
 
