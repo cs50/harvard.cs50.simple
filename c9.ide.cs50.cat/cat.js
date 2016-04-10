@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 
             // load CSS for button
             button.setAttribute('class', 'cs50-cat');
-            imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
+            imports.ui.insertCss(require('text!./style.css'), options.staticPrefix, plugin);
 
             // insert button into menu
             imports.ui.insertByIndex(imports.layout.findParent({
