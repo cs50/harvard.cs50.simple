@@ -1,7 +1,4 @@
 {
-  "name": "c9.ide.cs50.theme",
-  "description": "Adds a button to Cloud9 IDE that toggles theme between flat-dark and flat-light.",
-  "version": "0.1.0",
   "author": "CS50",
   "contributors": [
     {
@@ -13,7 +10,9 @@
       "name": "David J. Malan"
     }
   ],
+  "description": "Adds a button to CS50 IDE that toggles theme between flat-dark and flat-light.",
+  "name": "c9.ide.cs50.theme",
   "plugins": {
-    "plugin": {}
+    "theme": {}
   }
 }

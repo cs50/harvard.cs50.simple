@@ -41,7 +41,7 @@ define(function(require, exports, module) {
             }, plugin);
 
             // load CSS for button
-            imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
+            imports.ui.insertCss(require('text!./style.css'), options.staticPrefix, plugin);
 
             // style button
             styleButton();
