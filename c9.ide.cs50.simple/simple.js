@@ -1,8 +1,3 @@
-/**
- * CS50 IDE
- * Simplifies Cloud9 IDE for those less comfortable.
- *
- */
 define(function(require, exports, module) {
     "use strict";
 
@@ -12,7 +7,7 @@ define(function(require, exports, module) {
         "panels", "preferences", "preview", "run.gui", "save", "settings",
         "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
     ];
-    main.provides = ["cs50.simple"];
+    main.provides = ["c9.ide.cs50.simple"];
     return main;
 
     function main(options, imports, register) {
@@ -696,7 +691,7 @@ define(function(require, exports, module) {
          **/
         plugin.freezePublicAPI({ });
 
-        register(null, { "cs50.simple" : plugin });
+        register(null, { "c9.ide.cs50.simple" : plugin });
     }
 });
 
