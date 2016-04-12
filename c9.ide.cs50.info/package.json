@@ -1,8 +1,6 @@
 {
-  "name": "cs50.info",
-  "description": "Provides a dialog for CS50 workspace information",
-  "version": "2.5.0",
   "author": "CS50",
+  "description": "Provides a dialog for CS50 workspace information",
   "contributors": [
     {
       "name": "Dan Armendariz",
@@ -10,29 +8,20 @@
     },
     {
       "name": "Dan Bradley",
-      "email": "dan.b.bradley@gmail.com"
     },
     {
       "name": "Dino Rodriguez",
-      "email": "dinorodriguez@college.harvard.edu"
     },
     {
       "name": "Victor Domene",
-      "email": "victordomene@college.harvard.edu"
     },
     {
       "name": "David J. Malan",
       "email": "malan@harvard.edu"
     }
   ],
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/cs50/ide50-plugin.git"
-  },
+  "name": "c9.ide.cs50.info",
   "plugins": {
-    "info50": {}
-  },
-  "categories": ["miscellaneous"],
-  "licenses": [],
-  "engines": {"c9": ">=3.0.0"}
+    "info": {}
+  }
 }

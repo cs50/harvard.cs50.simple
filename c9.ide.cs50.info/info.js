@@ -122,7 +122,7 @@ define(function(require, exports, module) {
             }), 34, plugin);
 
             // load CSS for button
-            imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
+            imports.ui.insertCss(require('text!./style.css'), options.staticPrefix, plugin);
 
             // create CS50 button
             infoBtn = new ui.button({
@@ -147,7 +147,6 @@ define(function(require, exports, module) {
                 visible: false
             });
             versionBtn.setAttribute('class', 'cs50-info-version');
-            imports.ui.insertCss(require('text!./styles.css'), options.staticPrefix, plugin);
 
             // place version button
             ui.insertByIndex(layout.findParent({
