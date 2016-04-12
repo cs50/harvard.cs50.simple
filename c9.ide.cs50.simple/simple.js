@@ -35,6 +35,7 @@ define(function(require, exports, module) {
 
         var lessComfortable = true;
         var profileMenu = null;
+        var divider = null;
 
         // code from gui.js
         function findTabToRun(){
@@ -55,7 +56,7 @@ define(function(require, exports, module) {
 
             return false;
         }
-        
+
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
             if (e.tab.path != undefined && e.tab.path.slice(-3) == ".js") {
@@ -66,7 +67,7 @@ define(function(require, exports, module) {
                 settings.set("project/language/@undeclaredVars", markUndecVars);
             }
         });
-        
+
         /*
          * Sets visibility of menu item with specified path.
          */
@@ -141,6 +142,9 @@ define(function(require, exports, module) {
                 menus.get("Goto/Goto Line...").item.setAttribute("caption", "Goto Line...");
                 menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Check Cloud9 Status");
                 menus.get("Support/Read Documentation").item.setAttribute("caption", "Read Documentation");
+
+                // re-show divider below View/Less Comfortable
+                divider.show();
             }
 
             // toggle visibility of each menu item
@@ -151,14 +155,14 @@ define(function(require, exports, module) {
                 "Cloud9/Open Your Keymap",
                 "Cloud9/Open Your Init Script",
                 "Cloud9/Open Your Stylesheet",
- 
+
                 // File Menu
                 "File/Revert to Saved",
                 "File/Revert All to Saved",
                 "File/Mount FTP or SFTP server",
                 "File/Line Endings",
                 "File/New Plugin",
- 
+
                 // Edit Menu
                 "Edit/Line/Move Line Up",
                 "Edit/Line/Move Line Down",
@@ -173,12 +177,12 @@ define(function(require, exports, module) {
                 "Edit/Text",
                 "Edit/Code Folding",
                 "Edit/Code Formatting",
- 
+
                 // Find Menu
                 "Find/Replace Next",
                 "Find/Replace Previous",
                 "Find/Replace All",
- 
+
                 // View Menu
                 "View/Editors",
                 "View/Syntax",
@@ -194,26 +198,26 @@ define(function(require, exports, module) {
                 "Goto/Word Right",
                 "Goto/Word Left",
                 "Goto/Scroll to Selection",
- 
+
                 // Run Menu
                 "Run",
- 
+
                 // Tools Menu
                 "Tools",
- 
+
                 // Window Menu
                 "Window/New Immediate Window",
                 "Window/Installer...",
                 "Window/Navigate",
                 "Window/Commands",
                 "Window/Presets",
- 
+
                 // Support menu
                 "Support/Show Guided Tour",
                 "Support/Get Help (Community)",
                 "Support/Request a Feature",
                 "Support/Go To YouTube Channel",
- 
+
                 // extraneous templates
                 "File/New From Template/Text file",
                 "File/New From Template/CoffeeScript file",
@@ -357,11 +361,11 @@ define(function(require, exports, module) {
             });
 
             // creates divider below toggle
-            var div = new ui.divider();
+            divider = new ui.divider();
 
             // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
-            menus.addItemByPath("View/Div", div, 10, plugin);
+            menus.addItemByPath("View/Div", divider, 10, plugin);
 
             // Add preference pane button
             prefs.add({
@@ -656,7 +660,7 @@ define(function(require, exports, module) {
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
                     ["lessComfortable", true],
-                    ["undeclaredVars", true]       
+                    ["undeclaredVars", true]
                 ]);
             });
 
@@ -682,6 +686,7 @@ define(function(require, exports, module) {
             loaded = false;
             lessComfortable = false;
             profileMenu = null;
+            divider = null;
         });
 
         /***** Register and define API *****/
