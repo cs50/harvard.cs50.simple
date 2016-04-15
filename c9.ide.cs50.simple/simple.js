@@ -322,9 +322,7 @@ define(function(require, exports, module) {
                 var test = setInterval(function (){
                     if (toggle(menuItems[2]) &&
                         toggle(menuItems[3]) &&
-                        toggle(menuItems[4]) &&
-                        toggle(menuItems[5]) &&
-                        toggle(menuItems[6])) {
+                        toggle(menuItems[4])) {
                         clearInterval(test);
                     }
                 }, 0);
