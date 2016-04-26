@@ -211,6 +211,7 @@ define(function(require, exports, module) {
                 "Window/Navigate",
                 "Window/Commands",
                 "Window/Presets",
+                "Window/Changes",
 
                 // Support menu
                 "Support/Show Guided Tour",
