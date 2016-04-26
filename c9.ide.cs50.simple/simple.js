@@ -212,6 +212,7 @@ define(function(require, exports, module) {
                 "Window/Commands",
                 "Window/Presets",
                 "Window/Changes",
+                "Window/Workspace",
 
                 // Support menu
                 "Support/Show Guided Tour",
@@ -301,11 +302,20 @@ define(function(require, exports, module) {
          * Toggles the left Navigate and Commands side tabs
          */
         function toggleSideTabs(lessComfortable) {
+            var leftarea = panels.areas.left.container;
 
-            // Only shows tabs automatically when less comfortable is disabled
-            lessComfortable ? panels.disablePanel("navigate") : panels.enablePanel("navigate");
-            lessComfortable ? panels.disablePanel("commands.panel") : panels.enablePanel("commands.panel");
-            lessComfortable ? panels.disablePanel("scm") : panels.enablePanel("scm");
+            // hide leftmost panel bar
+            var bar = leftarea.querySelector(".panelsbar");
+            if (bar) {
+                bar.style.display = lessComfortable ? "none" : "block";
+            }
+
+            // move workspace panel to the left
+            // note: 36px is from BARWIDTH const in c9.ide.panels/area.js
+            var panel = leftarea.querySelector(".workspace_files");
+            if (panel) {
+                panel.style.left = lessComfortable ? "0px" : "36px";
+            }
         }
 
         /*
