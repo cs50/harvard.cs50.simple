@@ -2,7 +2,7 @@ define(function(require, exports, module) {
 
     // APIs consumed
     main.consumes = [
-        'commands', 'layout', 'menus', 'Plugin', 'settings', 'ui'
+        'commands', 'layout', 'layout.preload', 'menus', 'Plugin', 'settings', 'ui'
     ];
 
     // APIs provided
@@ -16,11 +16,30 @@ define(function(require, exports, module) {
      */
     function main(options, imports, register) {
 
+        // https://lodash.com/docs
+        var _ = require("lodash");
+
         // instantiate plugin
         var plugin = new imports.Plugin('CS50', main.consumes);
 
         // button for menu
         var button = null;
+
+        // themes
+        var themes = {
+            dark: {
+                ace: 'ace/theme/cloud9_night',
+                class: 'cs50-theme-dark',
+                skin: 'flat-dark', // default
+                skins: ['dark', 'dark-gray', 'flat-dark']
+            },
+            light: {
+                ace: 'ace/theme/cloud9_day',
+                class: 'cs50-theme-light',
+                skin: 'flat-light', // default
+                skins: ['light', 'light-gray', 'flat-light']
+            }
+        };
 
         // when plugin is loaded
         plugin.on('load', function() {
@@ -51,6 +70,14 @@ define(function(require, exports, module) {
                 styleButton();
             }, plugin);
 
+            // prefetch theme not in use
+            if (button.getAttribute('class') == themes.dark.class) {
+                imports['layout.preload'].getTheme(themes.light.skin, function() {});
+            }
+            else {
+                imports['layout.preload'].getTheme(themes.dark.skin, function() {});
+            }
+
             // insert button into menu
             imports.ui.insertByIndex(imports.layout.findParent({
                 name: 'preferences'
@@ -71,12 +98,12 @@ define(function(require, exports, module) {
          * Styles button based on current theme.
          */
         function styleButton() {
-            var theme = imports.settings.get('user/general/@skin');
-            if (theme === 'dark' || theme === 'dark-gray' || theme === 'flat-dark') {
-                button.setAttribute('class', 'cs50-theme-dark');
+            var skin = imports.settings.get('user/general/@skin');
+            if (_.indexOf(themes.dark.skins, skin) !== -1) {
+                button.setAttribute('class', themes.dark.class);
             }
             else {
-                button.setAttribute('class', 'cs50-theme-light');
+                button.setAttribute('class', themes.light.class);
             }
         }
         
@@ -84,13 +111,13 @@ define(function(require, exports, module) {
          * Toggles theme from dark to light or from light to dark.
          */
         function toggleTheme() {
-            if (button.getAttribute('class') === 'cs50-theme-dark') {
-                imports.layout.resetTheme('flat-light', 'ace');
-                imports.settings.set('user/ace/@theme', 'ace/theme/cloud9_day');
+            if (button.getAttribute('class') === themes.dark.class) {
+                imports.layout.resetTheme(themes.light.skin, 'ace');
+                imports.settings.set('user/ace/@theme', themes.light.ace);
             }
             else {
-                imports.layout.resetTheme('flat-dark', 'ace');
-                imports.settings.set('user/ace/@theme', 'ace/theme/cloud9_night');
+                imports.layout.resetTheme(themes.dark.skin, 'ace');
+                imports.settings.set('user/ace/@theme', themes.dark.ace);
             }
         }
     }
