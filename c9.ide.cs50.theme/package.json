@@ -2,12 +2,14 @@
   "author": "CS50",
   "contributors": [
     {
-      "email": "victordomene@college.harvard.edu",
       "name": "Victor Domene"
     },
     {
       "email": "malan@harvard.edu",
       "name": "David J. Malan"
+    },
+    {
+      "name": "Kareem Zidane"
     }
   ],
   "description": "Adds a button to CS50 IDE that toggles theme between flat-dark and flat-light.",
