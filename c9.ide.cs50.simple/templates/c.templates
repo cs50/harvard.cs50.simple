@@ -4,7 +4,7 @@ caption C file
 	#include <cs50.h>
 	#include <stdio.h>
 	
-	int main(int argc, char* argv[])
+	int main(void)
 	{
-		// TODO
+	    // TODO
 	}
