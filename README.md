@@ -30,3 +30,8 @@ IDE users and Offline.
 
 1. [Build and release a new ide50 deb](https://github.com/cs50/ide50), the
    process incorporates the latest revisions of each plugin in the deb.
+
+## References
+
+* [Configuring a remote for a fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/)
+* [Syncing a fork](https://help.github.com/articles/syncing-a-fork/)
