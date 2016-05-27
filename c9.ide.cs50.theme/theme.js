@@ -99,7 +99,7 @@ define(function(require, exports, module) {
          */
         function styleButton() {
             var skin = imports.settings.get('user/general/@skin');
-            if (_.indexOf(themes.dark.skins, skin) !== -1) {
+            if (themes.dark.skins.indexOf(skin) !== -1) {
                 button.setAttribute('class', themes.dark.class);
             }
             else {
