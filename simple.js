@@ -212,6 +212,7 @@ define(function(require, exports, module) {
                 "Window/Commands",
                 "Window/Presets",
                 "Window/Changes",
+                "Window/Workspace",
 
                 // Support menu
                 "Support/Show Guided Tour",
@@ -303,9 +304,15 @@ define(function(require, exports, module) {
         function toggleSideTabs(lessComfortable) {
 
             // Only shows tabs automatically when less comfortable is disabled
+            lessComfortable ? panels.disablePanel("tree") : panels.enablePanel("tree");
             lessComfortable ? panels.disablePanel("navigate") : panels.enablePanel("navigate");
             lessComfortable ? panels.disablePanel("commands.panel") : panels.enablePanel("commands.panel");
             lessComfortable ? panels.disablePanel("scm") : panels.enablePanel("scm");
+
+            if (lessComfortable) {
+                // forcibly show file tree
+                panels.activate("tree");
+            }
         }
 
         /*
@@ -674,7 +681,6 @@ define(function(require, exports, module) {
             });
 
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
-
         }
 
         /***** Lifecycle *****/
