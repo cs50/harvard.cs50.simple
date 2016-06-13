@@ -699,6 +699,9 @@ settings.set("user/config/init.js", ssscript)
 
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
+
+ settings.set("user/ace/@printMarginColumn", "132");
+
         }
 
         /***** Lifecycle *****/
