@@ -302,16 +302,16 @@ define(function(require, exports, module) {
          * Toggles the left Navigate and Commands side tabs
          */
         function toggleSideTabs(lessComfortable) {
-
-            // Only shows tabs automatically when less comfortable is disabled
-            lessComfortable ? panels.disablePanel("tree") : panels.enablePanel("tree");
-            lessComfortable ? panels.disablePanel("navigate") : panels.enablePanel("navigate");
-            lessComfortable ? panels.disablePanel("commands.panel") : panels.enablePanel("commands.panel");
-            lessComfortable ? panels.disablePanel("scm") : panels.enablePanel("scm");
-
+            var panelList = ["tree", "navigate", "commands.panel", "scm"];
             if (lessComfortable) {
+                // Only shows tabs automatically when less comfortable is disabled
+                panelList.forEach(panels.disablePanel);
+
                 // forcibly show file tree
                 panels.activate("tree");
+            }
+            else {
+                panelList.forEach(panels.enablePanel);
             }
         }
 
