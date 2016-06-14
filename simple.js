@@ -255,23 +255,9 @@ define(function(require, exports, module) {
 
             // toggles preview button
             toggle(bar.childNodes[1]);
-        }
-
-        /*
-         * Switches the Run button to say Debug
-         */
-        function runToDebug() {
-            var runButton = layout.findParent({ name: "preview" }).childNodes[2];
-            runButton.$ext.childNodes[3].innerHTML = "Debug";
-
-            function updateTip() {
-                var path = basename(findTabToRun());
-                runButton.setAttribute("tooltip", "Run and debug " + path);
-            }
-
-            // Updates the tooltip to Run and debug
-            updateTip();
-            tabs.on("focus", updateTip);
+            
+            // toggles run button
+            toggle(bar.childNodes[2]);
         }
 
         /*
@@ -642,7 +628,6 @@ define(function(require, exports, module) {
             // Adds the permanent changes
             addToggle(plugin);
             addTooltips();
-            //runToDebug();
             //Hiding the Green Run Button
             hide(layout.findParent({ name: "preview" }).childNodes[2]);
             terminalFontSizeButton();
@@ -709,4 +694,3 @@ define(function(require, exports, module) {
         register(null, { "c9.ide.cs50.simple" : plugin });
     }
 });
-
