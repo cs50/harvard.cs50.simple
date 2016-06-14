@@ -642,7 +642,9 @@ define(function(require, exports, module) {
             // Adds the permanent changes
             addToggle(plugin);
             addTooltips();
-            runToDebug();
+            //runToDebug();
+            //Hiding the Green Run Button
+            hide(layout.findParent({ name: "preview" }).childNodes[2]);
             terminalFontSizeButton();
             locateProfile();
             loadMainMenuInfo(plugin);
