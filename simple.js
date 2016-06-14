@@ -633,8 +633,8 @@ define(function(require, exports, module) {
 
         function addSoundToTerminal() {
             /*
-            Adds a beep Sound to the terminal
-            By inserting a Script into the user's init.js file.
+            adds a beep aound to the terminal
+            by inserting a script into the user's init.js file.
             */
             var presentContent = String(settings.get("user/config/init.js"));
             if (presentContent.search('prototype.bell') !== -1)
@@ -677,9 +677,9 @@ define(function(require, exports, module) {
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
 
-                // Changes the vertical line to 132
+                // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
-			}
+              }
 
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
