@@ -638,7 +638,7 @@ define(function(require, exports, module) {
             */
             var presentContent = String(settings.get("user/config/init.js"));
             if (presentContent.search('prototype.bell') !== -1)
-              return;
+                return;
 
             var beepSound = require('text!./templates/beepsound.templates');
             settings.set("user/config/init.js",beepSound.concat(presentContent));
@@ -677,7 +677,7 @@ define(function(require, exports, module) {
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
 
-                //Changes the vertical line to 132
+                // Changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
 			}
 
