@@ -636,10 +636,10 @@ define(function(require, exports, module) {
             Adds a beep Sound to the terminal
             By inserting a Script into the user's init.js file.
             */
-	        var presentContent = String(settings.get("user/config/init.js"));
-			if (presentContent.search('prototype.bell') !== -1)
-				return;
-         
+            var presentContent = String(settings.get("user/config/init.js"));
+            if (presentContent.search('prototype.bell') !== -1)
+              return;
+
             var beepSound = require('text!./templates/beepsound.templates');
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
@@ -677,8 +677,8 @@ define(function(require, exports, module) {
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
 
-				//Changes the vertical line to 132 
-                settings.set("user/ace/@printMarginColumn", "132");   
+                //Changes the vertical line to 132
+                settings.set("user/ace/@printMarginColumn", "132");
 			}
 
             settings.on("read", function(){
