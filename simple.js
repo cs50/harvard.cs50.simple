@@ -642,7 +642,7 @@ define(function(require, exports, module) {
 
             var beepSound = require('text!./templates/beepsound.templates');
             settings.set("user/config/init.js",beepSound.concat(presentContent));
-        }
+          }
         /***** Initialization *****/
 
         var loaded = false;
