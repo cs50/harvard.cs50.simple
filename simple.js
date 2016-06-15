@@ -633,7 +633,7 @@ define(function(require, exports, module) {
 
         function addSoundToTerminal() {
             /*
-            adds a beep aound to the terminal
+            adds a beep sound to the terminal
             by inserting a script into the user's init.js file.
             */
             var presentContent = String(settings.get("user/config/init.js"));
