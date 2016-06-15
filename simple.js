@@ -390,6 +390,19 @@ define(function(require, exports, module) {
                     }
                 }
             }, plugin);
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "Less Comfortable" : {
+                        position: 10,
+                        "Forbidden Formats (extensions separated by ',')" : {
+                            type: "textbox",
+                            setting: "user/forbidden/@formats",
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
         }
 
         /*
@@ -664,6 +677,10 @@ define(function(require, exports, module) {
 
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
+
+                // default forbiddn formats
+                settings.set("user/forbidden/@formats",
+                    "class, exe, gz, o, pdf, pyc, raw, tar, zip");
             }
 
             settings.on("read", function(){
