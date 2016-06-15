@@ -617,6 +617,18 @@ define(function(require, exports, module) {
             settings.on("user/tabs", function(){ updateTitle(tabManager.focussedTab); });
         }
 
+        function addSoundToTerminal() {
+            /*
+            adds a beep sound to the terminal
+            by inserting a script into the user's init.js file.
+            */
+            var presentContent = String(settings.get("user/config/init.js"));
+            if (presentContent.search('prototype.bell') !== -1)
+                return;
+
+            var beepSound = require('text!./templates/beepsound.templates');
+            settings.set("user/config/init.js",beepSound.concat(presentContent));
+        }
         /***** Initialization *****/
 
         var loaded = false;
@@ -633,7 +645,7 @@ define(function(require, exports, module) {
             loadMainMenuInfo(plugin);
             editProfileMenu(plugin);
             setTitlesFromTabs();
-
+            addSoundToTerminal();
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
@@ -649,6 +661,9 @@ define(function(require, exports, module) {
                 settings.set("user/general/@downloadFilesAs", "zip");
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
+
+                // changes the vertical line to 132
+                settings.set("user/ace/@printMarginColumn", "132");
             }
 
             settings.on("read", function(){
@@ -664,7 +679,6 @@ define(function(require, exports, module) {
                     menus.click("View/Less Comfortable");
                 }
             });
-
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
         }
 
