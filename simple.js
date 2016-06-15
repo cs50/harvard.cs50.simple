@@ -363,7 +363,7 @@ define(function(require, exports, module) {
             prefs.add({
                "CS50" : {
                     position: 5,
-                    "Less Comfortable" : {
+                    "IDE Behavior" : {
                         position: 10,
                         "Less Comfortable mode" : {
                             type: "checkbox",
@@ -371,33 +371,17 @@ define(function(require, exports, module) {
                             min: 1,
                             max: 200,
                             position: 190
-                        }
-                    }
-                }
-            }, plugin);
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "Mark Undeclared Variables" : {
-                        position: 10,
+                        },
                         "Mark Undeclared Variables" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@undeclaredVars",
                             min: 1,
                             max: 200,
                             position: 190
-                        }
-                    }
-                }
-            }, plugin);
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "Less Comfortable" : {
-                        position: 10,
-                        "Forbidden Formats (extensions separated by ',')" : {
+                        },
+                        "Exclude File Extensions (separated by ',')" : {
                             type: "textbox",
-                            setting: "user/forbidden/@formats",
+                            setting: "user/tabs/@excludeFormats",
                             position: 190
                         }
                     }
@@ -678,8 +662,8 @@ define(function(require, exports, module) {
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
 
-                // default forbiddn formats
-                settings.set("user/forbidden/@formats",
+                // default excluded formats
+                settings.set("user/tabs/@excludeFormats",
                     "class, exe, gz, o, pdf, pyc, raw, tar, zip");
             }
 
