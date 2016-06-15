@@ -642,7 +642,7 @@ define(function(require, exports, module) {
 
             var beepSound = require('text!./templates/beepsound.templates');
             settings.set("user/config/init.js",beepSound.concat(presentContent));
-          }
+        }
         /***** Initialization *****/
 
         var loaded = false;
@@ -679,7 +679,7 @@ define(function(require, exports, module) {
 
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
-              }
+            }
 
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
