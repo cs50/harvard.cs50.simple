@@ -252,7 +252,7 @@ define(function(require, exports, module) {
 
             // toggles preview button
             toggle(bar.childNodes[1]);
-            
+
             // toggles run button
             toggle(bar.childNodes[2]);
         }
@@ -564,7 +564,7 @@ define(function(require, exports, module) {
             // Makes sure that the checkbox is correct
             menus.get("View/Less Comfortable").item.checked = lessComfortable;
         }
-        
+
         /*
          * Set the Terminal tab title to the current working directory
          */
@@ -577,7 +577,7 @@ define(function(require, exports, module) {
                     var substring = ' - ""';
                     // if the substring is found in either e.title or the tab title replace it everywhere with empty string
                     if(e.title.indexOf(substring) > -1 || tab.document.title.indexOf(substring) > -1){
-                        e.title = tab.document.title = session.doc.title = 
+                        e.title = tab.document.title = session.doc.title =
                         session.doc.tooltip = tab.document.title.replace(/ - ""/, "");
                     }
                 }, plugin);
@@ -601,7 +601,8 @@ define(function(require, exports, module) {
             tabManager.getTabs().forEach(function(tab) {
                setTmuxTitle(tab);
             });
-            
+
+
             // future tabs
             tabManager.on("open", function wait(e) {
                 setTmuxTitle(e.tab);
