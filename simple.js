@@ -30,9 +30,6 @@ define(function(require, exports, module) {
 
         var SETTINGS_VER = 6;
 
-        // the title to set Terminal tabs
-        var TERMINAL_TITLE = "Terminal";
-
         var lessComfortable = true;
         var profileMenu = null;
         var divider = null;
@@ -566,21 +563,23 @@ define(function(require, exports, module) {
 
             // Makes sure that the checkbox is correct
             menus.get("View/Less Comfortable").item.checked = lessComfortable;
-
         }
-
+        
         /*
-         * Disable Tmux title update and force Terminal tabs to one title
+         * Set the Terminal tab title to the current working directory
          */
-        function disableTmuxTitle(tab) {
-            if (tab && tab.editorType == "terminal") {
+        function setTmuxTitle(tab){
+            // check if the tab exists and it is a terminal tab
+            if (tab && tab.editorType == "terminal"){
                 var session = tab.document.getSession();
-                if (session && session.terminal)
-                    session.terminal.removeAllListeners("title"); // disable updating title
-                tab.document.title = TERMINAL_TITLE;
                 tab.document.on("setTitle", function(e) {
-                    if (e.title != TERMINAL_TITLE)
-                        tab.document.title = TERMINAL_TITLE;
+                    // the substring that must be removed
+                    var substring = ' - ""';
+                    // if the substring is found in either e.title or the tab title replace it everywhere with empty string
+                    if(e.title.indexOf(substring) > -1 || tab.document.title.indexOf(substring) > -1){
+                        e.title = tab.document.title = session.doc.title = 
+                        session.doc.tooltip = tab.document.title.replace(/ - ""/, "");
+                    }
                 }, plugin);
             }
         }
@@ -600,12 +599,12 @@ define(function(require, exports, module) {
         function setTitlesFromTabs() {
             // set terminal titles and document title based on existing tabs
             tabManager.getTabs().forEach(function(tab) {
-                disableTmuxTitle(tab);
+               setTmuxTitle(tab);
             });
-
+            
             // future tabs
             tabManager.on("open", function wait(e) {
-                disableTmuxTitle(e.tab);
+                setTmuxTitle(e.tab);
             }, plugin);
 
             // udpate document title once
