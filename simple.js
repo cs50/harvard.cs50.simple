@@ -538,10 +538,10 @@ define(function(require, exports, module) {
                             win: "Meta-Ctrl--" },
                 group: "Terminal",
                 exec: function() {
-                if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
-                    commands.exec("smallerterminalfont");
-                }
-                commands.exec("smallerfont");
+                    if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
+                        commands.exec("smallerterminalfont");
+                    }
+                    commands.exec("smallerfont");
                 }
             }, plugin);
 
@@ -552,10 +552,10 @@ define(function(require, exports, module) {
                             win: "Meta-Ctrl-=|Meta-Ctrl-+" },
                 group: "Terminal",
                 exec: function() {
-                if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
-                    commands.exec("largerterminalfont");
-                }
-                commands.exec("largerfont");
+                    if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
+                        commands.exec("largerterminalfont");
+                    }
+                    commands.exec("largerfont");
                 }
             }, plugin);
 
