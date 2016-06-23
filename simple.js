@@ -460,65 +460,6 @@ define(function(require, exports, module) {
             auth.logout();
             window.location.replace("https://cs50.io/web/login");
         }
-        /*
-         * Increase the font size of the terminal
-         */
-        function increaseFontSize() {
-            var tSize = settings.getNumber("user/terminal/@fontsize");
-
-            // default size
-            if (tSize == 0)
-                tSize = 12;
-
-            // increase size, unless it will take us over 72
-            tSize = ++tSize > 72 ? 72 : tSize;
-
-            // Update both the int and string forms of fontsize
-            settings.set("user/terminal/@fontsize", tSize);
-
-          if (settings.get("user/cs50/simple/@simultaneousFontSize")){
-                  var eSize = settings.getNumber("user/ace/@fontSize");
-
-                // default size
-                if (eSize == 0)
-                    eSize = 12;
-
-                // increase size, unless it will take us over 72
-                eSize = ++eSize > 72 ? 72 : eSize;
-
-                // Update both the int and string forms of fontsize
-                settings.set("user/ace/@fontSize", tSize);
-            }
-        }
-
-        /*
-         * Decrease the font size of the terminal
-         */
-        function decreaseFontSize() {
-            var tSize = settings.getNumber("user/terminal/@fontsize");
-
-            // default size
-            if (tSize == 0)
-                tSize = 12;
-
-            // decrease size, unless it will take us below 1
-            tSize = --tSize < 1 ? 1 : tSize;
-
-            // Update both the int and string forms of fontsize
-            settings.set("user/terminal/@fontsize", tSize);
-            console.log(settings.get("user/cs50/simple/@simultaneousFontSize"));
-            if (settings.get("user/cs50/simple/@simultaneousFontSize")){
-                var eSize = settings.getNumber("user/ace/@fontSize");
-                // default size
-                if (eSize == 0)
-                    eSize = 12;
-                // decrease size, unless it will take us below 1
-                eSize = --eSize < 1 ? 1 : eSize;
-
-                // Update both the int and string forms of fontsize
-                settings.set("user/ace/@fontSize", eSize);
-            }
-        }
 
         /*
          * Change logout to take back to dashboard rather than sign in
@@ -545,6 +486,7 @@ define(function(require, exports, module) {
          * Creates a button to change Terminal font size
          */
         function terminalFontSizeButton() {
+
             // Add keyboard hotkeys
             commands.addCommand({
                 name: "largerterminalfont",
@@ -552,7 +494,19 @@ define(function(require, exports, module) {
                 bindKey: { mac: "Command-Ctrl-=|Command-Ctrl-+",
                            win: "Meta-Ctrl-=|Meta-Ctrl-+" },
                 group: "Terminal",
-                exec: increaseFontSize
+                exec: function() {
+                    var fsize = settings.getNumber("user/terminal/@fontsize");
+
+                    // default size
+                    if (fsize == 0)
+                        fsize = 12;
+
+                    // increase size, unless it will take us over 72
+                    fsize = ++fsize > 72 ? 72 : fsize;
+
+                    // Update both the int and string forms of fontsize
+                    settings.set("user/terminal/@fontsize", fsize);
+                }
             }, plugin);
 
             commands.addCommand({
@@ -560,14 +514,56 @@ define(function(require, exports, module) {
                 hint: "decrease terminal font size",
                 bindKey: { mac: "Command-Ctrl--", win: "Meta-Ctrl--" },
                 group: "Terminal",
-                exec:decreaseFontSize
+                exec: function() {
+                    var fsize = settings.getNumber("user/terminal/@fontsize");
+
+                    // default size
+                    if (fsize == 0)
+                        fsize = 12;
+
+                    // decrease size, unless it will take us below 1
+                    fsize = --fsize < 1 ? 1 : fsize;
+
+                    // Update both the int and string forms of fontsize
+                    settings.set("user/terminal/@fontsize", fsize);
+                }
             }, plugin);
 
+            // Add keyboard hotkeys
+            commands.addCommand({
+                name: "decreasefontsimultaneously",
+                hint: "decrease font size simultaneously",
+                bindKey: {  mac: "Command-Ctrl-=|Command-Ctrl-+",
+                            win: "Meta-Ctrl--" },
+                group: "Terminal",
+                exec: function() {
+                if(settings.get("user/cs50/simple/@simultaneousFontSize")){
+                commands.exec("smallerterminalfont");
+                commands.exec("smallerfont");
+                }
+                }
+            }, plugin);
+
+            commands.addCommand({
+                name: "increasefontsimultaneously",
+                hint: "increase font size simultaneously",
+                bindKey: {  mac: "Command-Ctrl--",
+                            win: "Meta-Ctrl-=|Meta-Ctrl-+" },
+                group: "Terminal",
+                exec: function() {
+                if(settings.get("user/cs50/simple/@simultaneousFontSize")){
+                commands.exec("largerterminalfont");
+                commands.exec("largerfont");
+                }
+                }
+            }, plugin);
+
+            menus.addItemByPath("View/Change Terminal and Editor Font Size Simultaneously",
+                new ui.item({
+                    type: "check",
+                    checked: "user/cs50/simple/@simultaneousFontSize"
+                }), 800,plugin);
             menus.addItemByPath("View/Terminal Font Size/", null, 290000, plugin);
-            menus.addItemByPath("View/Change Terminal and Editor Font Size Simultaneously", new ui.item({
-                type: "check",
-                checked: "user/cs50/simple/@simultaneousFontSize"}),
-                800,plugin);
             menus.addItemByPath("View/Terminal Font Size/Increase Terminal Font Size",
                 new ui.item({
                     caption: "Increase Terminal Font Size",
@@ -690,7 +686,8 @@ define(function(require, exports, module) {
                 settings.set("user/tabs/@asterisk", true);
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
-
+                // sets simultaneousFontSize to false by default
+                settings.set("user/cs50/simple/@simultaneousFontSize", false);
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
@@ -699,6 +696,8 @@ define(function(require, exports, module) {
                 settings.set("user/general/@downloadFilesAs", "zip");
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
+
+                // sets simultaneous font to false by default
                 settings.set("user/cs50/simple/@simultaneousFontSize", false);
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
@@ -716,7 +715,7 @@ define(function(require, exports, module) {
                 if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
-               setMenuVisibility("View/Terminal Font Size",!settings.get("user/cs50/simple/@simultaneousFontSize"))
+                setMenuVisibility("View/Terminal Font Size",!settings.get("user/cs50/simple/@simultaneousFontSize"));
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
         }
