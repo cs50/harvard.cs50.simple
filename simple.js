@@ -533,7 +533,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "decreasefontsimultaneously",
                 hint: "decrease font size simultaneously",
-                bindKey: {  mac: "Command-Ctrl-=|Command-Ctrl-+",
+                bindKey: {  mac: "Command-Ctrl--",
                             win: "Meta-Ctrl--" },
                 group: "Terminal",
                 exec: function() {
@@ -547,7 +547,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "increasefontsimultaneously",
                 hint: "increase font size simultaneously",
-                bindKey: {  mac: "Command-Ctrl--",
+                bindKey: {  mac: "Command-Ctrl-=|Command-Ctrl-+",
                             win: "Meta-Ctrl-=|Meta-Ctrl-+" },
                 group: "Terminal",
                 exec: function() {
