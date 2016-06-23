@@ -492,7 +492,8 @@ define(function(require, exports, module) {
                 name: "largerterminalfont",
                 hint: "increase terminal font size",
                 bindKey: { mac: "Command-Ctrl-=|Command-Ctrl-+",
-                           win: "Meta-Ctrl-=|Meta-Ctrl-+" },
+                           win: "Meta-Ctrl-=|Meta-Ctrl-+"
+                         },
                 group: "Terminal",
                 exec: function() {
                     var fsize = settings.getNumber("user/terminal/@fontsize");
@@ -512,7 +513,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "smallerterminalfont",
                 hint: "decrease terminal font size",
-                bindKey: { mac: "Command-Ctrl--", win: "Meta-Ctrl--" },
+                bindKey: { mac: "Command-Ctrl--",win: "Meta-Ctrl--" },
                 group: "Terminal",
                 exec: function() {
                     var fsize = settings.getNumber("user/terminal/@fontsize");
@@ -537,10 +538,10 @@ define(function(require, exports, module) {
                             win: "Meta-Ctrl--" },
                 group: "Terminal",
                 exec: function() {
-                if(settings.get("user/cs50/simple/@simultaneousFontSize")){
-                commands.exec("smallerterminalfont");
-                commands.exec("smallerfont");
+                if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
+                    commands.exec("smallerterminalfont");
                 }
+                commands.exec("smallerfont");
                 }
             }, plugin);
 
@@ -551,10 +552,10 @@ define(function(require, exports, module) {
                             win: "Meta-Ctrl-=|Meta-Ctrl-+" },
                 group: "Terminal",
                 exec: function() {
-                if(settings.get("user/cs50/simple/@simultaneousFontSize")){
-                commands.exec("largerterminalfont");
-                commands.exec("largerfont");
+                if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
+                    commands.exec("largerterminalfont");
                 }
+                commands.exec("largerfont");
                 }
             }, plugin);
 
@@ -687,7 +688,7 @@ define(function(require, exports, module) {
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
                 // sets simultaneousFontSize to false by default
-                settings.set("user/cs50/simple/@simultaneousFontSize", false);
+                settings.set("user/cs50/simple/@simultaneousFontSize", true);
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
@@ -696,9 +697,6 @@ define(function(require, exports, module) {
                 settings.set("user/general/@downloadFilesAs", "zip");
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
-
-                // sets simultaneous font to false by default
-                settings.set("user/cs50/simple/@simultaneousFontSize", false);
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
             }
@@ -715,7 +713,8 @@ define(function(require, exports, module) {
                 if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
-                setMenuVisibility("View/Terminal Font Size",!settings.get("user/cs50/simple/@simultaneousFontSize"));
+                setMenuVisibility("View/Terminal Font Size",
+                    !settings.getBool("user/cs50/simple/@simultaneousFontSize"));
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
         }
