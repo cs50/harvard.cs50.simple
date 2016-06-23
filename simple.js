@@ -534,8 +534,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "decreasefontsimultaneously",
                 hint: "decrease font size simultaneously",
-                bindKey: {  mac: "Command-Ctrl--",
-                            win: "Meta-Ctrl--" },
+                bindKey: { mac : "Command--", win : "Ctrl--" },
                 group: "Terminal",
                 exec: function() {
                     if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
@@ -548,8 +547,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "increasefontsimultaneously",
                 hint: "increase font size simultaneously",
-                bindKey: {  mac: "Command-Ctrl-=|Command-Ctrl-+",
-                            win: "Meta-Ctrl-=|Meta-Ctrl-+" },
+                bindKey: { mac : "Command-+|Command-=", win : "Ctrl-+|Ctrl-=" },
                 group: "Terminal",
                 exec: function() {
                     if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
@@ -687,8 +685,6 @@ define(function(require, exports, module) {
                 settings.set("user/tabs/@asterisk", true);
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
-                // sets simultaneousFontSize to false by default
-                settings.set("user/cs50/simple/@simultaneousFontSize", true);
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
@@ -704,7 +700,8 @@ define(function(require, exports, module) {
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
                     ["lessComfortable", true],
-                    ["undeclaredVars", true]
+                    ["undeclaredVars", true],
+                    ["simultaneousFontSize",true]
                 ]);
             });
 
