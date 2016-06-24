@@ -599,7 +599,7 @@ define(function(require, exports, module) {
         function setTitlesFromTabs() {
             // set terminal titles and document title based on existing tabs
             tabManager.getTabs().forEach(function(tab) {
-               setTmuxTitle(tab);
+                setTmuxTitle(tab);
             });
 
 
