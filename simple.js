@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "Plugin", "ace", "ace.status", "auth", "commands", "console", "Divider",
+        "Plugin", "ace", "ace.status", "auth", "clipboard", "commands", "console", "Divider",
         "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
         "panels", "preferences", "preview", "run.gui", "save", "settings",
         "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var auth = imports.auth;
         var prefs = imports.preferences;
+        var clipboard = imports.clipboard
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -479,6 +480,58 @@ define(function(require, exports, module) {
             menus.addItemToMenu(profileMenu, newLogout, 1000, plugin);
         }
 
+        function updateProfileScripts() {
+            commands.addCommand({
+                name: "cs50updateProfileScripts",
+                hint: "cs50 IDE Updating of Profile Scripts",
+                group: "General",
+                exec: function () {
+                    // Stores an array of Tab objects into 'array'
+                    var array = tabManager.getTabs();
+                    var i = 0;
+                    var arrayLength = array.length;
+                    var str1 = "terminal";
+
+                    // Go through the array of Tabs and find the terminal
+                    for(i = 0; i < arrayLength; i++){
+                        if(str1.localeCompare(array[i].editorType) === 0){
+                            //Activate the terminal tab
+                            var tab = array[i];
+                            tabManager.activateTab(tab);
+
+                            /***
+                             * The below variable updateCommand can be changed to any
+                             * unix command. It must be terminated with '\n' to ensure
+                             * the command runs in the terminal.
+                             */
+
+                            var prevData = clipboard.clipboardData.getData("text/plain");
+
+                            // Set the variable updateCommand to be the command that updates the terminal
+                            var updateCommand = "source /etc/profile\n";
+
+                            // Copy to the clipboard the data stored in updateCommand
+                            clipboard.clipboardData.setData("text/plain", updateCommand);
+
+                            // Pastes in the active Tab (the terminal) the command stored in the clipboard
+                            tab.editor.paste(clipboard);
+
+                            // Set the variable updateCommand to be the command that updates the terminal
+                            updateCommand = "source /home/ubuntu/.bashrc\n";
+
+                            // Copy to the clipboard the data stored in updateCommand
+                            clipboard.clipboardData.setData("text/plain", updateCommand);
+
+                            // Pastes in the active Tab (the terminal) the command stored in the clipboard
+                            tab.editor.paste(clipboard);
+
+                            clipboard.clipboardData.setData("text/plain", prevData);
+                        }
+                    }
+                }
+            }, plugin);
+        }
+
         /*
          * Creates a button to change Terminal font size
          */
@@ -629,6 +682,7 @@ define(function(require, exports, module) {
             var beepSound = require('text!./templates/beepsound.templates');
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -646,6 +700,7 @@ define(function(require, exports, module) {
             editProfileMenu(plugin);
             setTitlesFromTabs();
             addSoundToTerminal();
+            updateProfileScripts();
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
