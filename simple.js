@@ -493,7 +493,7 @@ define(function(require, exports, module) {
                 hint: "increase terminal font size",
                 bindKey: { mac: "Command-Ctrl-=|Command-Ctrl-+",
                            win: "Meta-Ctrl-=|Meta-Ctrl-+"
-                         },
+                },
                 group: "Terminal",
                 exec: function() {
                     var fsize = settings.getNumber("user/terminal/@fontsize");
@@ -513,7 +513,9 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "smallerterminalfont",
                 hint: "decrease terminal font size",
-                bindKey: { mac: "Command-Ctrl--",win: "Meta-Ctrl--" },
+                bindKey: {  mac: "Command-Ctrl--",
+                            win: "Meta-Ctrl--"
+                },
                 group: "Terminal",
                 exec: function() {
                     var fsize = settings.getNumber("user/terminal/@fontsize");
