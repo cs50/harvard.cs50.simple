@@ -162,6 +162,7 @@ define(function(require, exports, module) {
                 "File/Mount FTP or SFTP server",
                 "File/Line Endings",
                 "File/New Plugin",
+                "File/Upload Local Files...",
 
                 // Edit Menu
                 "Edit/Line/Move Line Up",
