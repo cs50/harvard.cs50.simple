@@ -508,24 +508,27 @@ define(function(require, exports, module) {
                             var prevData = clipboard.clipboardData.getData("text/plain");
 
                             // Set the variable updateCommand to be the command that updates the terminal
-                            var updateCommand = "source /etc/profile\n";
+                            var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
 
                             // Copy to the clipboard the data stored in updateCommand
                             clipboard.clipboardData.setData("text/plain", updateCommand);
 
                             // Pastes in the active Tab (the terminal) the command stored in the clipboard
                             tab.editor.paste(clipboard);
-
-                            // Set the variable updateCommand to be the command that updates the terminal
-                            updateCommand = "source /home/ubuntu/.bashrc\n";
-
-                            // Copy to the clipboard the data stored in updateCommand
+                            
+                            /***
+                            var spaceArray = [];
+                            for (var count = 0 ; count < 50 ; count++) {
+                                spaceArray.push(" ");
+                            }
+                            spaceArray = spaceArray.join("");
+                            
+                            updateCommand = " printf '\\033[4A'\n" + spaceArray + "\n" + spaceArray + "\n" + spaceArray + "\n" + spaceArray + "\n";
                             clipboard.clipboardData.setData("text/plain", updateCommand);
-
-                            // Pastes in the active Tab (the terminal) the command stored in the clipboard
                             tab.editor.paste(clipboard);
 
                             clipboard.clipboardData.setData("text/plain", prevData);
+                            */
                         }
                     }
                 }
