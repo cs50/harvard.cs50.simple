@@ -515,20 +515,6 @@ define(function(require, exports, module) {
 
                             // Pastes in the active Tab (the terminal) the command stored in the clipboard
                             tab.editor.paste(clipboard);
-                            
-                            /***
-                            var spaceArray = [];
-                            for (var count = 0 ; count < 50 ; count++) {
-                                spaceArray.push(" ");
-                            }
-                            spaceArray = spaceArray.join("");
-                            
-                            updateCommand = " printf '\\033[4A'\n" + spaceArray + "\n" + spaceArray + "\n" + spaceArray + "\n" + spaceArray + "\n";
-                            clipboard.clipboardData.setData("text/plain", updateCommand);
-                            tab.editor.paste(clipboard);
-
-                            clipboard.clipboardData.setData("text/plain", prevData);
-                            */
                         }
                     }
                 }
