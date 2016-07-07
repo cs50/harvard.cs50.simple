@@ -582,8 +582,8 @@ define(function(require, exports, module) {
         }
 
         /*
-        * Toggles whether or not simple mode is enabled
-        */
+         * Toggles whether or not simple mode is enabled
+         */
         function toggleSimpleMode(override) {
 
             // if we're unloading, remove menu customizations but don't save
