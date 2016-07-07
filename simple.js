@@ -157,7 +157,7 @@ define(function(require, exports, module) {
                 // File Menu
                 "File/Revert to Saved",
                 "File/Revert All to Saved",
-                "File/Mount FTP or SFTP server",
+                "File/Mount FTP or SFTP server...",
                 "File/Line Endings",
                 "File/New Plugin",
 
@@ -531,7 +531,8 @@ define(function(require, exports, module) {
                 name: "largerterminalfont",
                 hint: "increase terminal font size",
                 bindKey: { mac: "Command-Ctrl-=|Command-Ctrl-+",
-                           win: "Meta-Ctrl-=|Meta-Ctrl-+" },
+                           win: "Meta-Ctrl-=|Meta-Ctrl-+"
+                },
                 group: "Terminal",
                 exec: function() {
                     var fsize = settings.getNumber("user/terminal/@fontsize");
@@ -551,7 +552,9 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "smallerterminalfont",
                 hint: "decrease terminal font size",
-                bindKey: { mac: "Command-Ctrl--", win: "Meta-Ctrl--" },
+                bindKey: {  mac: "Command-Ctrl--",
+                            win: "Meta-Ctrl--"
+                },
                 group: "Terminal",
                 exec: function() {
                     var fsize = settings.getNumber("user/terminal/@fontsize");
@@ -568,6 +571,38 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
+            // Add keyboard hotkeys
+            commands.addCommand({
+                name: "decreasefontsimultaneously",
+                hint: "decrease font size simultaneously",
+                bindKey: { mac : "Command--", win : "Ctrl--" },
+                group: "Terminal",
+                exec: function() {
+                    if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
+                        commands.exec("smallerterminalfont");
+                    }
+                    commands.exec("smallerfont");
+                }
+            }, plugin);
+
+            commands.addCommand({
+                name: "increasefontsimultaneously",
+                hint: "increase font size simultaneously",
+                bindKey: { mac : "Command-+|Command-=", win : "Ctrl-+|Ctrl-=" },
+                group: "Terminal",
+                exec: function() {
+                    if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
+                        commands.exec("largerterminalfont");
+                    }
+                    commands.exec("largerfont");
+                }
+            }, plugin);
+
+            menus.addItemByPath("View/Change Terminal and Editor Font Size Simultaneously",
+                new ui.item({
+                    type: "check",
+                    checked: "user/cs50/simple/@simultaneousFontSize"
+                }), 800,plugin);
             menus.addItemByPath("View/Terminal Font Size/", null, 290000, plugin);
             menus.addItemByPath("View/Terminal Font Size/Increase Terminal Font Size",
                 new ui.item({
@@ -696,7 +731,6 @@ define(function(require, exports, module) {
                 settings.set("user/tabs/@asterisk", true);
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
-
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
@@ -705,7 +739,6 @@ define(function(require, exports, module) {
                 settings.set("user/general/@downloadFilesAs", "zip");
 
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
-
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
             }
@@ -713,7 +746,8 @@ define(function(require, exports, module) {
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
                     ["lessComfortable", true],
-                    ["undeclaredVars", true]
+                    ["undeclaredVars", true],
+                    ["simultaneousFontSize",true]
                 ]);
             });
 
@@ -722,6 +756,8 @@ define(function(require, exports, module) {
                 if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
+                setMenuVisibility("View/Terminal Font Size",
+                    !settings.getBool("user/cs50/simple/@simultaneousFontSize"));
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
         }
