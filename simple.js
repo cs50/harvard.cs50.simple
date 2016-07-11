@@ -2,30 +2,31 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "Plugin", "ace", "ace.status", "auth", "clipboard", "commands", "console", "Divider",
-        "immediate", "keymaps", "layout", "Menu", "MenuItem", "menus", "mount",
-        "panels", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "c9"
+        "ace", "ace.status", "auth", "clipboard", "commands", "console",
+        "Divider", "harvard.cs50.presentation", "immediate", "keymaps",
+        "layout", "Menu", "menus", "mount", "panels", "Plugin", "preferences",
+        "preview", "run.gui", "save", "settings", "tabManager", "terminal",
+        "tooltip", "tree", "ui", "c9"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
 
     function main(options, imports, register) {
-        var Plugin = imports.Plugin;
+        var auth = imports.auth;
         var c9 = imports.c9;
-        var ui = imports.ui;
-        var menus = imports.menus;
+        var clipboard = imports.clipboard;
+        var commands = imports.commands;
         var layout = imports.layout;
-        var tabs = imports.tabManager;
+        var menus = imports.menus;
+        var Plugin = imports.Plugin;
+        var prefs = imports.preferences;
+        var presentation = imports["harvard.cs50.presentation"];
         var settings = imports.settings;
         var status = imports["ace.status"];
-        var basename = require("path").basename;
-        var commands = imports.commands;
+        var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
         var panels = imports.panels;
-        var auth = imports.auth;
-        var prefs = imports.preferences;
-        var clipboard = imports.clipboard
+        var ui = imports.ui;
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -34,26 +35,6 @@ define(function(require, exports, module) {
         var lessComfortable = true;
         var profileMenu = null;
         var divider = null;
-
-        // code from gui.js
-        function findTabToRun(){
-            var path = tabs.focussedTab && tabs.focussedTab.path;
-            if (path) return path.replace(/^\//, "");
-
-            var foundActive;
-            if (tabs.getPanes().every(function(pane) {
-                var tab = pane.activeTab;
-                if (tab && tab.path) {
-                    if (foundActive) return false;
-                    foundActive = tab;
-                }
-                return true;
-            }) && foundActive) {
-                return foundActive.path.replace(/^\//, "");
-            }
-
-            return false;
-        }
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -521,99 +502,102 @@ define(function(require, exports, module) {
             }, plugin);
         }
 
-        /*
-         * Creates a button to change Terminal font size
+        /**
+         * Updates items of "View > Font Size".
          */
-        function terminalFontSizeButton() {
+        function updateFontSize() {
+            /**
+             * @return true if editor type of focused tab is ace or terminal.
+             * false otherwise.
+             */
+            function isAvailable() {
+                var editorType = tabManager.focussedTab.editor.type;
+                return editorType === "ace" || editorType === "terminal";
+            };
 
-            // Add keyboard hotkeys
+            // cache and delete keyboard shortcuts for largerfont & smallerfont
+            var largerfontKeys = commands.commands.largerfont.bindKey;
+            delete commands.commands.largerfont.bindKey;
+            var smallerfontKeys = commands.commands.smallerfont.bindKey;
+            delete commands.commands.smallerfont.bindKey;
+
+            // command for increasing font sizes of ace and terminal
             commands.addCommand({
-                name: "largerterminalfont",
-                hint: "increase terminal font size",
-                bindKey: { mac: "Command-Ctrl-=|Command-Ctrl-+",
-                           win: "Meta-Ctrl-=|Meta-Ctrl-+"
-                },
-                group: "Terminal",
+                name: "largerfonts",
                 exec: function() {
-                    var fsize = settings.getNumber("user/terminal/@fontsize");
 
-                    // default size
-                    if (fsize == 0)
-                        fsize = 12;
-
-                    // increase size, unless it will take us over 72
-                    fsize = ++fsize > 72 ? 72 : fsize;
-
-                    // Update both the int and string forms of fontsize
-                    settings.set("user/terminal/@fontsize", fsize);
-                }
-            }, plugin);
-
-            commands.addCommand({
-                name: "smallerterminalfont",
-                hint: "decrease terminal font size",
-                bindKey: {  mac: "Command-Ctrl--",
-                            win: "Meta-Ctrl--"
-                },
-                group: "Terminal",
-                exec: function() {
-                    var fsize = settings.getNumber("user/terminal/@fontsize");
-
-                    // default size
-                    if (fsize == 0)
-                        fsize = 12;
-
-                    // decrease size, unless it will take us below 1
-                    fsize = --fsize < 1 ? 1 : fsize;
-
-                    // Update both the int and string forms of fontsize
-                    settings.set("user/terminal/@fontsize", fsize);
-                }
-            }, plugin);
-
-            // Add keyboard hotkeys
-            commands.addCommand({
-                name: "decreasefontsimultaneously",
-                hint: "decrease font size simultaneously",
-                bindKey: { mac : "Command--", win : "Ctrl--" },
-                group: "Terminal",
-                exec: function() {
-                    if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
-                        commands.exec("smallerterminalfont");
-                    }
-                    commands.exec("smallerfont");
-                }
-            }, plugin);
-
-            commands.addCommand({
-                name: "increasefontsimultaneously",
-                hint: "increase font size simultaneously",
-                bindKey: { mac : "Command-+|Command-=", win : "Ctrl-+|Ctrl-=" },
-                group: "Terminal",
-                exec: function() {
-                    if(settings.getBool("user/cs50/simple/@simultaneousFontSize")){
-                        commands.exec("largerterminalfont");
-                    }
+                    // increase ace's font size
                     commands.exec("largerfont");
-                }
+
+                    // increase terminal's font size
+                    var currSize = settings.getNumber(
+                        "user/terminal/@fontsize"
+                    );
+                    settings.set(
+                        "user/terminal/@fontsize",
+                        ++currSize > 72 ? 72 : currSize
+                    );
+                },
+                bindKey: largerfontKeys,
+                isAvailable: isAvailable
             }, plugin);
 
-            menus.addItemByPath("View/Change Terminal and Editor Font Size Simultaneously",
-                new ui.item({
-                    type: "check",
-                    checked: "user/cs50/simple/@simultaneousFontSize"
-                }), 800,plugin);
-            menus.addItemByPath("View/Terminal Font Size/", null, 290000, plugin);
-            menus.addItemByPath("View/Terminal Font Size/Increase Terminal Font Size",
-                new ui.item({
-                    caption: "Increase Terminal Font Size",
-                    command: "largerterminalfont"
-                }), 100, plugin);
-            menus.addItemByPath("View/Terminal Font Size/Decrease Terminal Font Size",
-                new ui.item({
-                    caption: "Decrease Terminal Font Size",
-                    command: "smallerterminalfont",
-                }), 200, plugin);
+
+            // command for resetting font sizes of ace and terminal to defaults
+            commands.addCommand({
+                name: "resetfonts",
+                exec: function() {
+                    var ace = 12;
+                    var terminal = 12;
+
+                    // determine default font sizes depending on current mode
+                    if (presentation.presenting)
+                         ace = terminal = 20;
+
+                    // reset font sizes of ace and terminal to defaults
+                    settings.set("user/ace/@fontSize", ace);
+                    settings.set("user/terminal/@fontsize", terminal);
+                },
+                bindKey: {
+                    mac: "Command-Ctrl-0",
+                    win: "Alt-Ctrl-0"
+                },
+                isAvailable: isAvailable,
+            }, plugin);
+
+            // command for decreasing font sizes of ace and terminal
+            commands.addCommand({
+                name: "smallerfonts",
+                exec: function() {
+
+                    // decrease ace's font size
+                    commands.exec("smallerfont");
+
+                    // decrease terminal's font size
+                    var currSize = settings.getNumber(
+                        "user/terminal/@fontsize"
+                    );
+                    settings.set(
+                        "user/terminal/@fontsize",
+                        --currSize < 1 ? 1 : currSize
+                    );
+                },
+                bindKey: smallerfontKeys,
+                isAvailable: isAvailable
+            }, plugin);
+
+            // override behaviors of "Increase Font Size" & "Decrease Font Size"
+            menus.get("View/Font Size/Increase Font Size").item.setAttribute(
+                "command", "largerfonts"
+            );
+            menus.get("View/Font Size/Decrease Font Size").item.setAttribute(
+                "command", "smallerfonts"
+            );
+
+            // add "Reset Font Size"
+            menus.addItemByPath("View/Font Size/Reset Font Size", new ui.item({
+                command: "resetfonts",
+            }), 150, plugin);
         }
 
         /*
@@ -718,7 +702,7 @@ define(function(require, exports, module) {
             // Adds the permanent changes
             addToggle(plugin);
             addTooltips();
-            terminalFontSizeButton();
+            updateFontSize();
             locateProfile();
             loadMainMenuInfo(plugin);
             editProfileMenu(plugin);
