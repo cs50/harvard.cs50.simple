@@ -361,7 +361,7 @@ define(function(require, exports, module) {
             prefs.add({
                "CS50" : {
                     position: 5,
-                    "Less Comfortable" : {
+                    "IDE Behavior" : {
                         position: 10,
                         "Less Comfortable mode" : {
                             type: "checkbox",
@@ -369,15 +369,7 @@ define(function(require, exports, module) {
                             min: 1,
                             max: 200,
                             position: 190
-                        }
-                    }
-                }
-            }, plugin);
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "Mark Undeclared Variables" : {
-                        position: 10,
+                        },
                         "Mark Undeclared Variables" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@undeclaredVars",
@@ -741,6 +733,12 @@ define(function(require, exports, module) {
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
+
+                // default excluded formats
+                var types = ["class", "exe", "gz", "o", "pdf", "pyc", "raw", "tar", "zip"];
+                types.map(function (i) {
+                    settings.set("user/tabs/editorTypes/@"+i, "none");
+                });
             }
 
             settings.on("read", function(){
