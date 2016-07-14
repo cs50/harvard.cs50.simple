@@ -715,9 +715,8 @@ define(function(require, exports, module) {
 
             // Filter through topToolbar, find avatar menu and hide it
             topToolbar.filter(function(toolbarItem) {
-                if(toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1) {
+                if(toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1)
                     hide(toolbarItem);
-                }
             });
         }
 
