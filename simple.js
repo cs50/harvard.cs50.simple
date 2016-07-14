@@ -3,13 +3,8 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "clipboard", "commands", "console",
-<<<<<<< HEAD
-        "Divider", "harvard.cs50.presentation", "immediate", "keymaps",
-        "layout", "Menu", "menus", "panels", "Plugin", "preferences",
-=======
         "Divider", "harvard.cs50.presentation", "immediate", "info", "keymaps",
         "layout", "Menu", "menus", "mount", "panels", "Plugin", "preferences",
->>>>>>> moved avatar menu to CS50 menu
         "preview", "run.gui", "save", "settings", "tabManager", "terminal",
         "tooltip", "tree", "ui", "c9"
     ];
@@ -693,35 +688,42 @@ define(function(require, exports, module) {
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
 
-        function moveAvatarMenu(e) {
+        function removeButton(e) {
             // Get user information
             var user = e.user;
             var name = "user_" + user.id;
 
-            // Get the avatar menu
+            // Check if this is an offline IDE or online IDE
             var currentMenu = menus.get(name);
+            if(currentMenu.item !== undefined && currentMenu.menu !== undefined){
 
-            // If offline IDE, return
-            if (currentMenu.item === undefined || currentMenu.menu === undefined)
-                return;
+                // Get the avatar menu
+                var homeMenu = currentMenu.menu
 
-            // Move the avatar menu to the CS50 IDE menu
-            menus.addItemByPath("Cloud9/Your Account", currentMenu.menu, 300, plugin);
+                // Move the avatar menu to the CS50 IDE menu
+                menus.addItemByPath("Cloud9/Your Account", homeMenu, 300, plugin);
 
-            // Remove the existing 'Go To Your Dashboard' button
-            menus.remove("Cloud9/Go To Your Dashboard");
+                // Remove the existing 'Go To Your Dashboard' button
+                menus.remove("Cloud9/Go To Your Dashboard");
 
-            // Find the toolbar holding the existing avatar menu
-            var topToolbar = layout.findParent(menus).childNodes[3].childNodes;
+                // Find the toolbar holding the existing avatar menu
+                var miniButton = layout.findParent(menus).childNodes[3];
+                var i = 0
 
-            // Filter through topToolbar, filter for avatar menu
-            var avatarMenu = topToolbar.filter(function(toolbarItem) {
-                return toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1;
-            });
+                // Go throught the toolbar to find the avatar menu
+                while(1) {
+                    var currentNode = miniButton.childNodes[i]
+                    if(currentNode === undefined){
+                        break;
+                    }
 
-            // Hide avatar menu
-            if (avatarMenu.length > 0)
-                hide(avatarMenu[0]);
+                    // Hide the avatar menu
+                    if(currentNode.icon !== undefined && currentNode.icon.indexOf("gravatar") > -1){
+                        hide(currentNode);
+                    }
+                    i = i + 1;
+                }
+            }
         }
 
         /***** Initialization *****/
@@ -782,7 +784,7 @@ define(function(require, exports, module) {
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             info.getUser(function(err, user) {
-                moveAvatarMenu({user: user});
+                removeButton({user: user});
             });
         }
 
