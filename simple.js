@@ -690,88 +690,41 @@ define(function(require, exports, module) {
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
 
-        /*
-         * Sets the initial icon in the avatar menu toolbar
-         */
-        function setIcon(e) {
+        function removeButton(e) {
+            // Get user information
             var user = e.user;
             var name = "user_" + user.id;
 
-            // Gets the Avatar Menu
+            // Check if this is an offline IDE or online IDE
             var currentMenu = menus.get(name);
+            if(currentMenu.item !== undefined && currentMenu.menu !== undefined){
 
-            // If offline IDE, return
-            if (currentMenu.item === undefined || currentMenu.menu === undefined)
-                return;
+                // Get the avatar menu
+                var homeMenu = currentMenu.menu
 
-            // Get the avatar button
-            var button = currentMenu.item;
+                // Move the avatar menu to the CS50 IDE menu
+                menus.addItemByPath("Cloud9/Your Account", homeMenu, 300, plugin);
 
-            // If the current default setting is false, get the gravatar icon
-            if(settings.get("user/cs50/simple/@cloud9Icon") === false) {
-                var icon = util.getGravatarUrl(user.email, 32, "");
-                button.setAttribute("icon", icon);
-            }else {
-                button.setAttribute("icon", "https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
-            }
+                // Remove the existing 'Go To Your Dashboard' button
+                menus.remove("Cloud9/Go To Your Dashboard");
 
-            // Add toggle to preference pane
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "User Icon" : {
-                        position: 10,
-                        "Cloud9 Icon" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@cloud9Icon",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        }
+                // Find the toolbar holding the existing avatar menu
+                var miniButton = layout.findParent(menus).childNodes[3];
+                var i = 0
+
+                // Go throught the toolbar to find the avatar menu
+                while(1) {
+                    var currentNode = miniButton.childNodes[i]
+                    if(currentNode === undefined){
+                        break;
                     }
+
+                    // Hide the avatar menu
+                    if(currentNode.icon !== undefined && currentNode.icon.indexOf("gravatar") > -1){
+                        hide(currentNode);
+                    }
+                    i = i + 1;
                 }
-            }, plugin);
-        }
-
-        /*
-         * Changes the toggle settings and calls function to update icon
-         */
-        function toggleIcon() {
-            // Set to opposite of current
-            cloud9Icon = !cloud9Icon;
-
-            // Update default settings
-            settings.set("user/cs50/simple/@cloud9Icon", cloud9Icon);
-
-            // Update icon in toolbar
-            info.getUser(function(err, user) {
-                changeAvatarMenuLogo({user: user});
-            });
-        }
-
-        /*
-         * Function that will change the Avatar Menu Logo, depending on toggle switch
-         */
-
-        function changeAvatarMenuLogo(e) {
-            var user = e.user;
-            var name = "user_" + user.id;
-
-            var currentMenu = menus.get(name);
-
-            // If offline IDE, return
-            if (currentMenu.item === undefined || currentMenu.menu === undefined)
-                return;
-
-            // Get the avatar button
-            var button = currentMenu.item;
-            var icon = util.getGravatarUrl(user.email, 32, "");
-
-            // If c9 icon is turned off, set to gravatar
-            if (!cloud9Icon) {
-                button.setAttribute("icon", icon);
-            }else {
-                button.setAttribute("icon", "https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
             }
         }
 
@@ -844,9 +797,8 @@ define(function(require, exports, module) {
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
-            // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(function(err, user) {
-                setIcon({user: user});
+                removeButton({user: user});
             });
         }
 
