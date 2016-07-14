@@ -695,17 +695,15 @@ define(function(require, exports, module) {
             var user = e.user;
             var name = "user_" + user.id;
 
-            // Check if this is an offline IDE or online IDE
+            // Get the avatar menu
             var currentMenu = menus.get(name);
 
+            // If offline IDE, return
             if (currentMenu.item === undefined || currentMenu.menu === undefined)
                 return;
 
-            // Get the avatar menu
-            var homeMenu = currentMenu.menu;
-
             // Move the avatar menu to the CS50 IDE menu
-            menus.addItemByPath("Cloud9/Your Account", homeMenu, 300, plugin);
+            menus.addItemByPath("Cloud9/Your Account", currentMenu.menu, 300, plugin);
 
             // Remove the existing 'Go To Your Dashboard' button
             menus.remove("Cloud9/Go To Your Dashboard");
@@ -713,11 +711,14 @@ define(function(require, exports, module) {
             // Find the toolbar holding the existing avatar menu
             var topToolbar = layout.findParent(menus).childNodes[3].childNodes;
 
-            // Filter through topToolbar, find avatar menu and hide it
-            topToolbar.filter(function(toolbarItem) {
-                if(toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1)
-                    hide(toolbarItem);
+            // Filter through topToolbar, filter for avatar menu
+            var avatarMenu = topToolbar.filter(function(toolbarItem) {
+                return toolbarItem.$uniqueId === 79;
             });
+
+            // Hide avatar menu
+            if (avatarMenu.length > 0)
+                hide(avatarMenu[0]);
         }
 
         /***** Initialization *****/
