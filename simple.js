@@ -711,7 +711,7 @@ define(function(require, exports, module) {
 
             // Filter through topToolbar, filter for avatar menu
             var avatarMenu = topToolbar.filter(function(toolbarItem) {
-                return toolbarItem.$uniqueId === 79;
+                return toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1;
             });
 
             // Hide avatar menu
