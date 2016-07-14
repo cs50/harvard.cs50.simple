@@ -700,35 +700,28 @@ define(function(require, exports, module) {
 
             // Check if this is an offline IDE or online IDE
             var currentMenu = menus.get(name);
-            if(currentMenu.item !== undefined && currentMenu.menu !== undefined){
 
-                // Get the avatar menu
-                var homeMenu = currentMenu.menu
+            if (currentMenu.item === undefined || currentMenu.menu === undefined)
+                return;
 
-                // Move the avatar menu to the CS50 IDE menu
-                menus.addItemByPath("Cloud9/Your Account", homeMenu, 300, plugin);
+            // Get the avatar menu
+            var homeMenu = currentMenu.menu;
 
-                // Remove the existing 'Go To Your Dashboard' button
-                menus.remove("Cloud9/Go To Your Dashboard");
+            // Move the avatar menu to the CS50 IDE menu
+            menus.addItemByPath("Cloud9/Your Account", homeMenu, 300, plugin);
 
-                // Find the toolbar holding the existing avatar menu
-                var miniButton = layout.findParent(menus).childNodes[3];
-                var i = 0
+            // Remove the existing 'Go To Your Dashboard' button
+            menus.remove("Cloud9/Go To Your Dashboard");
 
-                // Go throught the toolbar to find the avatar menu
-                while(1) {
-                    var currentNode = miniButton.childNodes[i]
-                    if(currentNode === undefined){
-                        break;
-                    }
+            // Find the toolbar holding the existing avatar menu
+            var topToolbar = layout.findParent(menus).childNodes[3].childNodes;
 
-                    // Hide the avatar menu
-                    if(currentNode.icon !== undefined && currentNode.icon.indexOf("gravatar") > -1){
-                        hide(currentNode);
-                    }
-                    i = i + 1;
+            // Filter through topToolbar, find avatar menu and hide it
+            topToolbar.filter(function(toolbarItem) {
+                if(toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1) {
+                    hide(toolbarItem);
                 }
-            }
+            });
         }
 
         /***** Initialization *****/
