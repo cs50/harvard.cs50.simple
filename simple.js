@@ -690,7 +690,7 @@ define(function(require, exports, module) {
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
 
-        function removeButton(e) {
+        function moveAvatarMenu(e) {
             // Get user information
             var user = e.user;
             var name = "user_" + user.id;
@@ -798,7 +798,7 @@ define(function(require, exports, module) {
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             info.getUser(function(err, user) {
-                removeButton({user: user});
+                moveAvatarMenu({user: user});
             });
         }
 
