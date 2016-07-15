@@ -3,8 +3,8 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "clipboard", "commands", "console",
-        "Divider", "harvard.cs50.presentation", "immediate", "info", "keymaps",
-        "layout", "Menu", "menus", "mount", "panels", "Plugin", "preferences",
+        "Divider", "harvard.cs50.presentation", "immediate", "info",  "keymaps",
+        "layout", "Menu", "menus", "panels", "Plugin", "preferences",
         "preview", "run.gui", "save", "settings", "tabManager", "terminal",
         "tooltip", "tree", "ui", "c9"
     ];
