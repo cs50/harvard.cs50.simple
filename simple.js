@@ -688,35 +688,23 @@ define(function(require, exports, module) {
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
 
-        function moveAvatarMenu(e) {
+        function changeAvatarMenuLogo(e) {
             // Get user information
             var user = e.user;
             var name = "user_" + user.id;
 
-            // Get the avatar menu
+            // Get correct menu
             var currentMenu = menus.get(name);
 
             // If offline IDE, return
             if (currentMenu.item === undefined || currentMenu.menu === undefined)
                 return;
 
-            // Move the avatar menu to the CS50 IDE menu
-            menus.addItemByPath("Cloud9/Your Account", currentMenu.menu, 300, plugin);
+            // Get the avatar button
+            var button = currentMenu.item;
 
-            // Remove the existing 'Go To Your Dashboard' button
-            menus.remove("Cloud9/Go To Your Dashboard");
-
-            // Find the toolbar holding the existing avatar menu
-            var topToolbar = layout.findParent(menus).childNodes[3].childNodes;
-
-            // Filter through topToolbar, filter for avatar menu
-            var avatarMenu = topToolbar.filter(function(toolbarItem) {
-                return toolbarItem.icon !== undefined && toolbarItem.icon.indexOf("gravatar") > -1;
-            });
-
-            // Hide avatar menu
-            if (avatarMenu.length > 0)
-                hide(avatarMenu[0]);
+            // Change avatar button logo
+            button.setAttribute("icon", "http://www.brandeps.com/logo-download/C/Cloud9-01.png");
         }
 
         /***** Initialization *****/
@@ -777,7 +765,7 @@ define(function(require, exports, module) {
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             info.getUser(function(err, user) {
-                moveAvatarMenu({user: user});
+                changeAvatarMenuLogo({user: user});
             });
         }
 
