@@ -690,12 +690,14 @@ define(function(require, exports, module) {
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
 
-        function changeAvatarMenuLogo(e) {
-            // Get user information
+        /*
+         * Sets the initial icon in the avatar menu toolbar
+         */
+        function setIcon(e) {
             var user = e.user;
             var name = "user_" + user.id;
 
-            // Get correct menu
+            // Gets the Avatar Menu
             var currentMenu = menus.get(name);
 
             // If offline IDE, return
@@ -705,8 +707,72 @@ define(function(require, exports, module) {
             // Get the avatar button
             var button = currentMenu.item;
 
-            // Change avatar button logo
-            button.setAttribute("icon", "http://www.brandeps.com/logo-download/C/Cloud9-01.png");
+            // If the current default setting is false, get the gravatar icon
+            if(settings.get("user/cs50/simple/@cloud9Icon") === false) {
+                var icon = util.getGravatarUrl(user.email, 32, "");
+                button.setAttribute("icon", icon);
+            }else {
+                button.setAttribute("icon", "https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
+            }
+
+            // Add toggle to preference pane
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "User Icon" : {
+                        position: 10,
+                        "Cloud9 Icon" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@cloud9Icon",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+        }
+
+        /*
+         * Changes the toggle settings and calls function to update icon
+         */
+        function toggleIcon() {
+            // Set to opposite of current
+            cloud9Icon = !cloud9Icon;
+
+            // Update default settings
+            settings.set("user/cs50/simple/@cloud9Icon", cloud9Icon);
+
+            // Update icon in toolbar
+            info.getUser(function(err, user) {
+                changeAvatarMenuLogo({user: user});
+            });
+        }
+
+        /*
+         * Function that will change the Avatar Menu Logo, depending on toggle switch
+         */
+
+        function changeAvatarMenuLogo(e) {
+            var user = e.user;
+            var name = "user_" + user.id;
+
+            var currentMenu = menus.get(name);
+
+            // If offline IDE, return
+            if (currentMenu.item === undefined || currentMenu.menu === undefined)
+                return;
+
+            // Get the avatar button
+            var button = currentMenu.item;
+            var icon = util.getGravatarUrl(user.email, 32, "");
+
+            // If c9 icon is turned off, set to gravatar
+            if (!cloud9Icon) {
+                button.setAttribute("icon", icon);
+            }else {
+                button.setAttribute("icon", "https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
+            }
         }
 
         /***** Initialization *****/
@@ -778,8 +844,9 @@ define(function(require, exports, module) {
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
+            // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(function(err, user) {
-                changeAvatarMenuLogo({user: user});
+                setIcon({user: user});
             });
         }
 
