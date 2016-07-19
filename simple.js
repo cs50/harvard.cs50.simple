@@ -728,8 +728,7 @@ define(function(require, exports, module) {
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
                     ["lessComfortable", true],
-                    ["undeclaredVars", true],
-                    ["simultaneousFontSize",true]
+                    ["undeclaredVars", true]
                 ]);
             });
 
@@ -738,8 +737,6 @@ define(function(require, exports, module) {
                 if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
-                setMenuVisibility("View/Terminal Font Size",
-                    !settings.getBool("user/cs50/simple/@simultaneousFontSize"));
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
         }
