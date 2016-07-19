@@ -694,7 +694,10 @@ define(function(require, exports, module) {
          * Sets the initial icon in the avatar menu toolbar
          */
         function setIcon(err, user) {
-            if (!user || !user.hasOwnProperty("id"))
+            var currentMenu = menus.get("user_" + user.id);
+
+            // If offline IDE, return
+            if (currentMenu.item === undefined || currentMenu.menu === undefined)
                 return;
 
             prefs.add({
