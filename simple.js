@@ -693,12 +693,10 @@ define(function(require, exports, module) {
         /*
          * Sets the initial icon in the avatar menu toolbar
          */
-        function setIcon(e) {
-            var currentMenu = menus.get("user_" + e.user.id);
-            if(currentMenu.item === undefined || currentMenu.menu === undefined)
+        function setIcon(err, user) {
+            if (!user || !user.hasOwnProperty("id"))
                 return;
 
-            // Add toggle to preferences pane
             prefs.add({
                "CS50" : {
                     position: 5,
@@ -715,27 +713,23 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
-            // Call initial setting of icon
-            toggleIcon(e);
+            toggleIcon(user);
         }
 
         /*
          * Function that will change the Avatar Menu Icon, depending on toggle switch
          */
 
-        function toggleIcon(e) {
-            var user = e.user;
-            var name = "user_" + user.id;
+        function toggleIcon(err, user) {
+            if (!user || !user.hasOwnProperty("id"))
+                return;
 
-            var currentMenu = menus.get(name);
+            var currentMenu = menus.get("user_" + user.id);
 
             // Get the avatar button
             var button = currentMenu.item;
-
-            // Get gravatar icon
             var icon = util.getGravatarUrl(user.email, 32, "");
 
-            // If user settings default is gravatar icon, set it, else set C9 icon
             if (settings.get("user/cs50/simple/@gravatarIcon")) {
                 button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + icon + ")";
             }else {
@@ -789,7 +783,6 @@ define(function(require, exports, module) {
                 settings.setDefaults("user/cs50/simple", [
                     ["lessComfortable", true],
                     ["undeclaredVars", true],
-                    ["simultaneousFontSize",true],
                     ["gravatarIcon", false]
                 ]);
             });
@@ -799,20 +792,14 @@ define(function(require, exports, module) {
                 if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
-                setMenuVisibility("View/Terminal Font Size",
-                    !settings.getBool("user/cs50/simple/@simultaneousFontSize"));
 
                 // When toggle icon button is clicked
-                info.getUser(function(err, user) {
-                    toggleIcon({user: user});
-                })
+                info.getUser(toggleIcon);
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
-            info.getUser(function(err, user) {
-                setIcon({user: user});
-            });
+            info.getUser(setIcon);
         }
 
         /***** Lifecycle *****/
