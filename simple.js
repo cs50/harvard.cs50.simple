@@ -823,7 +823,7 @@ define(function(require, exports, module) {
                     ["lessComfortable", true],
                     ["undeclaredVars", true],
                     ["simultaneousFontSize",true],
-                    ["gravatarIcon", true]
+                    ["gravatarIcon", false]
                 ]);
             });
 
