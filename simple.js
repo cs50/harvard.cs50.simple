@@ -34,7 +34,8 @@ define(function(require, exports, module) {
 
         var SETTINGS_VER = 6;
 
-        var cloud9Icon = true;
+        var gravatarIcon = false;
+        var cloud9Icon = btoa("https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
         var lessComfortable = true;
         var profileMenu = null;
         var divider = null;
@@ -708,22 +709,22 @@ define(function(require, exports, module) {
             var button = currentMenu.item;
 
             // If the current default setting is false, get the gravatar icon
-            if(settings.get("user/cs50/simple/@cloud9Icon") === false) {
+            if(settings.get("user/cs50/simple/@gravatarIcon") === true) {
                 var icon = util.getGravatarUrl(user.email, 32, "");
                 button.setAttribute("icon", icon);
             }else {
-                button.setAttribute("icon", "https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
+                button.setAttribute("icon", atob(cloud9Icon));
             }
 
             // Add toggle to preference pane
             prefs.add({
                "CS50" : {
                     position: 5,
-                    "User Icon" : {
+                    "IDE Behavior" : {
                         position: 10,
-                        "Cloud9 Icon" : {
+                        "Gravatar" : {
                             type: "checkbox",
-                            setting: "user/cs50/simple/@cloud9Icon",
+                            setting: "user/cs50/simple/@gravatarIcon",
                             min: 1,
                             max: 200,
                             position: 190
@@ -738,10 +739,10 @@ define(function(require, exports, module) {
          */
         function toggleIcon() {
             // Set to opposite of current
-            cloud9Icon = !cloud9Icon;
+            gravatarIcon = !gravatarIcon;
 
             // Update default settings
-            settings.set("user/cs50/simple/@cloud9Icon", cloud9Icon);
+            settings.set("user/cs50/simple/@gravatarIcon", gravatarIcon);
 
             // Update icon in toolbar
             info.getUser(function(err, user) {
@@ -768,10 +769,10 @@ define(function(require, exports, module) {
             var icon = util.getGravatarUrl(user.email, 32, "");
 
             // If c9 icon is turned off, set to gravatar
-            if (!cloud9Icon) {
-                button.setAttribute("icon", icon);
+            if (!gravatarIcon) {
+                button.setAttribute("icon", atob(cloud9Icon));
             }else {
-                button.setAttribute("icon", "https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
+                button.setAttribute("icon", icon);
             }
         }
 
@@ -822,7 +823,7 @@ define(function(require, exports, module) {
                     ["lessComfortable", true],
                     ["undeclaredVars", true],
                     ["simultaneousFontSize",true],
-                    ["cloud9Icon", false]
+                    ["gravatarIcon", true]
                 ]);
             });
 
@@ -835,7 +836,7 @@ define(function(require, exports, module) {
                     !settings.getBool("user/cs50/simple/@simultaneousFontSize"));
 
                 // When toggle icon button is clicked
-                if(settings.get("user/cs50/simple/@cloud9Icon") != cloud9Icon){
+                if(settings.get("user/cs50/simple/@gravatarIcon") != gravatarIcon){
                     toggleIcon();
                     info.getUser(function(err, user) {
                         changeAvatarMenuLogo({user: user});
@@ -862,7 +863,7 @@ define(function(require, exports, module) {
             lessComfortable = false;
             profileMenu = null;
             divider = null;
-            cloud9Icon = false;
+            gravatarIcon = true;
         });
 
         /***** Register and define API *****/
