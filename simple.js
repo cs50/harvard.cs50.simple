@@ -478,6 +478,7 @@ define(function(require, exports, module) {
                              * the command runs in the terminal.
                              */
 
+                            // Get previously stored data
                             var prevData = clipboard.clipboardData.getData("text/plain");
 
                             // Set the variable updateCommand to be the command that updates the terminal
@@ -488,6 +489,9 @@ define(function(require, exports, module) {
 
                             // Pastes in the active Tab (the terminal) the command stored in the clipboard
                             tab.editor.paste(clipboard);
+
+                            // Set clipboard back to previous stored data
+                            clipboard.clipboardData.setData("text/plain", prevData);
                         }
                     }
                 }
