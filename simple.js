@@ -35,7 +35,7 @@ define(function(require, exports, module) {
         var SETTINGS_VER = 6;
 
         var gravatarIcon = false;
-        var cloud9Icon = btoa("https://cloud.githubusercontent.com/assets/877725/16895848/622dd694-4b4f-11e6-8d16-41cf7fa63bd1.png");
+        var cloud9Icon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAABcSAAAXEgFnn9JSAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAACeElEQVQ4EY1TTUhUURT+7n1P58cpGE0EIZCsTCzoh6IoSIKoFi3a2CawVRAILdwEBbkoiGgTtOpH6YdRBiKIFrWwBDdBEtU0P45hCDE1Uo4247z3mvfe6dwbM4mKdODde+75+c6593zPwFpCJCCExNgYrRW20jcwIBEno+ZQQEvPNcdqygDJqvni85no0eFMa/WMePwfaM1YVTixK56sV8fznIh7qREMZQp4kF7E3eS7tkfpbh26ohPd3jLkofSH2+8tys07NLdYodFpi5pGpmlbLH1AgehCy4E6H6a2H4lP7sNg6vK50R/EYrme75ds11f6s2yZcCf1UndRXYikybrY+nhyiEyzt2TWAdLGrpDjsz04MbOAJ9l53DjWFmiPsMnAwf3D2fECUQmgW5NCvDA7YtnrZmNLr/vzu1uxPQH44mupoh+yqzUC29UTFHbFY0U0UCB0SEJCSON4RyxzWoLorFuYZUBIi8jYUSfktW8WVPVIwMThLVHdcCJfZnAi37E83yo5fsVWOVdVpQb43B5TRtVy+eswJfa+yvE0voAfAAtWBTenfmFTQIpFX/MjQL8d1dFG7gDjxjpdhSE1FIWV1RDUt7uZpBB0/22ePjkeRdnGBVQdW4YiqqOk6ZmyD8XCG2N94wa/XNQQDkfAkPg85yAxa6N/uow94XoUuRvJdhkMBz0VS7jAKMDmwalmM+BfYegTfM1m5j/fCMhYHk9FYGdQoqxvyUYBNYEJQXQpc6YzwRxnEvX0cCQLk6Pd/tiknkXJqRa94Wn+765WKxou5U62lrWlRib+ebpfk+LE/4lKZBKpYH2FJVmCHUuOq6g6Qw9MO/8AQ2ck6BoumNsAAAAASUVORK5CYII=";
         var lessComfortable = true;
         var profileMenu = null;
         var divider = null;
@@ -711,9 +711,9 @@ define(function(require, exports, module) {
             // If the current default setting is false, get the gravatar icon
             if(settings.get("user/cs50/simple/@gravatarIcon") === true) {
                 var icon = util.getGravatarUrl(user.email, 32, "");
-                button.setAttribute("icon", icon);
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + icon + ")";
             }else {
-                button.setAttribute("icon", atob(cloud9Icon));
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(data:image/png;base64," + cloud9Icon + ")";
             }
 
             // Add toggle to preference pane
@@ -770,9 +770,9 @@ define(function(require, exports, module) {
 
             // If c9 icon is turned off, set to gravatar
             if (!gravatarIcon) {
-                button.setAttribute("icon", atob(cloud9Icon));
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(data:image/png;base64," + cloud9Icon + ")";
             }else {
-                button.setAttribute("icon", icon);
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + icon + ")";
             }
         }
 
