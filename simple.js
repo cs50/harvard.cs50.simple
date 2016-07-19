@@ -34,8 +34,6 @@ define(function(require, exports, module) {
 
         var SETTINGS_VER = 6;
 
-        // Initially set to true because loading of page is considered a "toggle" so initial load toggles off the gravatar
-        var gravatarIcon = true;
         var cloud9Icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAABcSAAAXEgFnn9JSAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAACeElEQVQ4EY1TTUhUURT+7n1P58cpGE0EIZCsTCzoh6IoSIKoFi3a2CawVRAILdwEBbkoiGgTtOpH6YdRBiKIFrWwBDdBEtU0P45hCDE1Uo4247z3mvfe6dwbM4mKdODde+75+c6593zPwFpCJCCExNgYrRW20jcwIBEno+ZQQEvPNcdqygDJqvni85no0eFMa/WMePwfaM1YVTixK56sV8fznIh7qREMZQp4kF7E3eS7tkfpbh26ohPd3jLkofSH2+8tys07NLdYodFpi5pGpmlbLH1AgehCy4E6H6a2H4lP7sNg6vK50R/EYrme75ds11f6s2yZcCf1UndRXYikybrY+nhyiEyzt2TWAdLGrpDjsz04MbOAJ9l53DjWFmiPsMnAwf3D2fECUQmgW5NCvDA7YtnrZmNLr/vzu1uxPQH44mupoh+yqzUC29UTFHbFY0U0UCB0SEJCSON4RyxzWoLorFuYZUBIi8jYUSfktW8WVPVIwMThLVHdcCJfZnAi37E83yo5fsVWOVdVpQb43B5TRtVy+eswJfa+yvE0voAfAAtWBTenfmFTQIpFX/MjQL8d1dFG7gDjxjpdhSE1FIWV1RDUt7uZpBB0/22ePjkeRdnGBVQdW4YiqqOk6ZmyD8XCG2N94wa/XNQQDkfAkPg85yAxa6N/uow94XoUuRvJdhkMBz0VS7jAKMDmwalmM+BfYegTfM1m5j/fCMhYHk9FYGdQoqxvyUYBNYEJQXQpc6YzwRxnEvX0cCQLk6Pd/tiknkXJqRa94Wn+765WKxou5U62lrWlRib+ebpfk+LE/4lKZBKpYH2FJVmCHUuOq6g6Qw9MO/8AQ2ck6BoumNsAAAAASUVORK5CYII=";
         var lessComfortable = true;
         var profileMenu = null;
@@ -734,20 +732,14 @@ define(function(require, exports, module) {
             // Get the avatar button
             var button = currentMenu.item;
 
-            // Get the gravatar icon
+            // Get gravatar icon
             var icon = util.getGravatarUrl(user.email, 32, "");
 
-            // Toggle the setting of the gravatarIcon
-            gravatarIcon = !gravatarIcon;
-
-            // Change user settings
-            settings.set("user/cs50/simple/@gravatarIcon", gravatarIcon);
-
-            // If gravatar is turned off, set cloud9 and vice-versa
-            if (!gravatarIcon) {
-                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + cloud9Icon + ")";
-            }else {
+            // If user settings default is gravatar icon, set it, else set C9 icon
+            if (settings.get("user/cs50/simple/@gravatarIcon")) {
                 button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + icon + ")";
+            }else {
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + cloud9Icon + ")";
             }
         }
 
@@ -798,7 +790,7 @@ define(function(require, exports, module) {
                     ["lessComfortable", true],
                     ["undeclaredVars", true],
                     ["simultaneousFontSize",true],
-                    ["gravatarIcon", true]
+                    ["gravatarIcon", false]
                 ]);
             });
 
@@ -811,11 +803,9 @@ define(function(require, exports, module) {
                     !settings.getBool("user/cs50/simple/@simultaneousFontSize"));
 
                 // When toggle icon button is clicked
-                if(settings.get("user/cs50/simple/@gravatarIcon") != gravatarIcon){
-                    info.getUser(function(err, user) {
-                        toggleIcon({user: user});
-                    });
-                }
+                info.getUser(function(err, user) {
+                    toggleIcon({user: user});
+                })
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
@@ -837,7 +827,6 @@ define(function(require, exports, module) {
             lessComfortable = false;
             profileMenu = null;
             divider = null;
-            gravatarIcon = false;
         });
 
         /***** Register and define API *****/
