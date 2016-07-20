@@ -794,15 +794,17 @@ define(function(require, exports, module) {
             });
 
             // When less comfortable option is changed
-            settings.on("write", function(){
-                if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
+            settings.on("user/cs50/simple/@lessComfortable", function (saved) {
+                if (saved != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
+            }, plugin);
+            toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
+            settings.on("write", function(){
                 // When toggle icon button is clicked
                 info.getUser(toggleIcon);
             });
-            toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(setIcon);
