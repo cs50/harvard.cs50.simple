@@ -3,10 +3,10 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "clipboard", "commands", "console",
-        "Divider", "harvard.cs50.presentation", "immediate", "keymaps",
+        "Divider", "harvard.cs50.presentation", "immediate", "info",  "keymaps",
         "layout", "Menu", "menus", "panels", "Plugin", "preferences",
         "preview", "run.gui", "save", "settings", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "c9"
+        "tooltip", "tree", "ui", "util", "c9"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
@@ -17,6 +17,7 @@ define(function(require, exports, module) {
         var clipboard = imports.clipboard;
         var commands = imports.commands;
         var layout = imports.layout;
+        var info = imports.info;
         var menus = imports.menus;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
@@ -27,11 +28,13 @@ define(function(require, exports, module) {
         var tabManager = imports.tabManager;
         var panels = imports.panels;
         var ui = imports.ui;
+        var util = imports.util;
 
         var plugin = new Plugin("CS50", main.consumes);
 
         var SETTINGS_VER = 6;
 
+        var cloud9Icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAABcSAAAXEgFnn9JSAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAACeElEQVQ4EY1TTUhUURT+7n1P58cpGE0EIZCsTCzoh6IoSIKoFi3a2CawVRAILdwEBbkoiGgTtOpH6YdRBiKIFrWwBDdBEtU0P45hCDE1Uo4247z3mvfe6dwbM4mKdODde+75+c6593zPwFpCJCCExNgYrRW20jcwIBEno+ZQQEvPNcdqygDJqvni85no0eFMa/WMePwfaM1YVTixK56sV8fznIh7qREMZQp4kF7E3eS7tkfpbh26ohPd3jLkofSH2+8tys07NLdYodFpi5pGpmlbLH1AgehCy4E6H6a2H4lP7sNg6vK50R/EYrme75ds11f6s2yZcCf1UndRXYikybrY+nhyiEyzt2TWAdLGrpDjsz04MbOAJ9l53DjWFmiPsMnAwf3D2fECUQmgW5NCvDA7YtnrZmNLr/vzu1uxPQH44mupoh+yqzUC29UTFHbFY0U0UCB0SEJCSON4RyxzWoLorFuYZUBIi8jYUSfktW8WVPVIwMThLVHdcCJfZnAi37E83yo5fsVWOVdVpQb43B5TRtVy+eswJfa+yvE0voAfAAtWBTenfmFTQIpFX/MjQL8d1dFG7gDjxjpdhSE1FIWV1RDUt7uZpBB0/22ePjkeRdnGBVQdW4YiqqOk6ZmyD8XCG2N94wa/XNQQDkfAkPg85yAxa6N/uow94XoUuRvJdhkMBz0VS7jAKMDmwalmM+BfYegTfM1m5j/fCMhYHk9FYGdQoqxvyUYBNYEJQXQpc6YzwRxnEvX0cCQLk6Pd/tiknkXJqRa94Wn+765WKxou5U62lrWlRib+ebpfk+LE/4lKZBKpYH2FJVmCHUuOq6g6Qw9MO/8AQ2ck6BoumNsAAAAASUVORK5CYII=";
         var lessComfortable = true;
         var profileMenu = null;
         var divider = null;
@@ -687,6 +690,59 @@ define(function(require, exports, module) {
             settings.set("user/config/init.js",beepSound.concat(presentContent));
         }
 
+        /*
+         * Sets the initial icon in the avatar menu toolbar
+         */
+        function setIcon(err, user) {
+            if (!user || !user.hasOwnProperty("id"))
+                return;
+
+            var currentMenu = menus.get("user_" + user.id);
+
+            // If offline IDE, return
+            if (currentMenu.item === undefined || currentMenu.menu === undefined)
+                return;
+
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "IDE Behavior" : {
+                        position: 10,
+                        "Gravatar" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@gravatarIcon",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+
+            toggleIcon(user);
+        }
+
+        /*
+         * Function that will change the Avatar Menu Icon, depending on toggle switch
+         */
+
+        function toggleIcon(err, user) {
+            if (!user || !user.hasOwnProperty("id"))
+                return;
+
+            var currentMenu = menus.get("user_" + user.id);
+
+            // Get the avatar button
+            var button = currentMenu.item;
+            var icon = util.getGravatarUrl(user.email, 32, "");
+
+            if (settings.get("user/cs50/simple/@gravatarIcon")) {
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + icon + ")";
+            }else {
+                button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + cloud9Icon + ")";
+            }
+        }
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -732,7 +788,8 @@ define(function(require, exports, module) {
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
                     ["lessComfortable", true],
-                    ["undeclaredVars", true]
+                    ["undeclaredVars", true],
+                    ["gravatarIcon", false]
                 ]);
             });
 
@@ -741,8 +798,14 @@ define(function(require, exports, module) {
                 if (settings.get("user/cs50/simple/@lessComfortable") != lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
+
+                // When toggle icon button is clicked
+                info.getUser(toggleIcon);
             });
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
+
+            // Set the initial icon based on previous settings (if none, set c9 logo)
+            info.getUser(setIcon);
         }
 
         /***** Lifecycle *****/
