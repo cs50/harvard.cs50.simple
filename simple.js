@@ -274,13 +274,13 @@ define(function(require, exports, module) {
             var panelList = ["tree", "navigate", "commands.panel", "scm"];
             if (lessComfortable) {
                 // Only shows tabs automatically when less comfortable is disabled
-                panelList.forEach(panels.disablePanel);
+                panelList.forEach(function (p) { panels.disablePanel(p, true); });
 
                 // forcibly show file tree
                 panels.activate("tree");
             }
             else {
-                panelList.forEach(panels.enablePanel);
+                panelList.forEach(function (p) { panels.enablePanel(p, true); });
             }
         }
 
