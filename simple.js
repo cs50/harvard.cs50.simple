@@ -38,6 +38,7 @@ define(function(require, exports, module) {
         var lessComfortable = true;
         var profileMenu = null;
         var divider = null;
+        var USER = null;
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -694,11 +695,13 @@ define(function(require, exports, module) {
          * Sets the initial icon in the avatar menu toolbar
          */
         function setIcon(err, user) {
-            if (!user || !user.hasOwnProperty("id"))
+            if (!USER || !USER.hasOwnProperty("id"))
                 return;
 
-            var currentMenu = menus.get("user_" + user.id);
+            // Set global var USER
+            USER = user;
 
+            var currentMenu = menus.get("user_" + USER.id);
             // If offline IDE, return
             if (currentMenu.item === undefined || currentMenu.menu === undefined)
                 return;
@@ -719,22 +722,24 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
-            toggleIcon(user);
+            toggleIcon();
         }
 
         /*
          * Function that will change the Avatar Menu Icon, depending on toggle switch
          */
 
-        function toggleIcon(err, user) {
-            if (!user || !user.hasOwnProperty("id"))
+        function toggleIcon() {
+            if (USER === null)
                 return;
 
-            var currentMenu = menus.get("user_" + user.id);
+            var currentMenu = menus.get("user_" + USER.id);
+            if (currentMenu.item === undefined || currentMenu.menu === undefined)
+                return;
 
             // Get the avatar button
             var button = currentMenu.item;
-            var icon = util.getGravatarUrl(user.email, 32, "");
+            var icon = util.getGravatarUrl(USER.email, 32, "");
 
             if (settings.get("user/cs50/simple/@gravatarIcon")) {
                 button.$ext.getElementsByClassName("icon")[0].style.backgroundImage = "url(" + icon + ")";
@@ -801,10 +806,7 @@ define(function(require, exports, module) {
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
-            settings.on("write", function(){
-                // When toggle icon button is clicked
-                info.getUser(toggleIcon);
-            });
+            settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(setIcon);
