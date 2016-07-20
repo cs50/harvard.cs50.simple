@@ -806,10 +806,7 @@ define(function(require, exports, module) {
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
-            settings.on("user/cs50/simple/@gravatarIcon", function(){
-                // When toggle icon button is clicked
-                toggleIcon();
-            }, plugin);
+            settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(setIcon);
