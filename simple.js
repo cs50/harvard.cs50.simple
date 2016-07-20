@@ -695,10 +695,11 @@ define(function(require, exports, module) {
          * Sets the initial icon in the avatar menu toolbar
          */
         function setIcon(err, user) {
-            // Set global var USER
-            USER = user;
             if (!USER || !USER.hasOwnProperty("id"))
                 return;
+
+            // Set global var USER
+            USER = user;
 
             var currentMenu = menus.get("user_" + USER.id);
             // If offline IDE, return
@@ -729,6 +730,9 @@ define(function(require, exports, module) {
          */
 
         function toggleIcon() {
+            if (USER === null)
+                return;
+
             var currentMenu = menus.get("user_" + USER.id);
             if (currentMenu.item === undefined || currentMenu.menu === undefined)
                 return;
@@ -805,7 +809,7 @@ define(function(require, exports, module) {
             settings.on("user/cs50/simple/@gravatarIcon", function(){
                 // When toggle icon button is clicked
                 toggleIcon();
-            });
+            }, plugin);
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(setIcon);
