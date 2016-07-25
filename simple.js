@@ -484,18 +484,29 @@ define(function(require, exports, module) {
 
                             // Get previously stored data
                             var prevData = clipboard.clipboardData.getData("text/plain");
+                            var prevSetting = settings.getBool("user/clipboard/@dontshow");
+
+                            // Set Clipboard Warning to "Don't Show"
+                            settings.set("user/clipboard/@dontshow", true);
 
                             // Set the variable updateCommand to be the command that updates the terminal
-                            var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
-
                             // Copy to the clipboard the data stored in updateCommand
-                            clipboard.clipboardData.setData("text/plain", updateCommand);
+                            clipboard.on("copy", function(e) {
+                                if (e.native) return;
+                                var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
+                                e.clipboardData.setData("text/plain", updateCommand);
+                            });
 
                             // Pastes in the active Tab (the terminal) the command stored in the clipboard
-                            tab.editor.paste(clipboard);
+                            tab.editor.paste();
 
                             // Set clipboard back to previous stored data
-                            clipboard.clipboardData.setData("text/plain", prevData);
+                            clipboard.on("copy", function(e) {
+                                if (e.native) return;
+                                e.clipboardData.setData("text/plain", prevData);
+                            });
+
+                            settings.set("user/clipboard/@dontshow", prevSetting);
                         }
                     }
                 }
