@@ -753,7 +753,7 @@ define(function(require, exports, module) {
          */
 
         function renameQuitCloud9() {
-            var item = menus.get("Cloud9/Quit Cloud9").item
+            var item = menus.get("Cloud9/Quit Cloud9").item;
 
             if (item === undefined)
                 return;
