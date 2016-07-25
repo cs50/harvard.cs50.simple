@@ -492,8 +492,9 @@ define(function(require, exports, module) {
                             var prevData = clipboard.clipboardData.getData("text/plain");
 
                             // Set the variable updateCommand to be the command that updates the terminal
-                            // Copy to the clipboard the data stored in updateCommand
                             var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
+
+                            // Copy to the clipboard the data stored in updateCommand
                             clipboard.clipboardData.setData("text/plain", updateCommand);
 
                             // Pastes in the active Tab (the terminal) the command stored in the clipboard
