@@ -753,6 +753,7 @@ define(function(require, exports, module) {
          */
 
          function moveGoToYourDashboard() {
+            menus.addItemByPath("Cloud9/~", new apf.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
          }
 
