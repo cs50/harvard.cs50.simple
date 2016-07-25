@@ -753,9 +753,12 @@ define(function(require, exports, module) {
          */
 
         function renameQuitCloud9() {
-            if (menus.get("Cloud9/Quit Cloud9").item !== undefined) {
-                menus.addItemByPath("Cloud9/Log Out", menus.get("Cloud9/Quit Cloud9").item, 2000100, plugin);
-            }
+            var item = menus.get("Cloud9/Quit Cloud9").item
+
+            if (item === undefined)
+                return;
+
+            item.setAttribute("caption", "Log Out");
         }
 
         /***** Initialization *****/
