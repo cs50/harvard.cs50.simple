@@ -482,30 +482,27 @@ define(function(require, exports, module) {
                              * the command runs in the terminal.
                              */
 
-                            // Get previously stored data
-                            var prevData = clipboard.clipboardData.getData("text/plain");
+                            // Get previously stored setting of warning window
                             var prevSetting = settings.getBool("user/clipboard/@dontshow");
 
                             // Set Clipboard Warning to "Don't Show"
                             settings.set("user/clipboard/@dontshow", true);
 
+                            // Get previously set data
+                            var prevData = clipboard.clipboardData.getData("text/plain");
+
                             // Set the variable updateCommand to be the command that updates the terminal
                             // Copy to the clipboard the data stored in updateCommand
-                            clipboard.on("copy", function(e) {
-                                if (e.native) return;
-                                var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
-                                e.clipboardData.setData("text/plain", updateCommand);
-                            });
+                            var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
+                            clipboard.clipboardData.setData("text/plain", updateCommand);
 
                             // Pastes in the active Tab (the terminal) the command stored in the clipboard
                             tab.editor.paste();
 
                             // Set clipboard back to previous stored data
-                            clipboard.on("copy", function(e) {
-                                if (e.native) return;
-                                e.clipboardData.setData("text/plain", prevData);
-                            });
+                            clipboard.clipboardData.setData("text/plain", prevData);
 
+                            //Set clipboard setting back to original setting
                             settings.set("user/clipboard/@dontshow", prevSetting);
                         }
                     }
