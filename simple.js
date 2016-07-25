@@ -748,6 +748,16 @@ define(function(require, exports, module) {
             }
         }
 
+        /*
+         * Function that will rename "Quit Cloud9" menu button to "Log Out" in Online IDEs
+         */
+
+        function renameQuitCloud9() {
+            if (menus.get("Cloud9/Quit Cloud9").item !== undefined) {
+                menus.addItemByPath("Cloud9/Log Out", menus.get("Cloud9/Quit Cloud9").item, 2000100, plugin);
+            }
+        }
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -766,6 +776,7 @@ define(function(require, exports, module) {
             setTitlesFromTabs();
             addSoundToTerminal();
             updateProfileScripts();
+            renameQuitCloud9();
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
