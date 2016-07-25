@@ -683,7 +683,19 @@ define(function(require, exports, module) {
          * Adds a beep sound to the terminal.
          */
         function addSoundToTerminal() {
-            settings.set("user/config/init.js", null);
+            // Get the old sound which was updated in the init file
+            var oldSound = require('text!./templates/beepsound.templates');
+
+            // Get the contents of the init file
+            var initJSContent = String(settings.get("user/config/init.js"));
+
+            // Replace the old sound found in the init file with empty string
+            initJSContent = presentContent.replace(oldSound, "");
+
+            // Set the init file to be the contents of the old init file minus the old sound
+            settings.set("user/config/init.js", initJSContent);
+
+            // If the preference is true, play the terminal sound
             if (settings.getBool("user/cs50/simple/@terminalSound") === true) {
                 require("plugins/c9.ide.terminal/aceterm/libterm").prototype.bell = (function beep() {
                     var snd = new Audio(terminalSound);
