@@ -748,6 +748,14 @@ define(function(require, exports, module) {
             }
         }
 
+        /*
+         * Function that will move the "Go To Your Dashboard" Menu Item below divider
+         */
+
+         function moveGoToYourDashboard() {
+            menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
+         }
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -766,6 +774,7 @@ define(function(require, exports, module) {
             setTitlesFromTabs();
             addSoundToTerminal();
             updateProfileScripts();
+            moveGoToYourDashboard();
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
