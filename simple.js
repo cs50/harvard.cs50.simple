@@ -690,7 +690,7 @@ define(function(require, exports, module) {
             var initJSContent = String(settings.get("user/config/init.js"));
 
             // Replace the old sound found in the init file with empty string
-            initJSContent = presentContent.replace(oldSound, "");
+            initJSContent = initJSContent.replace(oldSound, "");
 
             // Set the init file to be the contents of the old init file minus the old sound
             settings.set("user/config/init.js", initJSContent);
