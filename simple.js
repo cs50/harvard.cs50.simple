@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "ace", "ace.status", "auth", "clipboard", "commands", "console",
         "Divider", "harvard.cs50.presentation", "immediate", "info",  "keymaps",
-        "layout", "Menu", "menus", "panels", "Plugin", "preferences",
+        "layout", "login", "Menu", "menus", "panels", "Plugin", "preferences",
         "preview", "run.gui", "save", "settings", "tabManager", "terminal",
         "tooltip", "tree", "ui", "util", "c9"
     ];
@@ -757,6 +757,23 @@ define(function(require, exports, module) {
             }
         }
 
+        /*
+         * Function that will hide the Avatar Menu in Offline IDEs.
+         * This function needs to be here if simple will consume login.
+         */
+
+        function hideAvatarMenuOffline() {
+            var bar = layout.findParent({name: "preferences"});
+            var button;
+            for (var i = 0; i < bar.childNodes.length; i++) {
+                if (bar.childNodes[i].icon.indexOf("gravatar") > -1) {
+                    button = bar.childNodes[i];
+                    break;
+                }
+            }
+            hide(button);
+        }
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -817,8 +834,13 @@ define(function(require, exports, module) {
 
             settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
 
-            // Set the initial icon based on previous settings (if none, set c9 logo)
-            info.getUser(setIcon);
+            // If offline, hide avatar menu
+            if (!c9.hosted) {
+                hideAvatarMenuOffline();
+            } else {
+                // Set the initial icon based on previous settings (if none, set c9 logo)
+                info.getUser(setIcon);
+            }
         }
 
         /***** Lifecycle *****/
