@@ -827,7 +827,7 @@ define(function(require, exports, module) {
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(setIcon);
-            if (USER === null) {
+            if (!c9.hosted) {
                 hideAvatarMenuOffline();
             }
         }
