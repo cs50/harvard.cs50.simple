@@ -750,11 +750,15 @@ define(function(require, exports, module) {
 
         /*
          * Function that will move the "Go To Your Dashboard" Menu Item below divider
+         * If offline IDE it removes the "Go To Your Dashboard" item
          */
 
          function moveGoToYourDashboard() {
-            menus.addItemByPath("Cloud9/~", new apf.divider(), 2000000, plugin);
-            menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
+            if (USER === null){
+                menus.remove("Cloud9/Go To Your Dashboard");
+            } else {
+                menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
+            }
          }
 
         /***** Initialization *****/
@@ -775,7 +779,6 @@ define(function(require, exports, module) {
             setTitlesFromTabs();
             addSoundToTerminal();
             updateProfileScripts();
-            moveGoToYourDashboard();
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
@@ -820,6 +823,7 @@ define(function(require, exports, module) {
 
             // Set the initial icon based on previous settings (if none, set c9 logo)
             info.getUser(setIcon);
+            moveGoToYourDashboard();
         }
 
         /***** Lifecycle *****/
