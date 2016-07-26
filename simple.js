@@ -825,10 +825,11 @@ define(function(require, exports, module) {
 
             settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
 
-            // Set the initial icon based on previous settings (if none, set c9 logo)
+            // If offline, hide avatar menu
             if (!c9.hosted) {
                 hideAvatarMenuOffline();
             } else {
+                // Set the initial icon based on previous settings (if none, set c9 logo)
                 info.getUser(setIcon);
             }
         }
