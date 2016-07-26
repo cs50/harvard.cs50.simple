@@ -758,19 +758,6 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Function that will rename "Quit Cloud9" menu button to "Log Out" in Online IDEs
-         */
-
-        function renameQuitCloud9() {
-            var item = menus.get("Cloud9/Quit Cloud9").item;
-
-            if (item === undefined)
-                return;
-
-            item.setAttribute("caption", "Log Out");
-        }
-
-        /* 
          * Function that will move the "Go To Your Dashboard" Menu Item below divider
          * If offline IDE it removes the "Go To Your Dashboard" item
          */
@@ -818,7 +805,6 @@ define(function(require, exports, module) {
             setTitlesFromTabs();
             addSoundToTerminal();
             updateProfileScripts();
-            renameQuitCloud9();
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
