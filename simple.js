@@ -754,7 +754,7 @@ define(function(require, exports, module) {
          */
 
          function moveGoToYourDashboard() {
-            if (USER === null){
+            if (!c9.hosted){
                 menus.remove("Cloud9/Go To Your Dashboard");
             } else {
                 menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
