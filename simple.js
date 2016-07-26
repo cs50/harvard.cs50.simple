@@ -758,6 +758,19 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Function that will move the "Go To Your Dashboard" Menu Item below divider
+         * If offline IDE it removes the "Go To Your Dashboard" item
+         */
+
+         function moveGoToYourDashboard() {
+            if (!c9.hosted){
+                menus.remove("Cloud9/Go To Your Dashboard");
+            } else {
+                menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
+            }
+         }
+
+        /*
          * Function that will hide the Avatar Menu in Offline IDEs.
          * This function needs to be here if simple will consume login.
          */
@@ -833,6 +846,8 @@ define(function(require, exports, module) {
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
+
+            moveGoToYourDashboard();
 
             // If offline, hide avatar menu
             if (!c9.hosted) {
