@@ -714,7 +714,7 @@ define(function(require, exports, module) {
                     position: 5,
                     "IDE Behavior" : {
                         position: 10,
-                        "Terminal Beep" : {
+                        "Audible Terminal Bell" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@terminalSound",
                             min: 1,
