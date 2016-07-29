@@ -349,7 +349,7 @@ define(function(require, exports, module) {
                     position: 5,
                     "IDE Behavior" : {
                         position: 10,
-                        "Less Comfortable mode" : {
+                        "Less Comfortable Mode" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@lessComfortable",
                             min: 1,
