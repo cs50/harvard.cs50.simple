@@ -349,7 +349,7 @@ define(function(require, exports, module) {
                     position: 5,
                     "IDE Behavior" : {
                         position: 10,
-                        "Less Comfortable mode" : {
+                        "Less Comfortable Mode" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@lessComfortable",
                             min: 1,
@@ -359,6 +359,13 @@ define(function(require, exports, module) {
                         "Mark Undeclared Variables" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@undeclaredVars",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        },
+                        "Audible Terminal Bell" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@terminalSound",
                             min: 1,
                             max: 200,
                             position: 190
