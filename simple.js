@@ -706,6 +706,27 @@ define(function(require, exports, module) {
         }
 
         /*
+         * Add Terminal Beep Toggle to UI
+         */
+        function addTerminalToggle() {
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "IDE Behavior" : {
+                        position: 10,
+                        "Terminal Beep" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@terminalSound",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+        }
+
+        /*
          * Adds a beep sound to the terminal.
          */
         function addSoundToTerminal() {
@@ -838,6 +859,7 @@ define(function(require, exports, module) {
             editProfileMenu(plugin);
             setTitlesFromTabs();
             removeSoundFromInit();
+            addTerminalToggle()
             addSoundToTerminal();
             updateProfileScripts();
             renameQuitCloud9();
