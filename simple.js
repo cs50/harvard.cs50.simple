@@ -815,17 +815,14 @@ define(function(require, exports, module) {
          * Function that will hide the Avatar Menu in Offline IDEs.
          * This function needs to be here if simple will consume login.
          */
-
         function hideAvatarMenuOffline() {
             var bar = layout.findParent({name: "preferences"});
-            var button;
-            for (var i = 0; i < bar.childNodes.length; i++) {
-                if (bar.childNodes[i].icon.indexOf("gravatar") > -1) {
-                    button = bar.childNodes[i];
-                    break;
-                }
-            }
-            hide(button);
+            var button = bar.childNodes.find(function (node) {
+                return node.icon && node.icon.indexOf("gravatar") > -1;
+            });
+
+            if (button !== undefined)
+                hide(button);
         }
 
         /***** Initialization *****/
