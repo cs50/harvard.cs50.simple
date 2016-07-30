@@ -846,6 +846,36 @@ define(function(require, exports, module) {
             // preload terminalSound
             terminalBellObj = new Audio(terminalSound);
 
+            // customize terminal debugger
+            tabManager.on("tabCreate", function(e) {
+                var tab = e.tab;
+
+                // ensure tab is terminal debugger
+                if (tab.editorType !== "output")
+                    return;
+
+                var editor = tab.editor;
+
+                // hide CWD button
+                editor.getElement("btnCwd").setAttribute("visible", false);
+
+                // hide debug button
+                editor.getElement("btnDebug").$ext.style.visibility = "hidden";
+
+                // hide ENV button
+                editor.getElement("btnEnv").setAttribute("visible", false);
+
+                // hide Runner button
+                editor.getElement("btnRunner").setAttribute("visible", false);
+
+                // hide name input field
+                var tbName = editor.getElement("tbName");
+                tbName.setAttribute("visible", false);
+
+                // rename "Command:"
+                tbName.nextSibling.nextSibling.$ext.innerHTML = "Command-Line Arguments:";
+            });
+
             // Adds the permanent changes
             addToggle(plugin);
             addTooltips();
