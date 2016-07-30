@@ -716,15 +716,17 @@ define(function(require, exports, module) {
          * Adds a beep sound to the terminal.
          */
         function addSoundToTerminal() {
+            var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
             if (settings.getBool("user/cs50/simple/@terminalSound") === true) {
-                require("plugins/c9.ide.terminal/aceterm/libterm").prototype.bell = (function beep() {
+                libterm.bell = (function beep() {
                     var snd = new Audio(terminalSound);
                     return function() {
                         snd.play();
                     };
                 })();
-            } else {
-                require("plugins/c9.ide.terminal/aceterm/libterm").prototype.bell = null;
+            }
+            else {
+                libterm.bell = function() {};
             }
         }
 
