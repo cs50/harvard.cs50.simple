@@ -652,12 +652,24 @@ define(function(require, exports, module) {
             if (tab && tab.editorType == "terminal"){
                 var session = tab.document.getSession();
                 tab.document.on("setTitle", function(e) {
-                    // the substring that must be removed
-                    var substring = ' - ""';
-                    // if the substring is found in either e.title or the tab title replace it everywhere with empty string
-                    if(e.title.indexOf(substring) > -1 || tab.document.title.indexOf(substring) > -1){
-                        e.title = tab.document.title = session.doc.title =
-                        session.doc.tooltip = tab.document.title.replace(/ - ""/, "");
+                    // fetch title from the object, fall back on tab
+                    var title = e.title || tab.document.title;
+
+                    // if title ends with the string, remove it everywhere
+                    if (title && title.indexOf(' - ""', title.length-5) !== -1) {
+                        title = title.replace(/ - ""/, "");
+
+                        // list of items whose title should change
+                        var docList = [e, tab.document];
+
+                        if (session && session.hasOwnProperty("doc"))
+                            docList.push(session.doc, session.doc.tooltip);
+
+                        // fix all titles
+                        docList.forEach(function (doc) {
+                            if (doc.hasOwnProperty("title"))
+                                doc.title = title;
+                        });
                     }
                 }, plugin);
             }
