@@ -40,6 +40,7 @@ define(function(require, exports, module) {
         var profileMenu = null;
         var divider = null;
         var USER = null;
+        var terminalBellObj = null;
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -718,12 +719,7 @@ define(function(require, exports, module) {
         function addSoundToTerminal() {
             var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
             if (settings.getBool("user/cs50/simple/@terminalSound") === true) {
-                libterm.bell = (function beep() {
-                    var snd = new Audio(terminalSound);
-                    return function() {
-                        snd.play();
-                    };
-                })();
+                libterm.bell = function() { terminalBellObj.play(); };
             }
             else {
                 libterm.bell = function() {};
@@ -835,6 +831,9 @@ define(function(require, exports, module) {
                return false;
             loaded = true;
 
+            // preload terminalSound
+            terminalBellObj = new Audio(terminalSound);
+
             // Adds the permanent changes
             addToggle(plugin);
             addTooltips();
@@ -923,6 +922,7 @@ define(function(require, exports, module) {
             lessComfortable = false;
             profileMenu = null;
             divider = null;
+            terminalBellObj = null;
         });
 
         /***** Register and define API *****/
