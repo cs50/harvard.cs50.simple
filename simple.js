@@ -43,6 +43,7 @@ define(function(require, exports, module) {
         var terminalBellObj = null;
 
         // stop marking undeclared variables for javascript files
+        // this is a test.
         tabManager.on('focus', function(e) {
             if (e.tab.path != undefined && e.tab.path.slice(-3) == ".js") {
                 settings.set("project/language/@undeclaredVars",false);
