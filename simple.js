@@ -102,7 +102,7 @@ define(function(require, exports, module) {
          * Toggles simplification of the menus at the top of Cloud 9
          */
         function toggleMenus(lessComfortable) {
-
+            console.log(menus.get("File/New From Template/JavaScript file").item);
             // remove gear icon as redundant from both modes
             var bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
@@ -122,14 +122,31 @@ define(function(require, exports, module) {
                 menus.get("Goto/Goto Line...").item.setAttribute("caption", "Line...");
                 menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Cloud9 Status");
                 menus.get("Support/Read Documentation").item.setAttribute("caption", "Cloud9 Documentation");
+                // menus.addItemByPath("File/New From Template/CSS file", menus.get("File/New From Template/CSS file").item, 110, plugin);
+                // menus.addItemByPath("File/New From Template/HTML file", menus.get("File/New From Template/HTML file").item, 120, plugin);
+                // menus.addItemByPath("File/New From Template/JavaScript file", menus.get("File/New From Template/JavaScript file").item, 130, plugin);
+                // menus.addItemByPath("File/New From Template/PHP file", menus.get("File/New From Template/PHP file").item, 140, plugin);
+                menus.get("File/New From Template/JavaScript file").item.setAttribute("caption", "JavaScript");
+                menus.get("File/New From Template/HTML file").item.setAttribute("caption", "HTML");
+                menus.get("File/New From Template/CSS file").item.setAttribute("caption", "CSS");
+                menus.get("File/New From Template/PHP file").item.setAttribute("caption", "PHP");
             }
 
             // more comfortable
             else {
                 menus.get("Goto").item.setAttribute("caption", "Goto");
                 menus.get("Goto/Goto Line...").item.setAttribute("caption", "Goto Line...");
+                menus.get("Goto/Goto Symbol...").item.setAttribute("caption", "Goto Symbol...");
                 menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Check Cloud9 Status");
                 menus.get("Support/Read Documentation").item.setAttribute("caption", "Read Documentation");
+                menus.get("File/New From Template/JavaScript file").item.setAttribute("caption", "JavaScript file");
+                menus.get("File/New From Template/HTML file").item.setAttribute("caption", "HTML file");
+                menus.get("File/New From Template/CSS file").item.setAttribute("caption", "CSS file");
+                menus.get("File/New From Template/PHP file").item.setAttribute("caption", "PHP file");
+                // menus.addItemByPath("File/New From Template/JavaScript file", menus.get("File/New From Template/JavaScript file").item, 200, plugin);
+                // menus.addItemByPath("File/New From Template/HTML file", menus.get("File/New From Template/HTML file").item, 200, plugin);
+                // menus.addItemByPath("File/New From Template/CSS file", menus.get("File/New From Template/CSS file").item, 200, plugin);
+                // menus.addItemByPath("File/New From Template/PHP file", menus.get("File/New From Template/PHP file").item, 200, plugin);
 
                 // re-show divider below View/Less Comfortable
                 divider.show();
