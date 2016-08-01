@@ -43,7 +43,6 @@ define(function(require, exports, module) {
         var terminalBellObj = null;
 
         // stop marking undeclared variables for javascript files
-        // this is a test.
         tabManager.on('focus', function(e) {
             if (e.tab.path != undefined && e.tab.path.slice(-3) == ".js") {
                 settings.set("project/language/@undeclaredVars",false);
@@ -116,6 +115,9 @@ define(function(require, exports, module) {
 
             // less comfortable
             if (lessComfortable) {
+                menus.addItemByPath("Goto/Goto Line...", menus.get("Goto/Goto Line...").item, 110, plugin);
+                menus.addItemByPath("Goto/Goto Symbol...", menus.get("Goto/Goto Symbol...").item, 200, plugin);
+                menus.get("Goto/Goto Symbol...").item.setAttribute("caption", "Symbol...");
                 menus.get("Goto").item.setAttribute("caption", "Go");
                 menus.get("Goto/Goto Line...").item.setAttribute("caption", "Line...");
                 menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Cloud9 Status");
