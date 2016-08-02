@@ -1,0 +1,44 @@
+/* preload images */
+body:after {
+    content: url("@{image-path}/tree-toggle.png") url("@{image-path}/tree-toggle-active.png") url("@{image-path}/tree-toggle-dark.png") url("@{image-path}/tree-toggle-dark-active.png");
+    display:none;
+}
+
+/* tree-toggle in light theme */
+.simple50-tree-toggle {
+    background-image: url("@{image-path}/tree-toggle.png");
+    background-size: auto 11px;
+    background-repeat: no-repeat;
+    left: 15px;
+    top: 12px;
+    z-index: 100;
+}
+.simple50-tree-toggle:hover {
+    filter: brightness(0.5);
+    -webkit-filter: brightness(0.5);
+}
+.simple50-tree-toggle.active {
+    background-image: url("@{image-path}/tree-toggle-active.png");
+}
+
+/* tree-toggle in dark theme */
+.simple50-tree-toggle.dark {
+    background-image: url("@{image-path}/tree-toggle-dark.png");
+}
+.simple50-tree-toggle.dark:hover {
+    filter: brightness(1.5);
+    -webkit-filter:brightness(1.5);
+}
+.simple50-tree-toggle.dark.active {
+    background-image: url("@{image-path}/tree-toggle-dark-active.png");
+}
+
+/* shift pane menu button to the right */
+.simple50-pane0 .tabmenubtn {
+    left: 40px !important;
+}
+
+/* shift tabs and plus button to the right */
+.simple50-pane0 .plus_tab_button, .simple50-pane0 .session_btn {
+    left: 33px !important;
+}
