@@ -275,16 +275,21 @@ define(function(require, exports, module) {
          */
         function toggleSideTabs(lessComfortable) {
             var panelList = ["navigate", "commands.panel", "scm"];
-            if (lessComfortable) {
-                // Only shows tabs automatically when less comfortable is disabled
-                panelList.forEach(function (p) { panels.disablePanel(p, true); });
 
-                // forcibly show file tree
-                panels.activate("tree");
-            }
-            else {
-                panelList.forEach(function (p) { panels.enablePanel(p, true); });
-            }
+            // remember tree visibility status
+            var resetVisibility = tree.active ? tree.show : tree.hide;
+
+            // temporarily overcomes a bug in C9 (tree is forcibly hidden by enabling panels)
+            tree.hide();
+
+            if (lessComfortable)
+                // Only shows tabs automatically when less comfortable is disabled
+                panelList.forEach(function (p) {panels.disablePanel(p);});
+            else
+                panelList.forEach(function (p) {panels.enablePanel(p);});
+
+            // reset tree visibility status
+            resetVisibility();
         }
 
         /*
