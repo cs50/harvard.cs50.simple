@@ -26,6 +26,7 @@ define(function(require, exports, module) {
         var status = imports["ace.status"];
         var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
+        var tree = imports.tree;
         var panels = imports.panels;
         var ui = imports.ui;
         var util = imports.util;
@@ -41,6 +42,7 @@ define(function(require, exports, module) {
         var divider = null;
         var USER = null;
         var terminalBellObj = null;
+        var treeToggle = null;
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -197,7 +199,6 @@ define(function(require, exports, module) {
                 "Window/Commands",
                 "Window/Presets",
                 "Window/Changes",
-                "Window/Workspace",
 
                 // Support menu
                 "Support/Show Guided Tour",
@@ -273,17 +274,22 @@ define(function(require, exports, module) {
          * Toggles the left Navigate and Commands side tabs
          */
         function toggleSideTabs(lessComfortable) {
-            var panelList = ["tree", "navigate", "commands.panel", "scm"];
-            if (lessComfortable) {
-                // Only shows tabs automatically when less comfortable is disabled
-                panelList.forEach(function (p) { panels.disablePanel(p, true); });
+            var panelList = ["navigate", "commands.panel", "scm"];
 
-                // forcibly show file tree
-                panels.activate("tree");
-            }
-            else {
-                panelList.forEach(function (p) { panels.enablePanel(p, true); });
-            }
+            // remember tree visibility status
+            var resetVisibility = tree.active ? tree.show : tree.hide;
+
+            // temporarily overcomes a bug in C9 (tree is forcibly hidden by enabling panels)
+            tree.hide();
+
+            if (lessComfortable)
+                // Only shows tabs automatically when less comfortable is disabled
+                panelList.forEach(function (p) {panels.disablePanel(p);});
+            else
+                panelList.forEach(function (p) {panels.enablePanel(p);});
+
+            // reset tree visibility status
+            resetVisibility();
         }
 
         /*
@@ -738,6 +744,74 @@ define(function(require, exports, module) {
             }
         }
 
+        /**
+         * Styles tree-toggle button.
+         */
+        function styleTreeToggle(active) {
+            if (!treeToggle)
+                return;
+
+            var style = "simple50-tree-toggle";
+            if (settings.get("user/general/@skin").indexOf("dark") > -1)
+                style += " dark";
+
+            if (active === true)
+                style += " active";
+
+            treeToggle.setAttribute("class", style);
+        }
+
+        /**
+         * Hides workspace button and adds small toggle to the left of code tabs.
+         */
+        function addTreeToggle() {
+            // remember if tree is shown or hidden initially
+            var resetVisibility = tree.active ? tree.show : tree.hide;
+
+            // hide workspace from window menu
+            setMenuVisibility("Window/Workspace", false);
+
+            // remove workspace from left bar
+            panels.disablePanel("tree");
+
+            // reset tree visibility status (to prevent disablePanel from hiding tree)
+            resetVisibility("tree");
+
+            // create toggle button
+            treeToggle = ui.button({
+                id: "treeToggle",
+                "class": "simple50-tree-toggle",
+                command: "toggletree",
+                skin: "c9-simple-btn",
+                height: 16,
+                width: 16
+            });
+
+            // listen for pane creation
+            tabManager.on("paneCreate", function(e) {
+                var pane = e.pane;
+                if (pane.name !== "pane0")
+                    return;
+
+                // make room for tree-toggle button
+                pane.aml.$ext.classList.add("simple50-pane0");
+
+                // insert tree-toggle button
+                pane.aml.appendChild(treeToggle);
+            });
+
+            // update tree-toggle button style on tree toggle or theme change
+            tree.once("draw", styleTreeToggle.bind(this, true));
+            tree.on("show", styleTreeToggle.bind(this, true));
+            tree.on("hide", styleTreeToggle);
+            layout.on("themeChange", function() {
+                styleTreeToggle(tree.active);
+            });
+
+            // style tree-toggle initially
+            styleTreeToggle(tree.active);
+        }
+
         /*
          * Sets the initial icon in the avatar menu toolbar
          */
@@ -808,7 +882,7 @@ define(function(require, exports, module) {
             item.setAttribute("caption", "Log Out");
         }
 
-        /* 
+        /*
          * Function that will move the "Go To Your Dashboard" Menu Item below divider
          * If offline IDE it removes the "Go To Your Dashboard" item
          */
@@ -858,6 +932,10 @@ define(function(require, exports, module) {
             addSoundToTerminal();
             updateProfileScripts();
             renameQuitCloud9();
+            addTreeToggle();
+
+            ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
+
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // show asterisks for unsaved documents
@@ -935,6 +1013,7 @@ define(function(require, exports, module) {
             profileMenu = null;
             divider = null;
             terminalBellObj = null;
+            treeToggle = null;
         });
 
         /***** Register and define API *****/
