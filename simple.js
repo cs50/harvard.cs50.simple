@@ -96,13 +96,6 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Toggles the status bar in the bottom right corner of Ace
-         */
-        function toggleStatusBar(lessComfortable) {
-            lessComfortable ? status.hide() : status.show();
-        }
-
-        /*
          * Toggles simplification of the menus at the top of Cloud 9
          */
         function toggleMenus(lessComfortable) {
@@ -643,7 +636,6 @@ define(function(require, exports, module) {
             // Toggles features
             toggleMenus(lessComfortable);
             togglePreview(lessComfortable);
-            toggleStatusBar(lessComfortable);
             toggleMiniButton(lessComfortable);
             toggleSideTabs(lessComfortable);
             togglePlus(lessComfortable);
@@ -1011,6 +1003,10 @@ define(function(require, exports, module) {
                     menus.click("View/Less Comfortable");
                 }
             }, plugin);
+
+            // Set status bar to always show
+            settings.set("user/ace/statusbar/@show", "true");
+
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
