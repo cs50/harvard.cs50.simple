@@ -115,8 +115,8 @@ define(function(require, exports, module) {
 
             // less comfortable
             if (lessComfortable) {
-                moveMenuItem("Goto/Goto Line...", 110);
-                moveMenuItem("Goto/Goto Symbol...", 200);
+                moveMenuItem("Goto/Goto Line...", "Goto/Goto Line...", 110);
+                moveMenuItem("Goto/Goto Symbol...", "Goto/Goto Symbol...", 200);
 
                 recaptionMenuItem("Goto/Goto Symbol...", "Symbol...");
                 recaptionMenuItem("Goto", "Go");
@@ -875,7 +875,7 @@ define(function(require, exports, module) {
                 "File/New From Template/XML file",
                 "File/New From Template/XQuery file"
             ].forEach(function(path) {
-                moveMenuItem(path, location++);
+                moveMenuItem(path, path, location++);
             });
         }
 
@@ -887,10 +887,10 @@ define(function(require, exports, module) {
             }
         }
 
-        function moveMenuItem(path, newLocation) {
-            var newMenuItem = getMenuItem(path);
+        function moveMenuItem(currentPath, newPath, newLocation) {
+            var newMenuItem = getMenuItem(currentPath);
             if (newMenuItem !== null) {
-                menus.addItemByPath(path, newMenuItem, newLocation, plugin);
+                menus.addItemByPath(newPath, newMenuItem, newLocation, plugin);
             }
         }
 
