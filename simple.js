@@ -102,7 +102,6 @@ define(function(require, exports, module) {
          * Toggles simplification of the menus at the top of Cloud 9
          */
         function toggleMenus(lessComfortable) {
-
             // remove gear icon as redundant from both modes
             var bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
@@ -880,11 +879,10 @@ define(function(require, exports, module) {
         }
 
         function getMenuItem(path) {
-            if (menus.get(path) !== null){
-                return menus.get(path).item;
-            } else {
-                return null;
-            }
+            var menu = menus.get(path);
+            if (menu && menu.item)
+                return menu.item;
+            return null;
         }
 
         function moveMenuItem(currentPath, newPath, newLocation) {
