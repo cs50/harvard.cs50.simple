@@ -102,43 +102,6 @@ define(function(require, exports, module) {
          * Toggles simplification of the menus at the top of Cloud 9
          */
         function toggleMenus(lessComfortable) {
-            // var clojureFile = menus.get("File/New From Template/Clojure file").item;
-            // var coffeeScriptFile = menus.get("File/New From Template/CoffeeScript file").item;
-            // var cssFile = menus.get("File/New From Template/CSS file").item;
-            // var expressFile = menus.get("File/New From Template/Express file").item;
-            // var htmlFile = menus.get("File/New From Template/HTML file").item;
-            // var javascriptFile = menus.get("File/New From Template/JavaScript file").item;
-            // var lessFile = menus.get("File/New From Template/LESS file").item;
-            // var markdownFile = menus.get("File/New From Template/Markdown").item;
-            // var nodeJSWebServer = menus.get("File/New From Template/Node.js web server").item;
-            // var ocamlFile = menus.get("File/New From Template/OCaml file").item;
-            // var phpFile = menus.get("File/New From Template/PHP file").item;
-            // var pythonFile = menus.get("File/New From Template/Python file").item;
-            // var rubyFile = menus.get("File/New From Template/Ruby file").item;
-            // var scssFile = menus.get("File/New From Template/SCSS file").item;
-            // var svgFile = menus.get("File/New From Template/SVG file").item;
-            // var textFile = menus.get("File/New From Template/Text file").item;
-            // var xmlFile = menus.get("File/New From Template/XML file").item;
-            // var xqueryFile = menus.get("File/New From Template/XQuery file").item;
-    
-            // menus.addItemByPath("File/New From Template/Clojure File", clojureFile, 100, plugin);
-            // menus.addItemByPath("File/New From Template/CoffeeScript File", coffeeScriptFile, 105, plugin);
-            // menus.addItemByPath("File/New From Template/CSS File", cssFile, 110, plugin);
-            // menus.addItemByPath("File/New From Template/Express File", expressFile, 115, plugin);
-            // menus.addItemByPath("File/New From Template/HTML File", htmlFile, 120, plugin);
-            // menus.addItemByPath("File/New From Template/JavaScript File", javascriptFile, 125, plugin);
-            // menus.addItemByPath("File/New From Template/LESS File", lessFile, 130, plugin);
-            // menus.addItemByPath("File/New From Template/Markdown", markdownFile, 135, plugin);
-            // menus.addItemByPath("File/New From Template/Node.js Web Server", nodeJSWebServer, 140, plugin);
-            // menus.addItemByPath("File/New From Template/OCaml File", ocamlFile, 145, plugin);
-            // menus.addItemByPath("File/New From Template/PHP File", phpFile, 150, plugin);
-            // menus.addItemByPath("File/New From Template/Python File", pythonFile, 155, plugin);
-            // menus.addItemByPath("File/New From Template/Ruby File", rubyFile, 160, plugin);
-            // menus.addItemByPath("File/New From Template/SCSS File", scssFile, 165, plugin);
-            // menus.addItemByPath("File/New From Template/SVG File", svgFile, 170, plugin);
-            // menus.addItemByPath("File/New From Template/Text File", textFile, 175, plugin);
-            // menus.addItemByPath("File/New From Template/XML File", xmlFile, 180, plugin);
-            // menus.addItemByPath("File/New From Template/XQuery File", xqueryFile, 185, plugin);
             // remove gear icon as redundant from both modes
             var bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
@@ -883,6 +846,50 @@ define(function(require, exports, module) {
                 hide(button);
         }
 
+        /*
+         * Function to rearrange the "File/New From Template" menu.
+         * Cannot be placed within simple mode toggles.
+         */
+        function redoNewFromTemplateMenu() {
+            var clojureFile = menus.get("File/New From Template/Clojure file").item;
+            var coffeeScriptFile = menus.get("File/New From Template/CoffeeScript file").item;
+            var cssFile = menus.get("File/New From Template/CSS file").item;
+            var expressFile = menus.get("File/New From Template/Express file").item;
+            var htmlFile = menus.get("File/New From Template/HTML file").item;
+            var javascriptFile = menus.get("File/New From Template/JavaScript file").item;
+            var lessFile = menus.get("File/New From Template/LESS file").item;
+            var markdownFile = menus.get("File/New From Template/Markdown").item;
+            var nodeJSWebServer = menus.get("File/New From Template/Node.js web server").item;
+            var ocamlFile = menus.get("File/New From Template/OCaml file").item;
+            var phpFile = menus.get("File/New From Template/PHP file").item;
+            var pythonFile = menus.get("File/New From Template/Python file").item;
+            var rubyFile = menus.get("File/New From Template/Ruby file").item;
+            var scssFile = menus.get("File/New From Template/SCSS file").item;
+            var svgFile = menus.get("File/New From Template/SVG file").item;
+            var textFile = menus.get("File/New From Template/Text file").item;
+            var xmlFile = menus.get("File/New From Template/XML file").item;
+            var xqueryFile = menus.get("File/New From Template/XQuery file").item;
+
+            menus.addItemByPath("File/New From Template/Clojure file", clojureFile, 100, plugin);
+            menus.addItemByPath("File/New From Template/CoffeeScript File", coffeeScriptFile, 105, plugin);
+            menus.addItemByPath("File/New From Template/CSS File", cssFile, 110, plugin);
+            menus.addItemByPath("File/New From Template/Express File", expressFile, 115, plugin);
+            menus.addItemByPath("File/New From Template/HTML File", htmlFile, 120, plugin);
+            menus.addItemByPath("File/New From Template/JavaScript File", javascriptFile, 125, plugin);
+            menus.addItemByPath("File/New From Template/LESS File", lessFile, 130, plugin);
+            menus.addItemByPath("File/New From Template/Markdown", markdownFile, 135, plugin);
+            menus.addItemByPath("File/New From Template/Node.js Web Server", nodeJSWebServer, 140, plugin);
+            menus.addItemByPath("File/New From Template/OCaml File", ocamlFile, 145, plugin);
+            menus.addItemByPath("File/New From Template/PHP File", phpFile, 150, plugin);
+            menus.addItemByPath("File/New From Template/Python File", pythonFile, 155, plugin);
+            menus.addItemByPath("File/New From Template/Ruby File", rubyFile, 160, plugin);
+            menus.addItemByPath("File/New From Template/SCSS File", scssFile, 165, plugin);
+            menus.addItemByPath("File/New From Template/SVG File", svgFile, 170, plugin);
+            menus.addItemByPath("File/New From Template/Text File", textFile, 175, plugin);
+            menus.addItemByPath("File/New From Template/XML File", xmlFile, 180, plugin);
+            menus.addItemByPath("File/New From Template/XQuery File", xqueryFile, 185, plugin);
+        }
+
         /***** Initialization *****/
 
         var loaded = false;
@@ -948,6 +955,7 @@ define(function(require, exports, module) {
                     menus.click("View/Less Comfortable");
                 }
             }, plugin);
+            redoNewFromTemplateMenu();
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
