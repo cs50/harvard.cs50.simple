@@ -42,3 +42,7 @@ body:after {
 .simple50-pane0 .plus_tab_button, .simple50-pane0 .session_btn {
     left: 33px !important;
 }
+
+.has_apf .session_btn.changed strong {
+  background-position: -9px 0px !important;
+}
