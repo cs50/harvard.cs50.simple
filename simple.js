@@ -43,6 +43,8 @@ define(function(require, exports, module) {
         var USER = null;
         var terminalBellObj = null;
         var treeToggle = null;
+        var treeToggleItem = null;
+        var dark = null;
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -745,26 +747,41 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Styles tree-toggle button.
+         * Syncs tree toggle button and menu item with tree visibility state.
+         *
+         * @param {boolean} active whether to toggle the buttons on
          */
-        function styleTreeToggle(active) {
-            if (!treeToggle)
+        function syncTreeToggles(active) {
+            if (!treeToggle || !treeToggleItem)
                 return;
 
             var style = "simple50-tree-toggle";
-            if (settings.get("user/general/@skin").indexOf("dark") > -1)
+            if (dark)
                 style += " dark";
 
-            if (active === true)
+            if (active === true) {
                 style += " active";
 
+                // check menu item
+                treeToggleItem.setAttribute("checked", true);
+            }
+            else {
+                // uncheck menu item
+                treeToggleItem.setAttribute("checked", false);
+            }
+
+            // update style of tree-toggle button
             treeToggle.setAttribute("class", style);
         }
 
         /**
-         * Hides workspace button and adds small toggle to the left of code tabs.
+         * Hides workspace button and adds small toggle to the left of code tabs
+         * and a menu toggle item under view.
          */
-        function addTreeToggle() {
+        function addTreeToggles() {
+            // get current skin initially
+            dark = settings.get("user/general/@skin").indexOf("dark") > -1;
+
             // remember if tree is shown or hidden initially
             var resetVisibility = tree.active ? tree.show : tree.hide;
 
@@ -787,6 +804,13 @@ define(function(require, exports, module) {
                 width: 16
             });
 
+            // create menu item
+            treeToggleItem = new ui.item({
+                type: "check",
+                caption: "File Browser",
+                command: "toggletree"
+            });
+
             // listen for pane creation
             tabManager.on("paneCreate", function(e) {
                 var pane = e.pane;
@@ -800,16 +824,25 @@ define(function(require, exports, module) {
                 pane.aml.appendChild(treeToggle);
             });
 
-            // update tree-toggle button style on tree toggle or theme change
-            tree.once("draw", styleTreeToggle.bind(this, true));
-            tree.on("show", styleTreeToggle.bind(this, true));
-            tree.on("hide", styleTreeToggle);
-            layout.on("themeChange", function() {
-                styleTreeToggle(tree.active);
+            // add menu item to toggle tree (useful when toggle is hidden)
+            menus.addItemByPath("View/File Browser", treeToggleItem, 200, plugin);
+
+            // sync tree toggles as tree is toggled or skin is changed
+            tree.once("draw", syncTreeToggles.bind(this, true));
+            tree.on("show", syncTreeToggles.bind(this, true));
+            tree.on("hide", syncTreeToggles);
+            settings.on("user/general/@skin", function(skin) {
+                dark = skin.indexOf("dark") > -1;
+                syncTreeToggles(tree.active);
+            });
+
+            // toggle visibility of tree toggle as tabs are shown or hidden
+            settings.on("user/tabs/@show", function(showing) {
+                treeToggle.setAttribute("visible", showing);
             });
 
             // style tree-toggle initially
-            styleTreeToggle(tree.active);
+            syncTreeToggles(tree.active);
         }
 
         /*
@@ -932,7 +965,7 @@ define(function(require, exports, module) {
             addSoundToTerminal();
             updateProfileScripts();
             renameQuitCloud9();
-            addTreeToggle();
+            addTreeToggles();
 
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
 
@@ -1014,6 +1047,8 @@ define(function(require, exports, module) {
             divider = null;
             terminalBellObj = null;
             treeToggle = null;
+            treeToggleItem = null;
+            dark = null;
         });
 
         /***** Register and define API *****/
