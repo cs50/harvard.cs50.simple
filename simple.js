@@ -106,7 +106,6 @@ define(function(require, exports, module) {
          * Toggles simplification of the menus at the top of Cloud 9
          */
         function toggleMenus(lessComfortable) {
-
             // remove gear icon as redundant from both modes
             var bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
@@ -119,18 +118,31 @@ define(function(require, exports, module) {
 
             // less comfortable
             if (lessComfortable) {
-                menus.get("Goto").item.setAttribute("caption", "Go");
-                menus.get("Goto/Goto Line...").item.setAttribute("caption", "Line...");
-                menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Cloud9 Status");
-                menus.get("Support/Read Documentation").item.setAttribute("caption", "Cloud9 Documentation");
+                moveMenuItem("Goto/Goto Line...", "Goto/Goto Line...", 110);
+                moveMenuItem("Goto/Goto Symbol...", "Goto/Goto Symbol...", 200);
+
+                recaptionMenuItem("Goto/Goto Symbol...", "Symbol...");
+                recaptionMenuItem("Goto", "Go");
+                recaptionMenuItem("Goto/Goto Line...", "Line...");
+                recaptionMenuItem("Support/Check Cloud9 Status", "Cloud9 Status");
+                recaptionMenuItem("Support/Read Documentation", "Cloud9 Documentation");
+                recaptionMenuItem("File/New From Template/JavaScript file", "JavaScript");
+                recaptionMenuItem("File/New From Template/HTML file", "HTML");
+                recaptionMenuItem("File/New From Template/CSS file", "CSS");
+                recaptionMenuItem("File/New From Template/PHP file", "PHP");
             }
 
             // more comfortable
             else {
-                menus.get("Goto").item.setAttribute("caption", "Goto");
-                menus.get("Goto/Goto Line...").item.setAttribute("caption", "Goto Line...");
-                menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Check Cloud9 Status");
-                menus.get("Support/Read Documentation").item.setAttribute("caption", "Read Documentation");
+                recaptionMenuItem("Goto", "Goto");
+                recaptionMenuItem("Goto/Goto Line...", "Goto Line...");
+                recaptionMenuItem("Goto/Goto Symbol...", "Goto Symbol...");
+                recaptionMenuItem("Support/Check Cloud9 Status", "Check Cloud9 Status");
+                recaptionMenuItem("Support/Read Documentation", "Read Documentation");
+                recaptionMenuItem("File/New From Template/JavaScript file", "JavaScript file");
+                recaptionMenuItem("File/New From Template/HTML file", "HTML file");
+                recaptionMenuItem("File/New From Template/CSS file", "CSS file");
+                recaptionMenuItem("File/New From Template/PHP file", "PHP file");
 
                 // re-show divider below View/Less Comfortable
                 divider.show();
@@ -942,6 +954,57 @@ define(function(require, exports, module) {
                 hide(button);
         }
 
+        /*
+         * Function to rearrange the "File/New From Template" menu.
+         * Cannot be placed within simple mode toggles.
+         */
+        function redoNewFromTemplateMenu() {
+            var location = 100;
+            [
+                "File/New From Template/Clojure file",
+                "File/New From Template/CoffeeScript file",
+                "File/New From Template/CSS file",
+                "File/New From Template/Express file",
+                "File/New From Template/HTML file",
+                "File/New From Template/JavaScript file",
+                "File/New From Template/LESS file",
+                "File/New From Template/Markdown",
+                "File/New From Template/Node.js web server",
+                "File/New From Template/Markdown",
+                "File/New From Template/OCaml file",
+                "File/New From Template/PHP file",
+                "File/New From Template/Python file",
+                "File/New From Template/Ruby file",
+                "File/New From Template/SCSS file",
+                "File/New From Template/SVG file",
+                "File/New From Template/Text file",
+                "File/New From Template/XML file",
+                "File/New From Template/XQuery file"
+            ].forEach(function(path) {
+                moveMenuItem(path, path, location++);
+            });
+        }
+
+        function getMenuItem(path) {
+            var menu = menus.get(path);
+            if (menu && menu.item)
+                return menu.item;
+            return null;
+        }
+
+        function moveMenuItem(currentPath, newPath, newLocation) {
+            var newMenuItem = getMenuItem(currentPath);
+            if (newMenuItem !== null) {
+                menus.addItemByPath(newPath, newMenuItem, newLocation, plugin);
+            }
+        }
+
+        function recaptionMenuItem(path, newCaption) {
+            var newMenuItem = getMenuItem(path);
+            if (newMenuItem !== null) {
+                newMenuItem.setAttribute("caption", newCaption);
+            }
+        }
         /***** Initialization *****/
 
         var loaded = false;
@@ -1011,6 +1074,7 @@ define(function(require, exports, module) {
                     menus.click("View/Less Comfortable");
                 }
             }, plugin);
+            redoNewFromTemplateMenu();
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             settings.on("user/cs50/simple/@gravatarIcon", toggleIcon, plugin);
