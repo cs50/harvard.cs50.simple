@@ -23,7 +23,6 @@ define(function(require, exports, module) {
         var prefs = imports.preferences;
         var presentation = imports["harvard.cs50.presentation"];
         var settings = imports.settings;
-        var status = imports["ace.status"];
         var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
         var tree = imports.tree;
