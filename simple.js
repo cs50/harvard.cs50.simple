@@ -115,30 +115,31 @@ define(function(require, exports, module) {
 
             // less comfortable
             if (lessComfortable) {
-                menus.addItemByPath("Goto/Goto Line...", menus.get("Goto/Goto Line...").item, 110, plugin);
-                menus.addItemByPath("Goto/Goto Symbol...", menus.get("Goto/Goto Symbol...").item, 200, plugin);
-                menus.get("Goto/Goto Symbol...").item.setAttribute("caption", "Symbol...");
-                menus.get("Goto").item.setAttribute("caption", "Go");
-                menus.get("Goto/Goto Line...").item.setAttribute("caption", "Line...");
-                menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Cloud9 Status");
-                menus.get("Support/Read Documentation").item.setAttribute("caption", "Cloud9 Documentation");
-                menus.get("File/New From Template/JavaScript file").item.setAttribute("caption", "JavaScript");
-                menus.get("File/New From Template/HTML file").item.setAttribute("caption", "HTML");
-                menus.get("File/New From Template/CSS file").item.setAttribute("caption", "CSS");
-                menus.get("File/New From Template/PHP file").item.setAttribute("caption", "PHP");
+                moveMenuItem("Goto/Goto Line...", 110);
+                moveMenuItem("Goto/Goto Symbol...", 200);
+
+                recaptionMenuItem("Goto/Goto Symbol...", "Symbol...");
+                recaptionMenuItem("Goto", "Go");
+                recaptionMenuItem("Goto/Goto Line...", "Line...");
+                recaptionMenuItem("Support/Check Cloud9 Status", "Cloud9 Status");
+                recaptionMenuItem("Support/Read Documentation", "Cloud9 Documentation");
+                recaptionMenuItem("File/New From Template/JavaScript file", "JavaScript");
+                recaptionMenuItem("File/New From Template/HTML file", "HTML");
+                recaptionMenuItem("File/New From Template/CSS file", "CSS");
+                recaptionMenuItem("File/New From Template/PHP file", "PHP");
             }
 
             // more comfortable
             else {
-                menus.get("Goto").item.setAttribute("caption", "Goto");
-                menus.get("Goto/Goto Line...").item.setAttribute("caption", "Goto Line...");
-                menus.get("Goto/Goto Symbol...").item.setAttribute("caption", "Goto Symbol...");
-                menus.get("Support/Check Cloud9 Status").item.setAttribute("caption", "Check Cloud9 Status");
-                menus.get("Support/Read Documentation").item.setAttribute("caption", "Read Documentation");
-                menus.get("File/New From Template/JavaScript file").item.setAttribute("caption", "JavaScript file");
-                menus.get("File/New From Template/HTML file").item.setAttribute("caption", "HTML file");
-                menus.get("File/New From Template/CSS file").item.setAttribute("caption", "CSS file");
-                menus.get("File/New From Template/PHP file").item.setAttribute("caption", "PHP file");
+                recaptionMenuItem("Goto", "Goto");
+                recaptionMenuItem("Goto/Goto Line...", "Goto Line...");
+                recaptionMenuItem("Goto/Goto Symbol...", "Goto Symbol...");
+                recaptionMenuItem("Support/Check Cloud9 Status", "Check Cloud9 Status");
+                recaptionMenuItem("Support/Read Documentation", "Read Documentation");
+                recaptionMenuItem("File/New From Template/JavaScript file", "JavaScript file");
+                recaptionMenuItem("File/New From Template/HTML file", "HTML file");
+                recaptionMenuItem("File/New From Template/CSS file", "CSS file");
+                recaptionMenuItem("File/New From Template/PHP file", "PHP file");
 
                 // re-show divider below View/Less Comfortable
                 divider.show();
@@ -893,6 +894,12 @@ define(function(require, exports, module) {
             }
         }
 
+        function recaptionMenuItem(path, newCaption) {
+            var newMenuItem = getMenuItem(path);
+            if (newMenuItem !== null) {
+                newMenuItem.setAttribute("caption", newCaption);
+            }
+        }
         /***** Initialization *****/
 
         var loaded = false;
