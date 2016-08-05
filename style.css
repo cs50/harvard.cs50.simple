@@ -46,3 +46,7 @@ body:after {
 .has_apf .session_btn.changed strong {
   background-position: -9px 0px !important;
 }
+
+.asterisk .session_btn.changed .sessiontab_title:before {
+    content: "" !important;
+}
