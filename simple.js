@@ -2,11 +2,11 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "ace", "ace.status", "auth", "clipboard", "commands", "console",
+        "ace", "ace.status", "auth", "c9", "clipboard", "commands", "console",
         "Divider", "harvard.cs50.presentation", "immediate", "info",  "keymaps",
         "layout", "login", "Menu", "menus", "panels", "Plugin", "preferences",
         "preview", "run.gui", "save", "settings", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "util", "c9"
+        "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
@@ -16,9 +16,10 @@ define(function(require, exports, module) {
         var c9 = imports.c9;
         var clipboard = imports.clipboard;
         var commands = imports.commands;
-        var layout = imports.layout;
         var info = imports.info;
+        var layout = imports.layout;
         var menus = imports.menus;
+        var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
         var presentation = imports["harvard.cs50.presentation"];
@@ -26,7 +27,6 @@ define(function(require, exports, module) {
         var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
         var tree = imports.tree;
-        var panels = imports.panels;
         var ui = imports.ui;
         var util = imports.util;
 
@@ -306,8 +306,8 @@ define(function(require, exports, module) {
 
             // finds the menu bar and then executes callback
             tabs.getElement("mnuEditors", function(menu) {
-
                 var menuItems = menu.childNodes;
+
                 // tries to toggle the menu items on the plus sign
                 // until it works (sometimes this is called before they load)
                 var test = setInterval(function (){
@@ -395,14 +395,17 @@ define(function(require, exports, module) {
         function displayReadme() {
 
             // Shows CS50 IDE readme
-            tabManager.open({
-            value      : "https://cs50.readme.io/",
-            editorType : "urlview",
-            active     : true,
-            document   : {title : "About CS50 IDE"},
-            }, function(err, tab) {
-                if (err) return err;
-            });
+            tabManager.open(
+                {
+                    value      : "https://cs50.readme.io/",
+                    editorType : "urlview",
+                    active     : true,
+                    document   : {title : "About CS50 IDE"},
+                },
+                function(err, tab) {
+                    if (err) return err;
+                }
+            );
         }
 
         /*
@@ -1025,10 +1028,12 @@ define(function(require, exports, module) {
 
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
-                // show asterisks for unsaved documents
-                settings.set("user/tabs/@asterisk", true);
+                // hide asterisks for unsaved documents
+                settings.set("user/tabs/@asterisk", false);
+
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
+
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
@@ -1050,8 +1055,7 @@ define(function(require, exports, module) {
                 settings.set("project/python/@version", "python3");
 
                 // Set status bar to always show
-                settings.set("user/ace/statusbar/@show", "true");
-                settings.set("user/tabs/@asterisk", "false");
+                settings.set("user/ace/statusbar/@show", true);
             }
 
             settings.on("read", function(){
