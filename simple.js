@@ -825,6 +825,7 @@ define(function(require, exports, module) {
 
                 // make room for tree-toggle button
                 pane.aml.$ext.classList.add("simple50-pane0");
+                pane.aml.$buttons.style.paddingLeft = "54px";
 
                 // insert tree-toggle button
                 pane.aml.appendChild(treeToggle);
