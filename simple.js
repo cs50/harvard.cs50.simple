@@ -481,60 +481,6 @@ define(function(require, exports, module) {
             menus.addItemToMenu(profileMenu, newLogout, 1000, plugin);
         }
 
-        function updateProfileScripts() {
-            commands.addCommand({
-                name: "cs50updateProfileScripts",
-                hint: "cs50 IDE Updating of Profile Scripts",
-                group: "General",
-                exec: function () {
-                    // Stores an array of Tab objects into 'array'
-                    var array = tabManager.getTabs();
-                    var i = 0;
-                    var arrayLength = array.length;
-                    var str1 = "terminal";
-
-                    // Go through the array of Tabs and find the terminal
-                    for(i = 0; i < arrayLength; i++){
-                        if(str1.localeCompare(array[i].editorType) === 0){
-                            //Activate the terminal tab
-                            var tab = array[i];
-                            tabManager.activateTab(tab);
-
-                            /***
-                             * The below variable updateCommand can be changed to any
-                             * unix command. It must be terminated with '\n' to ensure
-                             * the command runs in the terminal.
-                             */
-
-                            // Get previously stored setting of warning window
-                            var prevSetting = settings.getBool("user/clipboard/@dontshow");
-
-                            // Set Clipboard Warning to "Don't Show"
-                            settings.set("user/clipboard/@dontshow", true);
-
-                            // Get previously set data
-                            var prevData = clipboard.clipboardData.getData("text/plain");
-
-                            // Set the variable updateCommand to be the command that updates the terminal
-                            var updateCommand = " source /etc/profile && source /home/ubuntu/.bashrc\n";
-
-                            // Copy to the clipboard the data stored in updateCommand
-                            clipboard.clipboardData.setData("text/plain", updateCommand);
-
-                            // Pastes in the active Tab (the terminal) the command stored in the clipboard
-                            tab.editor.paste();
-
-                            // Set clipboard back to previous stored data
-                            clipboard.clipboardData.setData("text/plain", prevData);
-
-                            //Set clipboard setting back to original setting
-                            settings.set("user/clipboard/@dontshow", prevSetting);
-                        }
-                    }
-                }
-            }, plugin);
-        }
-
         /**
          * Updates items of "View > Font Size".
          */
@@ -1021,7 +967,6 @@ define(function(require, exports, module) {
             setTitlesFromTabs();
             removeSoundFromInit();
             addSoundToTerminal();
-            updateProfileScripts();
             renameQuitCloud9();
             addTreeToggles();
 
