@@ -609,15 +609,16 @@ define(function(require, exports, module) {
          */
         function setTmuxTitle(tab){
             // check if the tab exists and it is a terminal tab
-            if (tab && tab.editorType == "terminal"){
+            if (tab && tab.editorType === "terminal") {
                 var session = tab.document.getSession();
                 tab.document.on("setTitle", function(e) {
                     // fetch title from the object, fall back on tab
                     var title = e.title || tab.document.title;
 
-                    // if title ends with the string, remove it everywhere
-                    if (title && title.indexOf(' - ""', title.length-5) !== -1) {
-                        title = title.replace(/ - ""/, "");
+                    // remove terminating ' - ""', if it exists
+                    var re = /\s-\s""\s*$/;
+                    if (title && re.test(title)) {
+                        title = title.replace(re, "");
 
                         // list of items whose title should change
                         var docList = [e, tab.document];
