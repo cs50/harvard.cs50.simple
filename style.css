@@ -1,6 +1,6 @@
 /* preload images */
 body:after {
-    content: url("@{image-path}/tree-toggle.png") url("@{image-path}/tree-toggle-active.png") url("@{image-path}/tree-toggle-dark.png") url("@{image-path}/tree-toggle-dark-active.png");
+    content: url("@{image-path}/c9.png") url("@{image-path}/tree-toggle.png") url("@{image-path}/tree-toggle-active.png") url("@{image-path}/tree-toggle-dark.png") url("@{image-path}/tree-toggle-dark-active.png");
     display:none;
 }
 
@@ -40,4 +40,8 @@ body:after {
 
 .has_apf .session_btn.changed strong:not(:hover) {
   background-position: -9px 0px !important;
+}
+
+.c9-logo .icon {
+    background-image: url("@{image-path}/c9.png") !important;
 }
