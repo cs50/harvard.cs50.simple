@@ -767,7 +767,7 @@ define(function(require, exports, module) {
             // listen for pane creation
             tabManager.on("paneCreate", function(e) {
                 var pane = e.pane;
-                if (pane.name !== "pane0")
+                if (pane !== tabManager.getPanes()[0])
                     return;
 
                 // make room for tree-toggle button
