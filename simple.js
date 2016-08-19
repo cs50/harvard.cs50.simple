@@ -3,10 +3,10 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "commands", "console",
-        "Divider", "harvard.cs50.presentation", "immediate", "info",  "keymaps",
-        "layout", "login", "Menu", "menus", "panels", "Plugin", "preferences",
-        "preview", "run.gui", "save", "settings", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "util"
+        "Divider", "immediate", "info",  "keymaps", "layout", "login", "Menu",
+        "menus", "panels", "Plugin", "preferences", "preview", "run.gui",
+        "save", "settings", "tabManager", "terminal", "tooltip", "tree", "ui",
+        "util"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
@@ -22,7 +22,6 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
-        var presentation = imports["harvard.cs50.presentation"];
         var settings = imports.settings;
         var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
@@ -44,6 +43,7 @@ define(function(require, exports, module) {
         var treeToggle = null;
         var treeToggleItem = null;
         var dark = null;
+        var presenting = false;
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -500,6 +500,14 @@ define(function(require, exports, module) {
             var smallerfontKeys = commands.commands.smallerfont.bindKey;
             delete commands.commands.smallerfont.bindKey;
 
+            // whether presentation mode is on
+            presenting = settings.getBool("user/cs50/presentation/@presenting");
+
+            // update presenting as presentation mode is toggled
+            settings.on("user/cs50/presentation/@presenting", function(val) {
+                presenting = val;
+            }, plugin);
+
             // command for increasing font sizes of ace and terminal
             commands.addCommand({
                 name: "largerfonts",
@@ -530,7 +538,7 @@ define(function(require, exports, module) {
                     var terminal = 12;
 
                     // determine default font sizes depending on current mode
-                    if (presentation.presenting)
+                    if (presenting === true)
                          ace = terminal = 20;
 
                     // reset font sizes of ace and terminal to defaults
@@ -1061,6 +1069,7 @@ define(function(require, exports, module) {
             treeToggle = null;
             treeToggleItem = null;
             dark = null;
+            presenting = false;
         });
 
         /***** Register and define API *****/
