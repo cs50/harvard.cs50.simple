@@ -746,17 +746,9 @@ define(function(require, exports, module) {
                 var selection = fileDialog.tree.selection;
                 var selectedNodes = selection.getSelectedNodes();
 
-                // prevent multiple selection
-                if (selectedNodes.length > 1) {
-                    // cache last selected node
-                    var lastSelected = selectedNodes[selectedNodes.length - 1];
-
-                    // clear selection
-                    fileDialog.tree.selection.clear();
-
-                    // select last selected node
-                    fileDialog.tree.select(lastSelected);
-                }
+                if (selectedNodes.length > 1)
+                    // select last selected node only
+                    selection.selectNode(selectedNodes[selectedNodes.length - 1], false);
             }
 
             // customize file dialog
