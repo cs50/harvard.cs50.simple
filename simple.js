@@ -3,10 +3,10 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "commands", "console",
-        "Divider", "harvard.cs50.presentation", "immediate", "info",  "keymaps",
-        "layout", "login", "Menu", "menus", "panels", "Plugin", "preferences",
-        "preview", "run.gui", "save", "settings", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "util"
+        "Divider", "dialog.file", "harvard.cs50.presentation", "immediate",
+        "info",  "keymaps", "layout", "login", "Menu", "menus", "panels",
+        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
+        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
@@ -15,6 +15,7 @@ define(function(require, exports, module) {
         var auth = imports.auth;
         var c9 = imports.c9;
         var commands = imports.commands;
+        var fileDialog = imports["dialog.file"];
         var info = imports.info;
         var layout = imports.layout;
         var menus = imports.menus;
@@ -41,6 +42,7 @@ define(function(require, exports, module) {
         var treeToggleItem = null;
         var dark = null;
         var avatar = null;
+        var openingFile = false;
 
         // stop marking undeclared variables for javascript files
         tabManager.on('focus', function(e) {
@@ -697,6 +699,92 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Overrides the behavior of the "File/Open" menu item to open a file
+         * dialog instead of the "Navigation" pane in less-comfy only.
+         */
+        function addFileDialog() {
+            // get the "File/Open" menu item
+            var openItem = menus.get("File/Open...").item;
+            if (!openItem)
+                return;
+
+            // add command that opens file dialog in less-comfy only
+            commands.addCommand({
+                name: "openFileDialog",
+                hint: "Opens file dialog for opening files",
+                bindKey: commands.commands.navigate.bindKey,
+                exec: function() {
+                    // override in less-comfy only
+                    if (!lessComfortable)
+                        return commands.exec("navigate");
+
+                    // wehther to customize file dialog
+                    openingFile = true;
+
+                    // show open file dialog
+                    fileDialog.show("Open file", null, function(path) {
+                        // open and activate file at path
+                        tabManager.openFile(path, true);
+
+                        // hide file dialog
+                        fileDialog.hide();
+                    }, null, {
+                        createFolderButton: false,
+                        showFilesCheckbox: false,
+                        chooseCaption: "Open"
+                    });
+                }
+            }, plugin);
+
+            // delete navigate's keyboard shortcut
+            delete commands.commands.navigate.bindKey;
+
+            /**
+             * Prevents selection of multiple files in "open file" dialog's tree
+             */
+            function disableMultiSelect() {
+                var selection = fileDialog.tree.selection;
+                var selectedNodes = selection.getSelectedNodes();
+
+                if (selectedNodes.length > 1)
+                    // select last selected node only
+                    selection.selectNode(selectedNodes[selectedNodes.length - 1], false);
+            }
+
+            // customize file dialog
+            fileDialog.on("show", function() {
+                // avoid customizing other file dialogs (e.g., save)
+                if (openingFile !== true)
+                    return;
+
+                // hide "Folder:" label and text field
+                var txtDirectory = fileDialog.getElement("txtDirectory");
+                txtDirectory.previousSibling.setAttribute("visible", false);
+                txtDirectory.setAttribute("visible", false);
+
+                // allow opening file by double-clicking it
+                fileDialog.tree.once("afterChoose", function() {
+                    fileDialog.getElement("btnChoose").dispatchEvent("click");
+                });
+
+                // disable multiple selection
+                fileDialog.tree.on("changeSelection", disableMultiSelect);
+            }, plugin);
+
+            // clean up to avoid affecting other file dialogs
+            fileDialog.on("hide", function() {
+                // reset openingFile
+                openingFile = false;
+
+                // remove changeSelection listener
+                fileDialog.tree.off("changeSelection", disableMultiSelect);
+            }, plugin);
+
+            // override "File/Open"'s behavior
+            openItem.setAttribute("command", "openFileDialog");
+        }
+
+        /**
          * Syncs tree toggle button and menu item with tree visibility state.
          *
          * @param {boolean} active whether to toggle the buttons on
@@ -961,6 +1049,7 @@ define(function(require, exports, module) {
             removeSoundFromInit();
             addSoundToTerminal();
             renameQuitCloud9();
+            addFileDialog();
             addTreeToggles();
 
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
@@ -1044,6 +1133,7 @@ define(function(require, exports, module) {
             treeToggleItem = null;
             dark = null;
             avatar = null;
+            openingFile = false;
         });
 
         /***** Register and define API *****/
