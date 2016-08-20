@@ -740,7 +740,7 @@ define(function(require, exports, module) {
             delete commands.commands.navigate.bindKey;
 
             // customize file dialog
-            fileDialog.once("show", function() {
+            fileDialog.on("show", function() {
                 // avoid customizing other file dialogs (e.g., save)
                 if (openingFile !== true)
                     return;
@@ -751,15 +751,15 @@ define(function(require, exports, module) {
                 txtDirectory.setAttribute("visible", false);
 
                 // allow opening file by double-clicking it
-                fileDialog.tree.on("afterChoose", function() {
+                fileDialog.tree.once("afterChoose", function() {
                     fileDialog.getElement("btnChoose").dispatchEvent("click");
                 });
-            });
+            }, plugin);
 
             // reset openingFile
             fileDialog.on("hide", function() {
                 openingFile = false;
-            });
+            }, plugin);
 
             // override "File/Open"'s behavior
             openItem.setAttribute("command", "openFileDialog");
