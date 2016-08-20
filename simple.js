@@ -724,12 +724,7 @@ define(function(require, exports, module) {
                     // show open file dialog
                     fileDialog.show("Open file", null, function(path) {
                         // open and activate file at path
-                        //tabManager.openFile(path, true);
-                        tabManager.open({
-                            path: path,
-                            active: true,
-                            focus: true
-                        });
+                        tabManager.openFile(path, true);
 
                         // hide file dialog
                         fileDialog.hide();
