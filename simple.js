@@ -739,6 +739,26 @@ define(function(require, exports, module) {
             // delete navigate's keyboard shortcut
             delete commands.commands.navigate.bindKey;
 
+            /**
+             * Prevents selection of multiple files in "open file" dialog's tree
+             */
+            function disableMultiSelect() {
+                var selection = fileDialog.tree.selection;
+                var selectedNodes = selection.getSelectedNodes();
+
+                // prevent multiple selection
+                if (selectedNodes.length > 1) {
+                    // cache last selected node
+                    var lastSelected = selectedNodes[selectedNodes.length - 1];
+
+                    // clear selection
+                    fileDialog.tree.selection.clear();
+
+                    // select last selected node
+                    fileDialog.tree.select(lastSelected);
+                }
+            }
+
             // customize file dialog
             fileDialog.on("show", function() {
                 // avoid customizing other file dialogs (e.g., save)
@@ -754,11 +774,18 @@ define(function(require, exports, module) {
                 fileDialog.tree.once("afterChoose", function() {
                     fileDialog.getElement("btnChoose").dispatchEvent("click");
                 });
+
+                // disable multiple selection
+                fileDialog.tree.on("changeSelection", disableMultiSelect);
             }, plugin);
 
-            // reset openingFile
+            // clean up to avoid affecting other file dialogs
             fileDialog.on("hide", function() {
+                // reset openingFile
                 openingFile = false;
+
+                // remove changeSelection listener
+                fileDialog.tree.off("changeSelection", disableMultiSelect);
             }, plugin);
 
             // override "File/Open"'s behavior
