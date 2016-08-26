@@ -232,23 +232,20 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Toggles Preview Button
+         * Hides "Preview" and "Run" buttons
          */
-        function togglePreview(lessComfortable) {
-            // determines whether to show or hide
-            var toggle = lessComfortable ? hide : show;
+        function hidePreviewAndRun() {
+            // get parent of "Preview" and "Run" buttons
+            var p = layout.findParent({ name: "preview" });
 
-            // gets the menu bar that holds the preview and debug buttons
-            var bar = layout.findParent({ name: "preview" });
+            // hide the divider
+            p.childNodes[0].setAttribute("visible", false);
 
-            // toggles divider
-            toggle(bar.childNodes[0]);
+            // hide the "Preview" button
+            p.childNodes[1].setAttribute("visible", false);
 
-            // toggles preview button
-            toggle(bar.childNodes[1]);
-
-            // toggles run button
-            toggle(bar.childNodes[2]);
+            // hide the "Run" button
+            p.childNodes[2].setAttribute("visible", false);
         }
 
         /*
@@ -594,7 +591,6 @@ define(function(require, exports, module) {
 
             // Toggles features
             toggleMenus(lessComfortable);
-            togglePreview(lessComfortable);
             toggleMiniButton(lessComfortable);
             toggleSideTabs(lessComfortable);
             togglePlus(lessComfortable);
@@ -1051,6 +1047,7 @@ define(function(require, exports, module) {
             renameQuitCloud9();
             addFileDialog();
             addTreeToggles();
+            hidePreviewAndRun();
 
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
 
