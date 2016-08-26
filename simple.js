@@ -191,9 +191,6 @@ define(function(require, exports, module) {
                 "Goto/Word Left",
                 "Goto/Scroll to Selection",
 
-                // Run Menu
-                "Run",
-
                 // Tools Menu
                 "Tools",
 
@@ -232,7 +229,7 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Hides "Preview" and "Run" buttons
+         * Hides "Preview" button and "Run" button and menu
          */
         function hidePreviewAndRun() {
             // get parent of "Preview" and "Run" buttons
@@ -246,6 +243,9 @@ define(function(require, exports, module) {
 
             // hide the "Run" button
             p.childNodes[2].setAttribute("visible", false);
+
+            // hide Run menu
+            setMenuVisibility("Run", false);
         }
 
         /*
