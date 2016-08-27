@@ -632,12 +632,20 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Set the HTML page title based on a tab's title
+         * Sets and updates the title of the browser tab.
          */
         function updateTitle(tab) {
-            document.title = tab && settings.getBool("user/tabs/@title") && tab.title
-                ? tab.title + " - CS50 IDE"
-                : c9.projectName + " - CS50 IDE";
+            var title = "CS50 IDE";
+
+            // append "Offline" to offline IDE title
+            if (!c9.hosted)
+                title += " Offline";
+
+            // prepend tab title when should
+            document.title = tab && settings.getBool("user/tabs/@title")
+                && tab.title
+                ? tab.title + " - " + title
+                : title
         }
 
         /*
