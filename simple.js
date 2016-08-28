@@ -385,52 +385,6 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Show the CS50 IDE readme in a new tab when the "About CS50 IDE"
-         * button is clicked
-         */
-        function displayReadme() {
-
-            // Shows CS50 IDE readme
-            tabManager.open(
-                {
-                    value      : "https://cs50.readme.io/",
-                    editorType : "urlview",
-                    active     : true,
-                    document   : {title : "About CS50 IDE"},
-                },
-                function(err, tab) {
-                    if (err) return err;
-                }
-            );
-        }
-
-        /*
-         * Edit the "Cloud9" menu to be appropriately tailored to CS50 IDE
-         */
-        function loadMainMenuInfo(plugin) {
-
-            // edits "Cloud9" main tab to display "CS50 IDE"
-            menus.get("Cloud9").item.setAttribute("caption", "CS50 IDE");
-
-            // creates the "About CS50 IDE" item
-            var about = new ui.item({
-                id     : "aboutCS50IDE",
-                caption: "About CS50 IDE",
-                onclick: displayReadme
-            });
-
-            // creates divider below toggle
-            var div = new ui.divider();
-
-            // places it in CS50 IDE tab
-            menus.addItemByPath("Cloud9/About CS50 IDE", about, 0, plugin);
-            menus.addItemByPath("Cloud9/Div", div, 10, plugin);
-
-            // hide option as unneeded
-            setMenuVisibility("Cloud9/Restart Cloud9", false);
-        }
-
-        /*
          * Locates user profile and assigns to global variable
          */
         function locateProfile() {
@@ -954,31 +908,48 @@ define(function(require, exports, module) {
             }
         }
 
-        /*
-         * Function that will rename "Quit Cloud9" menu button to "Log Out" in Online IDEs
+        /**
+         * Customizes "Cloud9" menu for CS50 IDE
          */
+        function customizeCloud9Menu() {
+            // rename "Cloud9" menu to "CS50 IDE"
+            menus.get("Cloud9").item.setAttribute("caption", "CS50 IDE");
 
-        function renameQuitCloud9() {
-            var item = menus.get("Cloud9/Quit Cloud9").item;
+            // rename "Quit Cloud9" to "Log Out"
+            var quitC9Item = menus.get("Cloud9/Quit Cloud9").item;
+            if (quitC9Item)
+                quitC9Item.setAttribute("caption", "Log Out");
 
-            if (item === undefined)
-                return;
+            var gtydb = "Cloud9/Go To Your Dashboard";
 
-            item.setAttribute("caption", "Log Out");
+            // move "Go To Your Dashboard" down online or remove offline
+            if (c9.hosted)
+                menus.addItemByPath(gtydb, menus.get(gtydb).item, 2000060, plugin);
+            else
+                menus.remove(gtydb);
+
+            // add "About CS50 IDE"
+            menus.addItemByPath("Cloud9/About CS50 IDE", new ui.item({
+                caption: "About CS50 IDE",
+                onclick: function() {
+                    window.open("https://cs50.harvard.edu/", "_blank");
+                }
+            }), 0, plugin);
+
+            // add "What's New?"
+            menus.addItemByPath("Cloud9/What's New?", new ui.item({
+                caption: "What's New?",
+                onclick: function() {
+                    window.open("http://cs50.github.io/ide50/", "_blank");
+                }
+            }), 1, plugin);
+
+            // add divider
+            menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
+
+            // hide "Restart Cloud9"
+            setMenuVisibility("Cloud9/Restart Cloud9", false);
         }
-
-        /*
-         * Function that will move the "Go To Your Dashboard" Menu Item below divider
-         * If offline IDE it removes the "Go To Your Dashboard" item
-         */
-
-         function moveGoToYourDashboard() {
-            if (!c9.hosted){
-                menus.remove("Cloud9/Go To Your Dashboard");
-            } else {
-                menus.addItemByPath("Cloud9/Go To Your Dashboard", menus.get("Cloud9/Go To Your Dashboard").item, 2000060, plugin);
-            }
-         }
 
         /*
          * Function to rearrange the "File/New From Template" menu.
@@ -1047,12 +1018,11 @@ define(function(require, exports, module) {
             addTooltips();
             updateFontSize();
             locateProfile();
-            loadMainMenuInfo(plugin);
             editProfileMenu(plugin);
             setTitlesFromTabs();
             removeSoundFromInit();
             addSoundToTerminal();
-            renameQuitCloud9();
+            customizeCloud9Menu();
             addFileDialog();
             addTreeToggles();
             hidePreviewAndRun();
@@ -1117,8 +1087,6 @@ define(function(require, exports, module) {
 
             // Add Gravatar toggle online only
             info.getUser(addGravatarToggle);
-
-            moveGoToYourDashboard();
         }
 
         /***** Lifecycle *****/
