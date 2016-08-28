@@ -928,9 +928,9 @@ define(function(require, exports, module) {
             else
                 menus.remove(gtydb);
 
-            // add "About CS50 IDE"
-            menus.addItemByPath("Cloud9/About CS50 IDE", new ui.item({
-                caption: "About CS50 IDE",
+            // add "About CS50"
+            menus.addItemByPath("Cloud9/About CS50", new ui.item({
+                caption: "About CS50",
                 onclick: function() {
                     window.open("https://cs50.harvard.edu/", "_blank");
                 }
