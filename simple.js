@@ -2,11 +2,11 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "ace", "ace.status", "auth", "c9", "clipboard", "commands", "console",
-        "Divider", "dialog.file", "harvard.cs50.presentation", "immediate",
-        "info",  "keymaps", "layout", "login", "Menu", "menus", "panels",
-        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
+        "ace", "ace.status", "auth", "c9", "clipboard", "collab", "commands",
+        "console", "Divider", "dialog.file", "harvard.cs50.presentation",
+        "immediate", "info",  "keymaps", "layout", "login", "Menu", "menus",
+        "panels", "Plugin", "preferences", "preview", "run.gui", "save",
+        "settings", "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
@@ -14,6 +14,7 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         var auth = imports.auth;
         var c9 = imports.c9;
+        var collab = imports.collab;
         var commands = imports.commands;
         var fileDialog = imports["dialog.file"];
         var info = imports.info;
@@ -228,10 +229,19 @@ define(function(require, exports, module) {
             });
         }
 
-        /*
-         * Hides "Preview" button and "Run" button and menu
+        /**
+         * Hides unneeded elements.
          */
-        function hidePreviewAndRun() {
+        function hideElements() {
+            // hide "Collaborate" panel offline
+            if (!c9.hosted) {
+                // remove panel button
+                collab.disable();
+
+                // hide Window > Collaborate
+                setMenuVisibility("Window/Collaborate", false);
+            }
+
             // get parent of "Preview" and "Run" buttons
             var p = layout.findParent({ name: "preview" });
 
@@ -1025,7 +1035,7 @@ define(function(require, exports, module) {
             customizeCloud9Menu();
             addFileDialog();
             addTreeToggles();
-            hidePreviewAndRun();
+            hideElements();
 
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
 
