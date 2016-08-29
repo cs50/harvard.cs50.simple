@@ -236,13 +236,13 @@ define(function(require, exports, module) {
             var p = layout.findParent({ name: "preview" });
 
             // hide the divider
-            p.childNodes[0].setAttribute("visible", false);
+            hide(p.childNodes[0]);
 
             // hide the "Preview" button
-            p.childNodes[1].setAttribute("visible", false);
+            hide(p.childNodes[1]);
 
             // hide the "Run" button
-            p.childNodes[2].setAttribute("visible", false);
+            hide(p.childNodes[2]);
 
             // hide Run menu
             setMenuVisibility("Run", false);
