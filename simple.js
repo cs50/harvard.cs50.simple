@@ -256,6 +256,17 @@ define(function(require, exports, module) {
 
             // hide Run menu
             setMenuVisibility("Run", false);
+
+            // hide "Run" and "Preview" items from file browser's menu
+            tree.on("menuUpdate", function(e) {
+                if (!e.menu)
+                    return;
+
+                e.menu.childNodes.forEach(function(item) {
+                    if (item.caption === "Run" || item.caption === "Preview")
+                        item.setAttribute("visible", false);
+                });
+            });
         }
 
         /*
