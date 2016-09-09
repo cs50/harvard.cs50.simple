@@ -961,7 +961,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/What's New?", new ui.item({
                 caption: "What's New?",
                 onclick: function() {
-                    window.open("http://cs50.github.io/ide50/", "_blank");
+                    window.open("http://docs.cs50.net/ide/new.html", "_blank");
                 }
             }), 1, plugin);
 
