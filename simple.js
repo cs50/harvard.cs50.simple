@@ -886,13 +886,13 @@ define(function(require, exports, module) {
          * Gravatar and C9 logo in online IDE only.
          *
          * @param err ideally passed by info.getUser in case of an error
-         * @param user a user object with properties id and email
+         * @param user a user object with property id
          */
         function addGravatarToggle(err, user) {
             if (err)
                 return;
 
-            if (user && user.id && user.email) {
+            if (user && user.id) {
                 // get avatar button
                 avatar = menus.get("user_" + user.id).item;
                 if (!avatar)
