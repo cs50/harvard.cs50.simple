@@ -83,11 +83,10 @@ define(function(require, exports, module) {
             }
         }
 
-        /*
-         * Toggles simplification of the menus at the top of Cloud 9
+        /**
+         * Hides gear icon
          */
-        function toggleMenus(lessComfortable) {
-            // remove gear icon as redundant from both modes
+        function hideGearIcon() {
             var bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
                 bar.childNodes.forEach(function(node) {
@@ -96,7 +95,12 @@ define(function(require, exports, module) {
                     }
                 });
             }
+        }
 
+        /*
+         * Toggles simplification of the menus at the top of Cloud 9
+         */
+        function toggleMenus(lessComfortable) {
             // less comfortable
             if (lessComfortable) {
                 moveMenuItem("Goto/Goto Line...", "Goto/Goto Line...", 110);
@@ -1044,6 +1048,7 @@ define(function(require, exports, module) {
             // Adds the permanent changes
             addToggle(plugin);
             addTooltips();
+            hideGearIcon();
             updateFontSize();
             locateProfile();
             editProfileMenu(plugin);
