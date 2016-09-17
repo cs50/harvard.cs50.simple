@@ -45,17 +45,6 @@ define(function(require, exports, module) {
         var avatar = null;
         var openingFile = false;
 
-        // stop marking undeclared variables for javascript files
-        tabManager.on('focus', function(e) {
-            if (e.tab.path != undefined && e.tab.path.slice(-3) == ".js") {
-                settings.set("project/language/@undeclaredVars",false);
-            }
-            else {
-                var markUndecVars = settings.getBool("user/cs50/simple/@undeclaredVars");
-                settings.set("project/language/@undeclaredVars", markUndecVars);
-            }
-        });
-
         /*
          * Sets visibility of menu item with specified path.
          */
@@ -652,7 +641,7 @@ define(function(require, exports, module) {
          */
         function removeSoundFromInit() {
             // Get the old sound which was updated in the init file
-            var oldSound = require('text!./templates/beepsound.templates');
+            var oldSound = require("text!./templates/beepsound.templates");
 
             // Get the contents of the init file
             var initJSContent = String(settings.get("user/config/init.js"));
@@ -1023,7 +1012,30 @@ define(function(require, exports, module) {
                 newMenuItem.setAttribute("caption", newCaption);
             }
         }
-        /***** Initialization *****/
+
+        /**
+         * Disables warnings about undeclared variables for JavaScript files
+         *
+         * @param {object} e a JSON as passed by tabManager.tabAfterActivate's callback
+         */
+        function toggleUndeclaredVars(e) {
+            // ensure tab is ace
+            if (e && e.tab && e.tab.editorType === "ace") {
+                // disable warnings about undeclared vars for js files
+                if (e.tab.path && e.tab.path.slice(-3) === ".js")
+                    return settings.set("project/language/@undeclaredVars", false);
+                // handle renaming tabs
+                else if (e.tab.document)
+                    // handle setting/updating document title
+                    e.tab.document.once("setTitle", function(e) {
+                        if (e.title.slice(-3) === ".js")
+                            settings.set("project/language/@undeclaredVars", false);
+                    });
+
+                // enable warnings about undeclared vars for other files
+                settings.set("project/language/@undeclaredVars", true);
+            }
+        }
 
         var loaded = false;
         function load() {
@@ -1049,6 +1061,9 @@ define(function(require, exports, module) {
             hideElements();
 
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
+
+            // stop marking undeclared variables for javascript files
+            tabManager.on("tabAfterActivate", toggleUndeclaredVars);
 
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
