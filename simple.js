@@ -327,20 +327,15 @@ define(function(require, exports, module) {
         }
 
         /*
-         * Adds tooltips to maximize and close the console
-         */
-        function addToolTip(div) {
-            div.childNodes[0].setAttribute("tooltip", "Maximize");
-            div.childNodes[2].setAttribute("tooltip", "Close Console");
-        }
-
-        /*
-         * Find the console buttons and add tooltips
+         * Adds tooltips to console buttons
          */
         function addTooltips() {
 
             // adds tooltips as a callback after the consoleButtons are created
-            imports.console.getElement("consoleButtons", addToolTip);
+            imports.console.getElement("consoleButtons", function(aml) {
+                aml.childNodes[0].setAttribute("tooltip", "Maximize");
+                aml.childNodes[1].setAttribute("tooltip", "Close Console");
+            });
         }
 
         /*
