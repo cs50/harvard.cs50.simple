@@ -47,8 +47,7 @@ define(function(require, exports, module) {
         var openingFile = false;
         var presenting = false;
         var terminalSound = null;
-        var treeToggle = null;
-        var treeToggleItem = null;
+        var treeToggles = {};
 
         /**
          * Overrides the behavior of the "File/Open" menu item to open a file
@@ -265,7 +264,7 @@ define(function(require, exports, module) {
             resetVisibility("tree");
 
             // create toggle button
-            treeToggle = ui.button({
+            treeToggles.button = ui.button({
                 id: "treeToggle",
                 "class": "simple50-tree-toggle",
                 command: "toggletree",
@@ -275,7 +274,7 @@ define(function(require, exports, module) {
             });
 
             // create menu item
-            treeToggleItem = new ui.item({
+            treeToggles.menuItem = new ui.item({
                 type: "check",
                 caption: "File Browser",
                 command: "toggletree"
@@ -292,11 +291,11 @@ define(function(require, exports, module) {
                 pane.aml.$buttons.style.paddingLeft = "54px";
 
                 // insert tree-toggle button
-                pane.aml.appendChild(treeToggle);
+                pane.aml.appendChild(treeToggles.button);
             });
 
             // add menu item to toggle tree (useful when toggle is hidden)
-            menus.addItemByPath("View/File Browser", treeToggleItem, 200, plugin);
+            menus.addItemByPath("View/File Browser", treeToggles.menuItem, 200, plugin);
 
             // sync tree toggles as tree is toggled or skin is changed
             tree.once("draw", syncTreeToggles.bind(this, true));
@@ -309,7 +308,7 @@ define(function(require, exports, module) {
 
             // toggle visibility of tree toggle as tabs are shown or hidden
             settings.on("user/tabs/@show", function(showing) {
-                treeToggle.setAttribute("visible", showing);
+                treeToggles.button && treeToggles.button.setAttribute("visible", showing);
             });
 
             // style tree-toggle initially
@@ -548,26 +547,25 @@ define(function(require, exports, module) {
          * @param {boolean} active whether to toggle the buttons on
          */
         function syncTreeToggles(active) {
-            if (!treeToggle || !treeToggleItem)
-                return;
+            if (treeToggles && treeToggles.button && treeToggles.menuItem) {
+                var style = "simple50-tree-toggle";
+                if (dark)
+                    style += " dark";
 
-            var style = "simple50-tree-toggle";
-            if (dark)
-                style += " dark";
+                if (active === true) {
+                    style += " active";
 
-            if (active === true) {
-                style += " active";
+                    // check menu item
+                    treeToggles.menuItem.setAttribute("checked", true);
+                }
+                else {
+                    // uncheck menu item
+                    treeToggles.menuItem.setAttribute("checked", false);
+                }
 
-                // check menu item
-                treeToggleItem.setAttribute("checked", true);
+                // update style of tree-toggle button
+                treeToggles.button.setAttribute("class", style);
             }
-            else {
-                // uncheck menu item
-                treeToggleItem.setAttribute("checked", false);
-            }
-
-            // update style of tree-toggle button
-            treeToggle.setAttribute("class", style);
         }
 
         /**
@@ -1075,8 +1073,7 @@ define(function(require, exports, module) {
             openingFile = false;
             presenting = false;
             terminalSound = null;
-            treeToggle = null;
-            treeToggleItem = null;
+            treeToggles = {};
             loaded = false;
         });
 
