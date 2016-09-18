@@ -28,7 +28,6 @@ define(function(require, exports, module) {
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
         var settings = imports.settings;
-        var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
         var tree = imports.tree;
         var ui = imports.ui;
@@ -42,25 +41,346 @@ define(function(require, exports, module) {
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
-        var lessComfortable = true;
-        var terminalBellObj = null;
-        var treeToggle = null;
-        var treeToggleItem = null;
-        var dark = null;
         var avatar = null;
+        var dark = null;
+        var lessComfortable = true;
         var openingFile = false;
         var presenting = false;
-        var terminalSound = false;
+        var terminalSound = null;
+        var treeToggle = null;
+        var treeToggleItem = null;
 
-        /*
-         * Sets visibility of menu item with specified path.
+        /**
+         * Overrides the behavior of the "File/Open" menu item to open a file
+         * dialog instead of the "Navigation" pane in less-comfy only.
          */
-        function setMenuVisibility(path, visible) {
-            var menu = menus.get(path).item;
-            menu && menu.setAttribute("visible", visible);
+        function addFileDialog() {
+            // get the "File/Open" menu item
+            var openItem = menus.get("File/Open...").item;
+            if (!openItem)
+                return;
+
+            // add command that opens file dialog in less-comfy only
+            commands.addCommand({
+                name: "openFileDialog",
+                hint: "Opens file dialog for opening files",
+                bindKey: commands.commands.navigate.bindKey,
+                exec: function() {
+                    // override in less-comfy only
+                    if (!lessComfortable)
+                        return commands.exec("navigate");
+
+                    // wehther to customize file dialog
+                    openingFile = true;
+
+                    // show open file dialog
+                    fileDialog.show("Open file", null, function(path) {
+                        // open and activate file at path
+                        tabManager.openFile(path, true);
+
+                        // hide file dialog
+                        fileDialog.hide();
+                    }, null, {
+                        createFolderButton: false,
+                        showFilesCheckbox: false,
+                        chooseCaption: "Open"
+                    });
+                }
+            }, plugin);
+
+            // delete navigate's keyboard shortcut
+            delete commands.commands.navigate.bindKey;
+
+            /**
+             * Prevents selection of multiple files in "open file" dialog's tree
+             */
+            function disableMultiSelect() {
+                var selection = fileDialog.tree.selection;
+                var selectedNodes = selection.getSelectedNodes();
+
+                if (selectedNodes.length > 1)
+                    // select last selected node only
+                    selection.selectNode(selectedNodes[selectedNodes.length - 1], false);
+            }
+
+            // customize file dialog
+            fileDialog.on("show", function() {
+                // avoid customizing other file dialogs (e.g., save)
+                if (openingFile !== true)
+                    return;
+
+                // hide "Folder:" label and text field
+                var txtDirectory = fileDialog.getElement("txtDirectory");
+                txtDirectory.previousSibling.setAttribute("visible", false);
+                txtDirectory.setAttribute("visible", false);
+
+                // allow opening file by double-clicking it
+                fileDialog.tree.once("afterChoose", function() {
+                    fileDialog.getElement("btnChoose").dispatchEvent("click");
+                });
+
+                // disable multiple selection
+                fileDialog.tree.on("changeSelection", disableMultiSelect);
+            }, plugin);
+
+            // clean up to avoid affecting other file dialogs
+            fileDialog.on("hide", function() {
+                // reset openingFile
+                openingFile = false;
+
+                // remove changeSelection listener
+                fileDialog.tree.off("changeSelection", disableMultiSelect);
+            }, plugin);
+
+            // override "File/Open"'s behavior
+            openItem.setAttribute("command", "openFileDialog");
         }
 
-        /*
+        /**
+         * Hides avatar in offline IDE. Adds preference to toggle between
+         * Gravatar and C9 logo in online IDE only.
+         *
+         * @param err ideally passed by info.getUser in case of an error
+         * @param user a user object with property id
+         */
+        function addGravatarToggle(err, user) {
+            if (err)
+                return;
+
+            if (user && user.id) {
+                // get avatar button
+                avatar = menus.get("user_" + user.id).item;
+                if (!avatar)
+                    return;
+
+                // hide avatar in offline IDE
+                if (!c9.hosted) {
+                    avatar.setAttribute("visible", false);
+                    return;
+                }
+
+                // add toggle in preferences
+                prefs.add({
+                   "CS50" : {
+                        position: 5,
+                        "IDE Behavior" : {
+                            position: 10,
+                            "Gravatar" : {
+                                type: "checkbox",
+                                setting: "user/cs50/simple/@gravatar",
+                                min: 1,
+                                max: 200,
+                                position: 190
+                            }
+                        }
+                    }
+                }, plugin);
+
+                // retrieve initial gravatar setting
+                toggleGravatar(settings.getBool("user/cs50/simple/@gravatar"));
+
+                // handle toggling gravatar setting
+                settings.on("user/cs50/simple/@gravatar", toggleGravatar);
+            }
+        }
+
+        /**
+         * Adds the buttons to toggle comfort level
+         */
+        function addToggle() {
+
+            // creates the toggle menu item
+            var toggle = new ui.item({
+                type: "check",
+                caption: "Less Comfortable",
+                onclick: toggleSimpleMode
+            });
+
+            // places it in View tab
+            menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
+            menus.addItemByPath("View/~", new ui.divider(), 10, plugin);
+
+            // Add preference pane button
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "IDE Behavior" : {
+                        position: 10,
+                        "Less Comfortable Mode" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@lessComfortable",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        },
+                        "Mark Undeclared Variables" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@undeclaredVars",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        },
+                        "Audible Terminal Bell" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@terminalSound",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+        }
+
+        /**
+         * Adds tooltips to console buttons
+         */
+        function addTooltips() {
+
+            // adds tooltips as a callback after the consoleButtons are created
+            imports.console.getElement("consoleButtons", function(aml) {
+                aml.childNodes[0].setAttribute("tooltip", "Maximize");
+                aml.childNodes[1].setAttribute("tooltip", "Close Console");
+            });
+        }
+
+        /**
+         * Hides workspace button and adds small toggle to the left of code tabs
+         * and a menu toggle item under view.
+         */
+        function addTreeToggles() {
+            // get current skin initially
+            dark = settings.get("user/general/@skin").indexOf("dark") > -1;
+
+            // remember if tree is shown or hidden initially
+            var resetVisibility = tree.active ? tree.show : tree.hide;
+
+            // hide workspace from window menu
+            setMenuVisibility("Window/Workspace", false);
+
+            // remove workspace from left bar
+            panels.disablePanel("tree");
+
+            // reset tree visibility status (to prevent disablePanel from hiding tree)
+            resetVisibility("tree");
+
+            // create toggle button
+            treeToggle = ui.button({
+                id: "treeToggle",
+                "class": "simple50-tree-toggle",
+                command: "toggletree",
+                skin: "c9-simple-btn",
+                height: 16,
+                width: 16
+            });
+
+            // create menu item
+            treeToggleItem = new ui.item({
+                type: "check",
+                caption: "File Browser",
+                command: "toggletree"
+            });
+
+            // listen for pane creation
+            tabManager.on("paneCreate", function(e) {
+                var pane = e.pane;
+                if (pane !== tabManager.getPanes()[0])
+                    return;
+
+                // make room for tree-toggle button
+                pane.aml.$ext.classList.add("simple50-pane0");
+                pane.aml.$buttons.style.paddingLeft = "54px";
+
+                // insert tree-toggle button
+                pane.aml.appendChild(treeToggle);
+            });
+
+            // add menu item to toggle tree (useful when toggle is hidden)
+            menus.addItemByPath("View/File Browser", treeToggleItem, 200, plugin);
+
+            // sync tree toggles as tree is toggled or skin is changed
+            tree.once("draw", syncTreeToggles.bind(this, true));
+            tree.on("show", syncTreeToggles.bind(this, true));
+            tree.on("hide", syncTreeToggles);
+            settings.on("user/general/@skin", function(skin) {
+                dark = skin.indexOf("dark") > -1;
+                syncTreeToggles(tree.active);
+            });
+
+            // toggle visibility of tree toggle as tabs are shown or hidden
+            settings.on("user/tabs/@show", function(showing) {
+                treeToggle.setAttribute("visible", showing);
+            });
+
+            // style tree-toggle initially
+            syncTreeToggles(tree.active);
+        }
+
+        /**
+         * Customizes "Cloud9" menu for CS50 IDE
+         */
+        function customizeC9Menu() {
+            var dashboard = "Cloud9/Go To Your Dashboard";
+            if (c9.hosted) {
+                var dashboardItem = menus.get(dashboard).item;
+                if (dashboardItem) {
+                    // rename "Go To Your Dashboard" to "Dashboard"
+                    setMenuCaption(dashboardItem, "Dashboard");
+
+                    // move "Dashboard" above "Preferences"
+                    menus.addItemByPath(dashboard, dashboardItem, 299, plugin);
+                }
+
+                // simplify user's menu
+                info.getUser(function(err, user) {
+                    if (user && user.id) {
+                        var path = "user_" + user.id + "/";
+
+                        // move "Account" to CS50 IDE menu
+                        menus.addItemByPath("Cloud9/Account", menus.get(path + "Account").item, 298, plugin);
+
+                        // remove items from user's menu
+                        ["Dashboard", "Home", "Log out"].forEach(function (item) {
+                            menus.remove(path + item);
+                        });
+                    }
+                });
+
+                // CS50 IDE > Restart Workspace to CS50 IDE > Restart
+                setMenuCaption("Cloud9/Restart Workspace", "Restart");
+            }
+            else {
+                // remove "Dashboard" offline
+                menus.remove(dashboard);
+
+                // remove CS50 IDE > Log out offline
+                menus.remove("Cloud9/Quit Cloud9");
+            }
+
+            // add "About CS50"
+            menus.addItemByPath("Cloud9/About CS50", new ui.item({
+                caption: "About CS50",
+                onclick: function() {
+                    window.open("https://cs50.harvard.edu/", "_blank");
+                }
+            }), 0, plugin);
+
+            // add "What's New?"
+            menus.addItemByPath("Cloud9/What's New?", new ui.item({
+                caption: "What's New?",
+                onclick: function() {
+                    window.open("http://docs.cs50.net/ide/new.html", "_blank");
+                }
+            }), 1, plugin);
+
+            // add divider
+            menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
+
+            // hide "Restart Cloud9"
+            setMenuVisibility("Cloud9/Restart Cloud9", false);
+        }
+
+        /**
          * Hides the given div by changing CSS
          * @return true if successfuly hides, false otherwise
          */
@@ -74,18 +394,44 @@ define(function(require, exports, module) {
             }
         }
 
-        /*
-         * Shows the given div by changing CSS
-         * @return true if successfully shows, false otherwise
+        /**
+         * Hides unneeded elements.
          */
-        function show(div) {
-            if (div && div.$ext && div.$ext.style) {
-                div.$ext.style.display = "";
-                return true;
+        function hideElements() {
+            // hide "Collaborate" panel offline
+            if (!c9.hosted) {
+                // remove panel button
+                collab.disable();
+
+                // hide Window > Collaborate
+                setMenuVisibility("Window/Collaborate", false);
             }
-            else {
-                return false;
-            }
+
+            // get parent of "Preview" and "Run" buttons
+            var p = layout.findParent({ name: "preview" });
+
+            // hide the divider
+            hide(p.childNodes[0]);
+
+            // hide the "Preview" button
+            hide(p.childNodes[1]);
+
+            // hide the "Run" button
+            hide(p.childNodes[2]);
+
+            // hide Run menu
+            setMenuVisibility("Run", false);
+
+            // hide "Run" and "Preview" items from file browser's menu
+            tree.on("menuUpdate", function(e) {
+                if (!e.menu)
+                    return;
+
+                e.menu.childNodes.forEach(function(item) {
+                    if (item.caption === "Run" || item.caption === "Preview")
+                        item.setAttribute("visible", false);
+                });
+            });
         }
 
         /**
@@ -102,7 +448,147 @@ define(function(require, exports, module) {
             }
         }
 
-        /*
+        /**
+         * Sets or updates the caption of a menu or a menu item
+         *
+         * @param {(object|string)} item the menu item (or the path thereof)
+         * whose caption is to be set
+         * @param {string} caption the caption to be set
+         */
+        function setMenuCaption(item, caption) {
+            // get item by path
+            if (_.isString(item))
+                item = menus.get(item).item;
+
+            // ensure item is object
+            if (_.isObject(item))
+                item.setAttribute("caption", caption);
+        }
+
+        /**
+         * Sets visibility of menu item with specified path.
+         */
+        function setMenuVisibility(path, visible) {
+            var menu = menus.get(path).item;
+            menu && menu.setAttribute("visible", visible);
+        }
+
+        /**
+         * Set all Terminal tab titles and HTML document title based on tab
+         */
+        function setTitlesFromTabs() {
+            // set terminal titles and document title based on existing tabs
+            tabManager.getTabs().forEach(function(tab) {
+                setTmuxTitle(tab);
+            });
+
+            // future tabs
+            tabManager.on("open", function wait(e) {
+                setTmuxTitle(e.tab);
+            }, plugin);
+
+            // udpate document title once
+            updateTitle(tabManager.focussedTab);
+
+            // update document title when tabs change
+            tabManager.on("focusSync", function(e){ updateTitle(e.tab); });
+            tabManager.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
+            settings.on("user/tabs", function(){ updateTitle(tabManager.focussedTab); });
+        }
+
+        /**
+         * Set the Terminal tab title to the current working directory
+         */
+        function setTmuxTitle(tab){
+            // check if the tab exists and it is a terminal tab
+            if (tab && tab.editorType === "terminal") {
+                var session = tab.document.getSession();
+                tab.document.on("setTitle", function(e) {
+                    // fetch title from the object, fall back on tab
+                    var title = e.title || tab.document.title;
+
+                    // remove terminating ' - ""', if it exists
+                    var re = /\s-\s""\s*$/;
+                    if (title && re.test(title)) {
+                        title = title.replace(re, "");
+
+                        // list of items whose title should change
+                        var docList = [e, tab.document];
+
+                        if (session && session.hasOwnProperty("doc"))
+                            docList.push(session.doc, session.doc.tooltip);
+
+                        // fix all titles
+                        docList.forEach(function (doc) {
+                            if (doc.hasOwnProperty("title"))
+                                doc.title = title;
+                        });
+                    }
+                }, plugin);
+            }
+        }
+
+        /**
+         * Shows the given div by changing CSS
+         * @return true if successfully shows, false otherwise
+         */
+        function show(div) {
+            if (div && div.$ext && div.$ext.style) {
+                div.$ext.style.display = "";
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        /**
+         * Syncs tree toggle button and menu item with tree visibility state.
+         *
+         * @param {boolean} active whether to toggle the buttons on
+         */
+        function syncTreeToggles(active) {
+            if (!treeToggle || !treeToggleItem)
+                return;
+
+            var style = "simple50-tree-toggle";
+            if (dark)
+                style += " dark";
+
+            if (active === true) {
+                style += " active";
+
+                // check menu item
+                treeToggleItem.setAttribute("checked", true);
+            }
+            else {
+                // uncheck menu item
+                treeToggleItem.setAttribute("checked", false);
+            }
+
+            // update style of tree-toggle button
+            treeToggle.setAttribute("class", style);
+        }
+
+        /**
+         * Toggles avatar between Gravatar and C9 logo
+         *
+         * @param show whether to show Gravatar
+         */
+        function toggleGravatar(show) {
+            if (!_.isBoolean(show))
+                return;
+
+            if (avatar && avatar.$ext) {
+                // switch between Gravatar and C9 logo
+                if (show)
+                    avatar.$ext.classList.remove("c9-logo");
+                else
+                    avatar.$ext.classList.add("c9-logo");
+            }
+        }
+
+        /**
          * Toggles simplification of the menus at the top of Cloud 9
          */
         function toggleMenus(lessComfortable) {
@@ -196,46 +682,6 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Hides unneeded elements.
-         */
-        function hideElements() {
-            // hide "Collaborate" panel offline
-            if (!c9.hosted) {
-                // remove panel button
-                collab.disable();
-
-                // hide Window > Collaborate
-                setMenuVisibility("Window/Collaborate", false);
-            }
-
-            // get parent of "Preview" and "Run" buttons
-            var p = layout.findParent({ name: "preview" });
-
-            // hide the divider
-            hide(p.childNodes[0]);
-
-            // hide the "Preview" button
-            hide(p.childNodes[1]);
-
-            // hide the "Run" button
-            hide(p.childNodes[2]);
-
-            // hide Run menu
-            setMenuVisibility("Run", false);
-
-            // hide "Run" and "Preview" items from file browser's menu
-            tree.on("menuUpdate", function(e) {
-                if (!e.menu)
-                    return;
-
-                e.menu.childNodes.forEach(function(item) {
-                    if (item.caption === "Run" || item.caption === "Preview")
-                        item.setAttribute("visible", false);
-                });
-            });
-        }
-
-        /*
          * Toggles the button in top left that minimizes the menu bar
          */
         function toggleMiniButton(lessComfortable) {
@@ -255,7 +701,29 @@ define(function(require, exports, module) {
             }
         }
 
-        /*
+        /**
+         * Toggles menu simplification that you get when you click the plus icon
+         */
+        function togglePlus(lessComfortable) {
+            var toggle = lessComfortable ? hide : show;
+
+            // finds the menu bar and then executes callback
+            tabManager.getElement("mnuEditors", function(menu) {
+                var menuItems = menu.childNodes;
+
+                // tries to toggle the menu items on the plus sign
+                // until it works (sometimes this is called before they load)
+                var test = setInterval(function (){
+                    if (toggle(menuItems[2]) &&
+                        toggle(menuItems[3]) &&
+                        toggle(menuItems[4])) {
+                        clearInterval(test);
+                    }
+                }, 0);
+            });
+        }
+
+        /**
          * Toggles the left Navigate and Commands side tabs
          */
         function toggleSideTabs(lessComfortable) {
@@ -277,86 +745,63 @@ define(function(require, exports, module) {
             resetVisibility();
         }
 
-        /*
-         * Toggles menu simplification that you get when you click the plus icon
+        /**
+         * Toggles whether or not simple mode is enabled
          */
-        function togglePlus(lessComfortable) {
-            var toggle = lessComfortable ? hide : show;
+        function toggleSimpleMode(override) {
 
-            // finds the menu bar and then executes callback
-            tabs.getElement("mnuEditors", function(menu) {
-                var menuItems = menu.childNodes;
+            // if we're unloading, remove menu customizations but don't save
+            if (_.isBoolean(override))
+                lessComfortable = override;
+            else {
+                // Toggles comfort level
+                lessComfortable = !lessComfortable;
+                settings.set("user/cs50/simple/@lessComfortable", lessComfortable);
+            }
 
-                // tries to toggle the menu items on the plus sign
-                // until it works (sometimes this is called before they load)
-                var test = setInterval(function (){
-                    if (toggle(menuItems[2]) &&
-                        toggle(menuItems[3]) &&
-                        toggle(menuItems[4])) {
-                        clearInterval(test);
-                    }
-                }, 0);
-            });
+            // Toggles features
+            toggleMenus(lessComfortable);
+            toggleMiniButton(lessComfortable);
+            toggleSideTabs(lessComfortable);
+            togglePlus(lessComfortable);
+
+            // Makes sure that the checkbox is correct
+            menus.get("View/Less Comfortable").item.checked = lessComfortable;
         }
 
-        /*
-         * Adds tooltips to console buttons
+        /**
+         * Enables or disables terminal sound.
+         *
+         * @param {boolean} enable whether to enable terminal sound
          */
-        function addTooltips() {
-
-            // adds tooltips as a callback after the consoleButtons are created
-            imports.console.getElement("consoleButtons", function(aml) {
-                aml.childNodes[0].setAttribute("tooltip", "Maximize");
-                aml.childNodes[1].setAttribute("tooltip", "Close Console");
-            });
+        function toggleTerminalSound(enable) {
+            libterm && (libterm.bell = (enable === true)
+                ? function() { terminalSound.play(); }
+                : function() {});
         }
 
-        /*
-         * Adds the buttons to toggle comfort level
+        /**
+         * Disables warnings about undeclared variables for JavaScript files
+         *
+         * @param {object} e a JSON as passed by tabManager.tabAfterActivate's callback
          */
-        function addToggle(plugin) {
+        function toggleUndeclaredVars(e) {
+            // ensure tab is ace
+            if (e && e.tab && e.tab.editorType === "ace") {
+                // disable warnings about undeclared vars for js files
+                if (e.tab.path && e.tab.path.slice(-3) === ".js")
+                    return settings.set("project/language/@undeclaredVars", false);
+                // handle renaming tabs
+                else if (e.tab.document)
+                    // handle setting/updating document title
+                    e.tab.document.once("setTitle", function(e) {
+                        if (e.title.slice(-3) === ".js")
+                            settings.set("project/language/@undeclaredVars", false);
+                    });
 
-            // creates the toggle menu item
-            var toggle = new ui.item({
-                type: "check",
-                caption: "Less Comfortable",
-                onclick: toggleSimpleMode
-            });
-
-            // places it in View tab
-            menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
-            menus.addItemByPath("View/~", new ui.divider(), 10, plugin);
-
-            // Add preference pane button
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "IDE Behavior" : {
-                        position: 10,
-                        "Less Comfortable Mode" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@lessComfortable",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        },
-                        "Mark Undeclared Variables" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@undeclaredVars",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        },
-                        "Audible Terminal Bell" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@terminalSound",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        }
-                    }
-                }
-            }, plugin);
+                // enable warnings about undeclared vars for other files
+                settings.set("project/language/@undeclaredVars", true);
+            }
         }
 
         /**
@@ -457,427 +902,26 @@ define(function(require, exports, module) {
             }), 150, plugin);
         }
 
-        /*
-         * Toggles whether or not simple mode is enabled
-         */
-        function toggleSimpleMode(override) {
-
-            // if we're unloading, remove menu customizations but don't save
-            if (_.isBoolean(override))
-                lessComfortable = override;
-            else {
-                // Toggles comfort level
-                lessComfortable = !lessComfortable;
-                settings.set("user/cs50/simple/@lessComfortable", lessComfortable);
-            }
-
-            // Toggles features
-            toggleMenus(lessComfortable);
-            toggleMiniButton(lessComfortable);
-            toggleSideTabs(lessComfortable);
-            togglePlus(lessComfortable);
-
-            // Makes sure that the checkbox is correct
-            menus.get("View/Less Comfortable").item.checked = lessComfortable;
-        }
-
-        /*
-         * Set the Terminal tab title to the current working directory
-         */
-        function setTmuxTitle(tab){
-            // check if the tab exists and it is a terminal tab
-            if (tab && tab.editorType === "terminal") {
-                var session = tab.document.getSession();
-                tab.document.on("setTitle", function(e) {
-                    // fetch title from the object, fall back on tab
-                    var title = e.title || tab.document.title;
-
-                    // remove terminating ' - ""', if it exists
-                    var re = /\s-\s""\s*$/;
-                    if (title && re.test(title)) {
-                        title = title.replace(re, "");
-
-                        // list of items whose title should change
-                        var docList = [e, tab.document];
-
-                        if (session && session.hasOwnProperty("doc"))
-                            docList.push(session.doc, session.doc.tooltip);
-
-                        // fix all titles
-                        docList.forEach(function (doc) {
-                            if (doc.hasOwnProperty("title"))
-                                doc.title = title;
-                        });
-                    }
-                }, plugin);
-            }
-        }
-
-        /*
-         * Sets and updates the title of the browser tab.
-         */
-        function updateTitle(tab) {
-            var title = "CS50 IDE";
-
-            // append "Offline" to offline IDE title
-            if (!c9.hosted)
-                title += " Offline";
-
-            // prepend tab title when should
-            document.title = tab && settings.getBool("user/tabs/@title")
-                && tab.title
-                ? tab.title + " - " + title
-                : title
-        }
-
-        /*
-         * Set all Terminal tab titles and HTML document title based on tab
-         */
-        function setTitlesFromTabs() {
-            // set terminal titles and document title based on existing tabs
-            tabManager.getTabs().forEach(function(tab) {
-                setTmuxTitle(tab);
-            });
-
-            // future tabs
-            tabManager.on("open", function wait(e) {
-                setTmuxTitle(e.tab);
-            }, plugin);
-
-            // udpate document title once
-            updateTitle(tabManager.focussedTab);
-
-            // update document title when tabs change
-            tabManager.on("focusSync", function(e){ updateTitle(e.tab); });
-            tabManager.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
-            settings.on("user/tabs", function(){ updateTitle(tabManager.focussedTab); });
-        }
-
         /**
-         * Enables or disables terminal sound.
-         *
-         * @param {boolean} enable whether to enable terminal sound
+         * Updates captions of some menus and menu items
          */
-        function toggleTerminalSound(enable) {
-            libterm && (libterm.bell = (enable === true)
-                ? function() { terminalBellObj.play(); }
-                : function() {});
-        }
+        function updateMenuCaptions() {
+            // map paths to captions
+            var captions = {
+                "Cloud9": "CS50 IDE",
+                "Cloud9/Quit Cloud9": "Log Out",
+                "Goto": "Go",
+                "Goto/Goto Anything...": "Anything...",
+                "Goto/Goto Line...": "Line...",
+                "Goto/Goto Symbol...": "Symbol...",
+                "Goto/Goto Command...": "Command...",
+                "Support/Check Cloud9 Status": "Cloud9 Status",
+                "Support/Read Documentation": "Cloud9 Documentation"
+            };
 
-        /**
-         * Overrides the behavior of the "File/Open" menu item to open a file
-         * dialog instead of the "Navigation" pane in less-comfy only.
-         */
-        function addFileDialog() {
-            // get the "File/Open" menu item
-            var openItem = menus.get("File/Open...").item;
-            if (!openItem)
-                return;
-
-            // add command that opens file dialog in less-comfy only
-            commands.addCommand({
-                name: "openFileDialog",
-                hint: "Opens file dialog for opening files",
-                bindKey: commands.commands.navigate.bindKey,
-                exec: function() {
-                    // override in less-comfy only
-                    if (!lessComfortable)
-                        return commands.exec("navigate");
-
-                    // wehther to customize file dialog
-                    openingFile = true;
-
-                    // show open file dialog
-                    fileDialog.show("Open file", null, function(path) {
-                        // open and activate file at path
-                        tabManager.openFile(path, true);
-
-                        // hide file dialog
-                        fileDialog.hide();
-                    }, null, {
-                        createFolderButton: false,
-                        showFilesCheckbox: false,
-                        chooseCaption: "Open"
-                    });
-                }
-            }, plugin);
-
-            // delete navigate's keyboard shortcut
-            delete commands.commands.navigate.bindKey;
-
-            /**
-             * Prevents selection of multiple files in "open file" dialog's tree
-             */
-            function disableMultiSelect() {
-                var selection = fileDialog.tree.selection;
-                var selectedNodes = selection.getSelectedNodes();
-
-                if (selectedNodes.length > 1)
-                    // select last selected node only
-                    selection.selectNode(selectedNodes[selectedNodes.length - 1], false);
-            }
-
-            // customize file dialog
-            fileDialog.on("show", function() {
-                // avoid customizing other file dialogs (e.g., save)
-                if (openingFile !== true)
-                    return;
-
-                // hide "Folder:" label and text field
-                var txtDirectory = fileDialog.getElement("txtDirectory");
-                txtDirectory.previousSibling.setAttribute("visible", false);
-                txtDirectory.setAttribute("visible", false);
-
-                // allow opening file by double-clicking it
-                fileDialog.tree.once("afterChoose", function() {
-                    fileDialog.getElement("btnChoose").dispatchEvent("click");
-                });
-
-                // disable multiple selection
-                fileDialog.tree.on("changeSelection", disableMultiSelect);
-            }, plugin);
-
-            // clean up to avoid affecting other file dialogs
-            fileDialog.on("hide", function() {
-                // reset openingFile
-                openingFile = false;
-
-                // remove changeSelection listener
-                fileDialog.tree.off("changeSelection", disableMultiSelect);
-            }, plugin);
-
-            // override "File/Open"'s behavior
-            openItem.setAttribute("command", "openFileDialog");
-        }
-
-        /**
-         * Syncs tree toggle button and menu item with tree visibility state.
-         *
-         * @param {boolean} active whether to toggle the buttons on
-         */
-        function syncTreeToggles(active) {
-            if (!treeToggle || !treeToggleItem)
-                return;
-
-            var style = "simple50-tree-toggle";
-            if (dark)
-                style += " dark";
-
-            if (active === true) {
-                style += " active";
-
-                // check menu item
-                treeToggleItem.setAttribute("checked", true);
-            }
-            else {
-                // uncheck menu item
-                treeToggleItem.setAttribute("checked", false);
-            }
-
-            // update style of tree-toggle button
-            treeToggle.setAttribute("class", style);
-        }
-
-        /**
-         * Hides workspace button and adds small toggle to the left of code tabs
-         * and a menu toggle item under view.
-         */
-        function addTreeToggles() {
-            // get current skin initially
-            dark = settings.get("user/general/@skin").indexOf("dark") > -1;
-
-            // remember if tree is shown or hidden initially
-            var resetVisibility = tree.active ? tree.show : tree.hide;
-
-            // hide workspace from window menu
-            setMenuVisibility("Window/Workspace", false);
-
-            // remove workspace from left bar
-            panels.disablePanel("tree");
-
-            // reset tree visibility status (to prevent disablePanel from hiding tree)
-            resetVisibility("tree");
-
-            // create toggle button
-            treeToggle = ui.button({
-                id: "treeToggle",
-                "class": "simple50-tree-toggle",
-                command: "toggletree",
-                skin: "c9-simple-btn",
-                height: 16,
-                width: 16
-            });
-
-            // create menu item
-            treeToggleItem = new ui.item({
-                type: "check",
-                caption: "File Browser",
-                command: "toggletree"
-            });
-
-            // listen for pane creation
-            tabManager.on("paneCreate", function(e) {
-                var pane = e.pane;
-                if (pane !== tabManager.getPanes()[0])
-                    return;
-
-                // make room for tree-toggle button
-                pane.aml.$ext.classList.add("simple50-pane0");
-                pane.aml.$buttons.style.paddingLeft = "54px";
-
-                // insert tree-toggle button
-                pane.aml.appendChild(treeToggle);
-            });
-
-            // add menu item to toggle tree (useful when toggle is hidden)
-            menus.addItemByPath("View/File Browser", treeToggleItem, 200, plugin);
-
-            // sync tree toggles as tree is toggled or skin is changed
-            tree.once("draw", syncTreeToggles.bind(this, true));
-            tree.on("show", syncTreeToggles.bind(this, true));
-            tree.on("hide", syncTreeToggles);
-            settings.on("user/general/@skin", function(skin) {
-                dark = skin.indexOf("dark") > -1;
-                syncTreeToggles(tree.active);
-            });
-
-            // toggle visibility of tree toggle as tabs are shown or hidden
-            settings.on("user/tabs/@show", function(showing) {
-                treeToggle.setAttribute("visible", showing);
-            });
-
-            // style tree-toggle initially
-            syncTreeToggles(tree.active);
-        }
-
-        /**
-         * Toggles avatar between Gravatar and C9 logo
-         *
-         * @param show whether to show Gravatar
-         */
-        function toggleGravatar(show) {
-            if (!_.isBoolean(show))
-                return;
-
-            if (avatar && avatar.$ext) {
-                // switch between Gravatar and C9 logo
-                if (show)
-                    avatar.$ext.classList.remove("c9-logo");
-                else
-                    avatar.$ext.classList.add("c9-logo");
-            }
-        }
-
-        /*
-         * Hides avatar in offline IDE. Adds preference to toggle between
-         * Gravatar and C9 logo in online IDE only.
-         *
-         * @param err ideally passed by info.getUser in case of an error
-         * @param user a user object with property id
-         */
-        function addGravatarToggle(err, user) {
-            if (err)
-                return;
-
-            if (user && user.id) {
-                // get avatar button
-                avatar = menus.get("user_" + user.id).item;
-                if (!avatar)
-                    return;
-
-                // hide avatar in offline IDE
-                if (!c9.hosted) {
-                    avatar.setAttribute("visible", false);
-                    return;
-                }
-
-                // add toggle in preferences
-                prefs.add({
-                   "CS50" : {
-                        position: 5,
-                        "IDE Behavior" : {
-                            position: 10,
-                            "Gravatar" : {
-                                type: "checkbox",
-                                setting: "user/cs50/simple/@gravatar",
-                                min: 1,
-                                max: 200,
-                                position: 190
-                            }
-                        }
-                    }
-                }, plugin);
-
-                // retrieve initial gravatar setting
-                toggleGravatar(settings.getBool("user/cs50/simple/@gravatar"));
-
-                // handle toggling gravatar setting
-                settings.on("user/cs50/simple/@gravatar", toggleGravatar);
-            }
-        }
-
-        /**
-         * Customizes "Cloud9" menu for CS50 IDE
-         */
-        function customizeC9Menu() {
-            var dashboard = "Cloud9/Go To Your Dashboard";
-            if (c9.hosted) {
-                var dashboardItem = menus.get(dashboard).item;
-                if (dashboardItem) {
-                    // rename "Go To Your Dashboard" to "Dashboard"
-                    setMenuCaption(dashboardItem, "Dashboard");
-
-                    // move "Dashboard" above "Preferences"
-                    menus.addItemByPath(dashboard, dashboardItem, 299, plugin);
-                }
-
-                // simplify user's menu
-                info.getUser(function(err, user) {
-                    if (user && user.id) {
-                        var path = "user_" + user.id + "/";
-
-                        // move "Account" to CS50 IDE menu
-                        menus.addItemByPath("Cloud9/Account", menus.get(path + "Account").item, 298, plugin);
-
-                        // remove items from user's menu
-                        ["Dashboard", "Home", "Log out"].forEach(function (item) {
-                            menus.remove(path + item);
-                        });
-                    }
-                });
-
-                // CS50 IDE > Restart Workspace to CS50 IDE > Restart
-                setMenuCaption("Cloud9/Restart Workspace", "Restart");
-            }
-            else {
-                // remove "Dashboard" offline
-                menus.remove(dashboard);
-
-                // remove CS50 IDE > Log out offline
-                menus.remove("Cloud9/Quit Cloud9");
-            }
-
-            // add "About CS50"
-            menus.addItemByPath("Cloud9/About CS50", new ui.item({
-                caption: "About CS50",
-                onclick: function() {
-                    window.open("https://cs50.harvard.edu/", "_blank");
-                }
-            }), 0, plugin);
-
-            // add "What's New?"
-            menus.addItemByPath("Cloud9/What's New?", new ui.item({
-                caption: "What's New?",
-                onclick: function() {
-                    window.open("http://docs.cs50.net/ide/new.html", "_blank");
-                }
-            }), 1, plugin);
-
-            // add divider
-            menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
-
-            // hide "Restart Cloud9"
-            setMenuVisibility("Cloud9/Restart Cloud9", false);
+            // update captions
+            for (var path in captions)
+                setMenuCaption(path, captions[path]);
         }
 
         /**
@@ -908,66 +952,20 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Sets or updates the caption of a menu or a menu item
-         *
-         * @param {(object|string)} item the menu item (or the path thereof)
-         * whose caption is to be set
-         * @param {string} caption the caption to be set
+         * Sets and updates the title of the browser tab.
          */
-        function setMenuCaption(item, caption) {
-            // get item by path
-            if (_.isString(item))
-                item = menus.get(item).item;
+        function updateTitle(tab) {
+            var title = "CS50 IDE";
 
-            // ensure item is object
-            if (_.isObject(item))
-                item.setAttribute("caption", caption);
-        }
+            // append "Offline" to offline IDE title
+            if (!c9.hosted)
+                title += " Offline";
 
-        /**
-         * Updates captions of some menus and menu items
-         */
-        function updateMenuCaptions() {
-            // map paths to captions
-            var captions = {
-                "Cloud9": "CS50 IDE",
-                "Cloud9/Quit Cloud9": "Log Out",
-                "Goto": "Go",
-                "Goto/Goto Anything...": "Anything...",
-                "Goto/Goto Line...": "Line...",
-                "Goto/Goto Symbol...": "Symbol...",
-                "Goto/Goto Command...": "Command...",
-                "Support/Check Cloud9 Status": "Cloud9 Status",
-                "Support/Read Documentation": "Cloud9 Documentation"
-            };
-
-            // update captions
-            for (var path in captions)
-                setMenuCaption(path, captions[path]);
-        }
-
-        /**
-         * Disables warnings about undeclared variables for JavaScript files
-         *
-         * @param {object} e a JSON as passed by tabManager.tabAfterActivate's callback
-         */
-        function toggleUndeclaredVars(e) {
-            // ensure tab is ace
-            if (e && e.tab && e.tab.editorType === "ace") {
-                // disable warnings about undeclared vars for js files
-                if (e.tab.path && e.tab.path.slice(-3) === ".js")
-                    return settings.set("project/language/@undeclaredVars", false);
-                // handle renaming tabs
-                else if (e.tab.document)
-                    // handle setting/updating document title
-                    e.tab.document.once("setTitle", function(e) {
-                        if (e.title.slice(-3) === ".js")
-                            settings.set("project/language/@undeclaredVars", false);
-                    });
-
-                // enable warnings about undeclared vars for other files
-                settings.set("project/language/@undeclaredVars", true);
-            }
+            // prepend tab title when should
+            document.title = tab && settings.getBool("user/tabs/@title")
+                && tab.title
+                ? tab.title + " - " + title
+                : title
         }
 
         var loaded = false;
@@ -977,79 +975,79 @@ define(function(require, exports, module) {
 
             loaded = true;
 
-            // Adds the permanent changes
-            addToggle(plugin);
-            addTooltips();
-            hideGearIcon();
-            updateFontSize();
-            updateMenuCaptions();
-            setTitlesFromTabs();
-            customizeC9Menu();
-            addFileDialog();
-            addTreeToggles();
-            hideElements();
-            updateTemplates();
-
-            // add terminal sound
-            terminalBellObj = new Audio(options.staticPrefix + "/sounds/bell.mp3");
-            terminalSound = settings.getBool("user/cs50/simple/@terminalSound");
-            toggleTerminalSound(terminalSound);
-            settings.on("user/cs50/simple/@terminalSound", toggleTerminalSound);
-
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
 
-            // stop marking undeclared variables for javascript files
-            tabManager.on("tabAfterActivate", toggleUndeclaredVars);
+            // Adds the permanent changes
+            addFileDialog();
+            addToggle(plugin);
+            addTreeToggles();
+            addTooltips();
+            customizeC9Menu();
+            hideElements();
+            hideGearIcon();
+            setTitlesFromTabs();
+            updateFontSize();
+            updateMenuCaptions();
+            updateTemplates();
 
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
-                // hide asterisks for unsaved documents
-                settings.set("user/tabs/@asterisk", false);
+                // Set Python default to Python 3
+                settings.set("project/python/@version", "python3");
+
+                // changes the vertical line to 132
+                settings.set("user/ace/@printMarginColumn", "132");
+
+                // Set status bar to always show
+                settings.set("user/ace/statusbar/@show", true);
+
+                // update settings version
+                settings.set("user/cs50/simple/@ver", SETTINGS_VER);
 
                 // Turn off auto-save by default
                 settings.set("user/general/@autosave", false);
+
+                // download project as ZIP files by default
+                settings.set("user/general/@downloadFilesAs", "zip");
 
                 // disable autocomplete (temporarily?)
                 settings.set("user/language/@continuousCompletion", false);
                 settings.set("user/language/@enterCompletion", false);
 
-                // download project as ZIP files by default
-                settings.set("user/general/@downloadFilesAs", "zip");
-
-                settings.set("user/cs50/simple/@ver", SETTINGS_VER);
-                // changes the vertical line to 132
-                settings.set("user/ace/@printMarginColumn", "132");
+                // hide asterisks for unsaved documents
+                settings.set("user/tabs/@asterisk", false);
 
                 // default excluded formats
                 var types = ["class", "exe", "gz", "o", "pdf", "pyc", "raw", "tar", "zip"];
                 types.map(function (i) {
                     settings.set("user/tabs/editorTypes/@"+i, "none");
                 });
-
-                // Set Python default to Python 3
-                settings.set("project/python/@version", "python3");
-
-                // Set status bar to always show
-                settings.set("user/ace/statusbar/@show", true);
             }
 
             settings.on("read", function(){
                 settings.setDefaults("user/cs50/simple", [
-                    ["lessComfortable", true],
-                    ["undeclaredVars", true],
                     ["gravatar", false],
-                    ["terminalSound", true]
+                    ["lessComfortable", true],
+                    ["terminalSound", true],
+                    ["undeclaredVars", true]
                 ]);
             });
 
             // When less comfortable option is changed
             settings.on("user/cs50/simple/@lessComfortable", function (saved) {
-                if (saved != lessComfortable) {
+                if (saved !== lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
             }, plugin);
-
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
+
+            // stop marking undeclared variables for javascript files
+            tabManager.on("tabAfterActivate", toggleUndeclaredVars);
+
+            // add terminal sound
+            terminalSound = new Audio(options.staticPrefix + "/sounds/bell.mp3");
+            toggleTerminalSound(settings.getBool("user/cs50/simple/@terminalSound"));
+            settings.on("user/cs50/simple/@terminalSound", toggleTerminalSound, plugin);
 
             // determine whether we're presenting initially
             presenting = settings.getBool("user/cs50/presentation/@presenting");
@@ -1057,7 +1055,7 @@ define(function(require, exports, module) {
             // update presenting when necessary
             settings.on("user/cs50/presentation/@presenting", function(val) {
                 presenting = val;
-            });
+            }, plugin);
 
             // Add Gravatar toggle online only
             info.getUser(addGravatarToggle);
@@ -1071,15 +1069,15 @@ define(function(require, exports, module) {
 
         plugin.on("unload", function() {
             toggleSimpleMode(false);
-            loaded = false;
-            lessComfortable = false;
-            terminalBellObj = null;
-            treeToggle = null;
-            treeToggleItem = null;
-            dark = null;
             avatar = null;
+            dark = null;
+            lessComfortable = false;
             openingFile = false;
             presenting = false;
+            terminalSound = null;
+            treeToggle = null;
+            treeToggleItem = null;
+            loaded = false;
         });
 
         /***** Register and define API *****/
