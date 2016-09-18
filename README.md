@@ -1,11 +1,11 @@
 # harvard.cs50.simple
 
 ## Main Features
-* Less comfortable and more comfortable modes
+* Less-comfortable and more-comfortable modes
 * Gravatar toggle
 * Simultaneous font-size changing for editor and terminal tabs
 * Terminal beep sound
-* "Open file" dialog in less comfortable mode
+* "Open file" dialog in less-comfortable mode
 
 ## Getting Started
 
