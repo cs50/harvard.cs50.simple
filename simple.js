@@ -3,11 +3,10 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab", "commands",
-        "console", "Divider", "dialog.file", "harvard.cs50.presentation",
-        "immediate", "info",  "keymaps", "navigate", "outline", "layout",
-        "login", "Menu", "menus", "panels", "Plugin", "preferences", "preview",
-        "run.gui", "save", "settings", "tabManager", "terminal", "tooltip",
-        "tree", "ui", "util"
+        "console", "Divider", "dialog.file", "immediate", "info",  "keymaps",
+        "navigate", "outline", "layout", "login", "Menu", "menus", "panels",
+        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
+        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["c9.ide.cs50.simple"];
     return main;
@@ -28,7 +27,6 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
-        var presentation = imports["harvard.cs50.presentation"];
         var settings = imports.settings;
         var tabs = imports.tabManager;
         var tabManager = imports.tabManager;
@@ -52,6 +50,7 @@ define(function(require, exports, module) {
         var dark = null;
         var avatar = null;
         var openingFile = false;
+        var presenting = false;
 
         /*
          * Sets visibility of menu item with specified path.
@@ -463,7 +462,7 @@ define(function(require, exports, module) {
                     var terminal = 12;
 
                     // determine default font sizes depending on current mode
-                    if (presentation.presenting)
+                    if (presenting)
                         ace = terminal = 20;
 
                     // reset font sizes of ace and terminal to defaults
@@ -1095,6 +1094,14 @@ define(function(require, exports, module) {
             }, plugin);
 
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
+
+            // determine whether we're presenting initially
+            presenting = settings.getBool("user/cs50/presentation/@presenting");
+
+            // update presenting when necessary
+            settings.on("user/cs50/presentation/@presenting", function(val) {
+                presenting = val;
+            });
 
             settings.on("write", function() {
                 addSoundToTerminal();
