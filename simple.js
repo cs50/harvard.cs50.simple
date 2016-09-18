@@ -8,7 +8,7 @@ define(function(require, exports, module) {
         "Plugin", "preferences", "preview", "run.gui", "save", "settings",
         "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
-    main.provides = ["c9.ide.cs50.simple"];
+    main.provides = ["harvard.cs50.simple"];
     return main;
 
     function main(options, imports, register) {
@@ -1138,6 +1138,6 @@ define(function(require, exports, module) {
          **/
         plugin.freezePublicAPI({ });
 
-        register(null, { "c9.ide.cs50.simple" : plugin });
+        register(null, { "harvard.cs50.simple" : plugin });
     }
 });
