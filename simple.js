@@ -111,8 +111,8 @@ define(function(require, exports, module) {
 
                 // hide "Folder:" label and text field
                 var txtDirectory = fileDialog.getElement("txtDirectory");
-                txtDirectory.previousSibling.setAttribute("visible", false);
-                txtDirectory.setAttribute("visible", false);
+                hide(txtDirectory.previousSibling);
+                hide(txtDirectory);
 
                 // allow opening file by double-clicking it
                 fileDialog.tree.once("afterChoose", function() {
@@ -144,20 +144,14 @@ define(function(require, exports, module) {
          * @param user a user object with property id
          */
         function addGravatarToggle(err, user) {
-            if (err)
-                return;
-
-            if (user && user.id) {
+            if (!err && user && user.id) {
                 // get avatar button
                 avatar = menus.get("user_" + user.id).item;
                 if (!avatar)
                     return;
-
-                // hide avatar in offline IDE
-                if (!c9.hosted) {
-                    avatar.setAttribute("visible", false);
-                    return;
-                }
+                else if (!c9.hosted)
+                    // hide avatar in offline IDE
+                    return hide(avatar);
 
                 // add toggle in preferences
                 prefs.add({
@@ -309,7 +303,7 @@ define(function(require, exports, module) {
 
             // toggle visibility of tree toggle as tabs are shown or hidden
             settings.on("user/tabs/@show", function(showing) {
-                treeToggles.button && treeToggles.button.setAttribute("visible", showing);
+                showing ? show(treeToggles.button) : hide(treeToggles.button);
             });
 
             // style tree-toggle initially
@@ -382,16 +376,17 @@ define(function(require, exports, module) {
 
         /**
          * Hides the given div by changing CSS
+         *
+         * @param {AMLElement} the AMLElement to hide
          * @return true if successfuly hides, false otherwise
          */
-        function hide(div) {
-            if (div && div.$ext && div.$ext.style) {
-                div.$ext.style.display = "none";
+        function hide(aml) {
+            if (aml) {
+                aml.setAttribute("visible", false);
                 return true;
             }
-            else {
-                return false;
-            }
+
+            return false;
         }
 
         /**
@@ -429,7 +424,7 @@ define(function(require, exports, module) {
 
                 e.menu.childNodes.forEach(function(item) {
                     if (item.caption === "Run" || item.caption === "Preview")
-                        item.setAttribute("visible", false);
+                        hide(item);
                 });
             });
         }
@@ -441,9 +436,8 @@ define(function(require, exports, module) {
             var bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
                 bar.childNodes.forEach(function(node) {
-                    if (node.class === "preferences") {
+                    if (node.class === "preferences")
                         hide(node);
-                    }
                 });
             }
         }
@@ -470,7 +464,7 @@ define(function(require, exports, module) {
          */
         function setMenuVisibility(path, visible) {
             var menu = menus.get(path).item;
-            menu && menu.setAttribute("visible", visible);
+            visible ? show(menu) : hide(menu);
         }
 
         /**
@@ -529,17 +523,17 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Shows the given div by changing CSS
+         * Shows the given AMLElement
+         *
+         * @param {AMLElement} the AMLElement to show
          * @return true if successfully shows, false otherwise
          */
-        function show(div) {
-            if (div && div.$ext && div.$ext.style) {
-                div.$ext.style.display = "";
+        function show(aml) {
+            if (aml) {
+                aml.setAttribute("visible", true);
                 return true;
             }
-            else {
-                return false;
-            }
+            return false;
         }
 
         /**
@@ -684,19 +678,17 @@ define(function(require, exports, module) {
          * Toggles the button in top left that minimizes the menu bar
          */
         function toggleMiniButton(lessComfortable) {
+            // menu bar
+            var bar = layout.findParent(menus);
+            if (bar && bar.childNodes[0]) {
+                var minimizeBtn = bar.childNodes[0].childNodes[0];
+                if (minimizeBtn) {
+                    // hide minimize button in less-comfy only
+                    minimizeBtn.setAttribute("visible", !lessComfortable);
 
-            // toggle button
-            var miniButton = layout.findParent(menus).childNodes[0].childNodes[0];
-
-            // left-align "CS50 IDE" within menu bar
-            var bar = document.querySelector(".c9-menu-bar .c9-mbar-cont");
-            if (lessComfortable) {
-                hide(miniButton);
-                bar && (bar.style.paddingLeft = "0");
-            }
-            else {
-                show(miniButton);
-                bar && (bar.style.paddingLeft = "");
+                    // left-align "CS50 IDE" menu within menu bar
+                    bar.$int.style.paddingLeft = lessComfortable ? "0" : "";
+                }
             }
         }
 
