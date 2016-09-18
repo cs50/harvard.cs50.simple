@@ -22,7 +22,8 @@ define(function(require, exports, module) {
         var menus = imports.menus;
         var newresource = imports.newresource;
 
-        // ensures "Goto/Goto Symbol..." exists before simple is loaded
+        // outline adds "Goto/Goto Symbol..."
+        // listing it as dependency ensures item exists before simple is loaded
         var outline = imports.outline;
 
         var panels = imports.panels;
@@ -194,7 +195,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
             menus.addItemByPath("View/~", new ui.divider(), 10, plugin);
 
-            // Add preference pane button
+            // add preference pane button
             prefs.add({
                "CS50" : {
                     position: 5,
@@ -334,7 +335,7 @@ define(function(require, exports, module) {
                         menus.addItemByPath("Cloud9/Account", menus.get(path + "Account").item, 298, plugin);
 
                         // remove items from user's menu
-                        ["Dashboard", "Home", "Log out"].forEach(function (item) {
+                        ["Dashboard", "Home", "Log out"].forEach(function(item) {
                             menus.remove(path + item);
                         });
                     }
@@ -487,7 +488,7 @@ define(function(require, exports, module) {
             // update document title when tabs change
             tabManager.on("focusSync", function(e){ updateTitle(e.tab); });
             tabManager.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
-            settings.on("user/tabs", function(){ updateTitle(tabManager.focussedTab); });
+            settings.on("user/tabs", function() { updateTitle(tabManager.focussedTab); });
         }
 
         /**
@@ -513,7 +514,7 @@ define(function(require, exports, module) {
                             docList.push(session.doc, session.doc.tooltip);
 
                         // fix all titles
-                        docList.forEach(function (doc) {
+                        docList.forEach(function(doc) {
                             if (doc.hasOwnProperty("title"))
                                 doc.title = title;
                         });
@@ -587,21 +588,21 @@ define(function(require, exports, module) {
         function toggleMenus(lessComfortable) {
             // toggle visibility of each menu item
             [
-                // Cloud9 Menu
+                // CS50 IDE menu
                 "Cloud9/Open Your Project Settings",
                 "Cloud9/Open Your User Settings",
                 "Cloud9/Open Your Keymap",
                 "Cloud9/Open Your Init Script",
                 "Cloud9/Open Your Stylesheet",
 
-                // File Menu
+                // File menu
                 "File/Revert to Saved",
                 "File/Revert All to Saved",
                 "File/Mount FTP or SFTP server...",
                 "File/Line Endings",
                 "File/New Plugin",
 
-                // Edit Menu
+                // Edit menu
                 "Edit/Line/Move Line Up",
                 "Edit/Line/Move Line Down",
                 "Edit/Line/Copy Lines Up",
@@ -616,18 +617,18 @@ define(function(require, exports, module) {
                 "Edit/Code Folding",
                 "Edit/Code Formatting",
 
-                // Find Menu
+                // Find menu
                 "Find/Replace Next",
                 "Find/Replace Previous",
                 "Find/Replace All",
 
-                // View Menu
+                // View menu
                 "View/Editors",
                 "View/Syntax",
                 "View/Wrap Lines",
                 "View/Wrap To Print Margin",
 
-                // Goto Menu
+                // Goto menu
                 "Goto/Goto Anything...",
                 "Goto/Goto Symbol...",
                 "Goto/Goto Command...",
@@ -637,10 +638,10 @@ define(function(require, exports, module) {
                 "Goto/Word Left",
                 "Goto/Scroll to Selection",
 
-                // Tools Menu
+                // Tools menu
                 "Tools",
 
-                // Window Menu
+                // Window menu
                 "Window/New Immediate Window",
                 "Window/Installer...",
                 "Window/Navigate",
@@ -704,7 +705,7 @@ define(function(require, exports, module) {
 
                 // tries to toggle the menu items on the plus sign
                 // until it works (sometimes this is called before they load)
-                var test = setInterval(function (){
+                var test = setInterval(function() {
                     if (toggle(menuItems[2]) &&
                         toggle(menuItems[3]) &&
                         toggle(menuItems[4])) {
@@ -727,10 +728,10 @@ define(function(require, exports, module) {
             tree.hide();
 
             if (lessComfortable)
-                // Only shows tabs automatically when less comfortable is disabled
-                panelList.forEach(function (p) {panels.disablePanel(p);});
+                // only shows tabs automatically when less comfortable is disabled
+                panelList.forEach(function(p) {panels.disablePanel(p);});
             else
-                panelList.forEach(function (p) {panels.enablePanel(p);});
+                panelList.forEach(function(p) {panels.enablePanel(p);});
 
             // reset tree visibility status
             resetVisibility();
@@ -745,18 +746,18 @@ define(function(require, exports, module) {
             if (_.isBoolean(override))
                 lessComfortable = override;
             else {
-                // Toggles comfort level
+                // toggle comfort level
                 lessComfortable = !lessComfortable;
                 settings.set("user/cs50/simple/@lessComfortable", lessComfortable);
             }
 
-            // Toggles features
+            // toggle features
             toggleMenus(lessComfortable);
             toggleMiniButton(lessComfortable);
             toggleSideTabs(lessComfortable);
             togglePlus(lessComfortable);
 
-            // Makes sure that the checkbox is correct
+            // make sure that the checkbox is correct
             menus.get("View/Less Comfortable").item.checked = lessComfortable;
         }
 
@@ -780,15 +781,17 @@ define(function(require, exports, module) {
             // ensure tab is ace
             if (e && e.tab && e.tab.editorType === "ace") {
                 // disable warnings about undeclared vars for js files
-                if (e.tab.path && e.tab.path.slice(-3) === ".js")
+                if (e.tab.path && e.tab.path.slice(-3) === ".js") {
                     return settings.set("project/language/@undeclaredVars", false);
+                }
                 // handle renaming tabs
-                else if (e.tab.document)
+                else if (e.tab.document) {
                     // handle setting/updating document title
                     e.tab.document.once("setTitle", function(e) {
                         if (e.title.slice(-3) === ".js")
                             settings.set("project/language/@undeclaredVars", false);
                     });
+                }
 
                 // enable warnings about undeclared vars for other files
                 settings.set("project/language/@undeclaredVars", true);
@@ -968,7 +971,7 @@ define(function(require, exports, module) {
 
             ui.insertCss(require("text!./style.css"), options.staticPrefix, plugin);
 
-            // Adds the permanent changes
+            // add the permanent changes
             addFileDialog();
             addToggle(plugin);
             addTreeToggles();
@@ -980,21 +983,22 @@ define(function(require, exports, module) {
             updateFontSize();
             updateMenuCaptions();
 
+            // get setting's version number
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
-                // Set Python default to Python 3
+                // set Python default to Python 3
                 settings.set("project/python/@version", "python3");
 
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
 
-                // Set status bar to always show
+                // set status bar to always show
                 settings.set("user/ace/statusbar/@show", true);
 
                 // update settings version
                 settings.set("user/cs50/simple/@ver", SETTINGS_VER);
 
-                // Turn off auto-save by default
+                // turn off auto-save by default
                 settings.set("user/general/@autosave", false);
 
                 // download project as ZIP files by default
@@ -1009,12 +1013,12 @@ define(function(require, exports, module) {
 
                 // default excluded formats
                 var types = ["class", "exe", "gz", "o", "pdf", "pyc", "raw", "tar", "zip"];
-                types.map(function (i) {
+                types.map(function(i) {
                     settings.set("user/tabs/editorTypes/@"+i, "none");
                 });
             }
 
-            settings.on("read", function(){
+            settings.on("read", function() {
                 settings.setDefaults("user/cs50/simple", [
                     ["gravatar", false],
                     ["lessComfortable", true],
@@ -1023,8 +1027,8 @@ define(function(require, exports, module) {
                 ]);
             });
 
-            // When less comfortable option is changed
-            settings.on("user/cs50/simple/@lessComfortable", function (saved) {
+            // when less comfortable option is changed
+            settings.on("user/cs50/simple/@lessComfortable", function(saved) {
                 if (saved !== lessComfortable) {
                     menus.click("View/Less Comfortable");
                 }
@@ -1047,7 +1051,7 @@ define(function(require, exports, module) {
                 presenting = val;
             }, plugin);
 
-            // Add Gravatar toggle online only
+            // add Gravatar toggle online only
             info.getUser(addGravatarToggle);
 
             // add C template
@@ -1057,7 +1061,7 @@ define(function(require, exports, module) {
 
         /***** Lifecycle *****/
 
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
 
