@@ -781,14 +781,14 @@ define(function(require, exports, module) {
             // ensure tab is ace
             if (e && e.tab && e.tab.editorType === "ace") {
                 // disable warnings about undeclared vars for js files
-                if (e.tab.path && e.tab.path.slice(-3).toLowerCase() === ".js") {
+                if (/.js$/i.test(e.tab.path)) {
                     return settings.set("project/language/@undeclaredVars", false);
                 }
                 // handle renaming tabs
                 else if (e.tab.document) {
                     // handle setting/updating document title
                     e.tab.document.once("setTitle", function(e) {
-                        if (e.title.slice(-3).toLowerCase() === ".js")
+                        if (/.js$/i.test(e.title))
                             settings.set("project/language/@undeclaredVars", false);
                     });
                 }
