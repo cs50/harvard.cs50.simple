@@ -4,9 +4,9 @@ define(function(require, exports, module) {
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab", "commands",
         "console", "dialog.file", "immediate", "info",  "keymaps", "navigate",
-        "outline", "layout", "login", "Menu", "menus", "panels", "Plugin",
-        "preferences", "preview", "run.gui", "save", "settings", "tabManager",
-        "terminal", "tooltip", "tree", "ui", "util"
+        "outline", "layout", "login", "Menu", "menus", "newresource", "panels",
+        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
+        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -20,6 +20,7 @@ define(function(require, exports, module) {
         var info = imports.info;
         var layout = imports.layout;
         var menus = imports.menus;
+        var newresource = imports.newresource;
 
         // ensures "Goto/Goto Symbol..." exists before simple is loaded
         var outline = imports.outline;
@@ -986,7 +987,6 @@ define(function(require, exports, module) {
             setTitlesFromTabs();
             updateFontSize();
             updateMenuCaptions();
-            updateTemplates();
 
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
@@ -1057,6 +1057,10 @@ define(function(require, exports, module) {
 
             // Add Gravatar toggle online only
             info.getUser(addGravatarToggle);
+
+            // add C template
+            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
+            updateTemplates();
         }
 
         /***** Lifecycle *****/
