@@ -3,10 +3,10 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab", "commands",
-        "console", "Divider", "dialog.file", "immediate", "info",  "keymaps",
-        "navigate", "outline", "layout", "login", "Menu", "menus", "panels",
-        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
+        "console", "dialog.file", "immediate", "info",  "keymaps", "navigate",
+        "outline", "layout", "login", "Menu", "menus", "panels", "Plugin",
+        "preferences", "preview", "run.gui", "save", "settings", "tabManager",
+        "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -43,7 +43,6 @@ define(function(require, exports, module) {
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
         var lessComfortable = true;
-        var divider = null;
         var terminalBellObj = null;
         var treeToggle = null;
         var treeToggleItem = null;
@@ -324,12 +323,9 @@ define(function(require, exports, module) {
                 onclick: toggleSimpleMode
             });
 
-            // creates divider below toggle
-            divider = new ui.divider();
-
             // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
-            menus.addItemByPath("View/Div", divider, 10, plugin);
+            menus.addItemByPath("View/~", new ui.divider(), 10, plugin);
 
             // Add preference pane button
             prefs.add({
@@ -1077,7 +1073,6 @@ define(function(require, exports, module) {
             toggleSimpleMode(false);
             loaded = false;
             lessComfortable = false;
-            divider = null;
             terminalBellObj = null;
             treeToggle = null;
             treeToggleItem = null;
