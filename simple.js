@@ -29,6 +29,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
+        var save = imports.save;
         var settings = imports.settings;
         var tabManager = imports.tabManager;
         var tree = imports.tree;
@@ -49,6 +50,7 @@ define(function(require, exports, module) {
         var openingFile = false;
         var presenting = false;
         var terminalSound = null;
+        var trailingLine = null;
         var treeToggles = {};
 
         /**
@@ -237,6 +239,51 @@ define(function(require, exports, module) {
                 aml.childNodes[0].setAttribute("tooltip", "Maximize");
                 aml.childNodes[1].setAttribute("tooltip", "Close Console");
             });
+        }
+
+        /**
+         * Adds trailing newline to text files upon saving (if enabled)
+         */
+        function addTrailingLine(e) {
+            if (trailingLine === null) {
+                // add preference toggle
+                prefs.add({
+                    "Project": {
+                        position: 10,
+                        "Code Editor (Ace)": {
+                            "On Save, Add Trailing Newline": {
+                                type: "checkbox",
+                                position: 1000,
+                                path: "project/cs50/ace/@trailingLine"
+                            }
+                        }
+                    }
+                }, plugin);
+
+                // update trailingLine when pref changes
+                settings.on("project/cs50/ace/@trailingLine", function(enabled) {
+                    trailingLine = enabled;
+                });
+
+                // whether to add trailing line to text files upon saving
+                trailingLine = settings.getBool("project/cs50/ace/@trailingLine");
+
+                // add trailing line to text files upon saving (if enabled)
+                save.on("beforeSave", addTrailingLine);
+            }
+            else if (trailingLine === true && _.isObject(e) && _.isObject(e.tab)
+                && e.tab.editorType === "ace" && _.isObject(e.document)) {
+
+                // Ace Document (https://ace.c9.io/#nav=api&api=document)
+                var doc = e.document.getSession().session.getDocument();
+
+                // number of lines in the document
+                var length = doc.getLength();
+
+                // insert trailing line only if last line isn't newline
+                if (trailingLine && doc.getLine(length - 1) !== "")
+                doc.insertFullLines(length, [""]);
+            }
         }
 
         /**
@@ -1035,6 +1082,9 @@ define(function(require, exports, module) {
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
+            // add trailing line to text files upon saving (if enabled)
+            addTrailingLine();
+
             // stop marking undeclared variables for javascript files
             tabManager.on("tabAfterActivate", toggleUndeclaredVars);
 
@@ -1073,6 +1123,7 @@ define(function(require, exports, module) {
             openingFile = false;
             presenting = false;
             terminalSound = null;
+            trailingLine = null;
             treeToggles = {};
             loaded = false;
         });
