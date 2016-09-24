@@ -282,7 +282,7 @@ define(function(require, exports, module) {
 
                 // insert trailing line only if last line isn't newline
                 if (trailingLine && doc.getLine(length - 1) !== "")
-                doc.insertFullLines(length, [""]);
+                    doc.insertFullLines(length, [""]);
             }
         }
 
