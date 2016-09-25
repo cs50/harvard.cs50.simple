@@ -41,6 +41,7 @@ define(function(require, exports, module) {
 
         // https://lodash.com/docs
         var _ = require("lodash");
+        var basename = require("path").basename;
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
@@ -243,6 +244,9 @@ define(function(require, exports, module) {
 
         /**
          * Adds trailing newline to text files upon saving (if enabled)
+         *
+         * @param {object} e an object as passed by save.beforeSave event's
+         * callback
          */
         function addTrailingLine(e) {
             if (trailingLine === null) {
@@ -272,7 +276,9 @@ define(function(require, exports, module) {
                 save.on("beforeSave", addTrailingLine);
             }
             else if (trailingLine === true && _.isObject(e) && _.isObject(e.tab)
-                && e.tab.editorType === "ace" && _.isObject(e.document)) {
+                && e.tab.editorType === "ace" && _.isString(e.tab.path)
+                && _.isObject(e.document)
+                && /^makefile$|\.(?:c|css|h|html|php|py|rb|sh)$/i.test(basename(e.tab.path))) {
 
                 // Ace Document (https://ace.c9.io/#nav=api&api=document)
                 var doc = e.document.getSession().session.getDocument();
