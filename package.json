@@ -22,8 +22,8 @@
       "name": "David J. Malan"
     }
   ],
-  "description": "Simplifies CS50 IDE's menus for those less comfortable.",
-  "name": "c9.ide.cs50.simple",
+  "description": "Simplifies the CS50 IDE",
+  "name": "harvard.cs50.simple",
   "plugins": {
     "simple": {}
   }
