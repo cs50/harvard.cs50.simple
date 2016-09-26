@@ -319,7 +319,7 @@ define(function(require, exports, module) {
             // create toggle button
             treeToggles.button = ui.button({
                 id: "treeToggle",
-                "class": "simple50-tree-toggle",
+                "class": "cs50-simple-tree-toggle",
                 command: "toggletree",
                 skin: "c9-simple-btn",
                 height: 16,
@@ -340,7 +340,7 @@ define(function(require, exports, module) {
                     return;
 
                 // make room for tree-toggle button
-                pane.aml.$ext.classList.add("simple50-pane0");
+                pane.aml.$ext.classList.add("cs50-simple-pane0");
                 pane.aml.$buttons.style.paddingLeft = "54px";
 
                 // insert tree-toggle button
@@ -603,7 +603,7 @@ define(function(require, exports, module) {
          */
         function syncTreeToggles(active) {
             if (treeToggles && treeToggles.button && treeToggles.menuItem) {
-                var style = "simple50-tree-toggle";
+                var style = "cs50-simple-tree-toggle";
                 if (dark)
                     style += " dark";
 
