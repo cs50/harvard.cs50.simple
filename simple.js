@@ -47,6 +47,7 @@ define(function(require, exports, module) {
 
         var avatar = null;
         var dark = null;
+        var divider = null;
         var lessComfortable = true;
         var openingFile = false;
         var presenting = false;
@@ -196,7 +197,10 @@ define(function(require, exports, module) {
 
             // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
-            menus.addItemByPath("View/~", new ui.divider(), 10, plugin);
+
+            // divider before "Editors"
+            divider = new ui.divider();
+            menus.addItemByPath("View/~", divider, 10, plugin);
 
             // add preference pane button
             prefs.add({
@@ -723,6 +727,10 @@ define(function(require, exports, module) {
             ].forEach(function(path) {
                 setMenuVisibility(path, !lessComfortable);
             });
+
+            // show divider in more-comfy only (auto-hidden in less-comfy)
+            if (!lessComfortable)
+                divider.show();
         }
 
         /**
@@ -1127,6 +1135,7 @@ define(function(require, exports, module) {
             toggleSimpleMode(false);
             avatar = null;
             dark = null;
+            divider = null;
             lessComfortable = false;
             openingFile = false;
             presenting = false;
