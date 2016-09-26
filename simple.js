@@ -522,26 +522,23 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Set all Terminal tab titles and HTML document title based on tab
+         * Initially sets the title of the web page to title of focused IDE tab
+         * (if any) and registers event handlers to update title when necessary.
          */
-        function setTitlesFromTabs() {
-            // set terminal titles and document title based on existing tabs
-            tabManager.getTabs().forEach(function(tab) {
-                setTmuxTitle(tab);
-            });
-
-            // future tabs
-            tabManager.on("open", function wait(e) {
-                setTmuxTitle(e.tab);
-            }, plugin);
-
+        function setTitleFromTabs() {
             // udpate document title once
             updateTitle(tabManager.focussedTab);
 
             // update document title when tabs change
-            tabManager.on("focusSync", function(e){ updateTitle(e.tab); });
-            tabManager.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
-            settings.on("user/tabs", function() { updateTitle(tabManager.focussedTab); });
+            tabManager.on("focusSync", function(e) {
+                updateTitle(e.tab);
+            }, plugin);
+
+            // update document title when
+            tabManager.on("tabDestroy", function(e) {
+                if (e.last)
+                updateTitle();
+            }, plugin);
         }
 
         /**
@@ -1032,7 +1029,7 @@ define(function(require, exports, module) {
             customizeC9Menu();
             hideElements();
             hideGearIcon();
-            setTitlesFromTabs();
+            setTitleFromTabs();
             updateFontSize();
             updateMenuCaptions();
 
@@ -1093,6 +1090,11 @@ define(function(require, exports, module) {
 
             // stop marking undeclared variables for javascript files
             tabManager.on("tabAfterActivate", toggleUndeclaredVars);
+
+            // set titles of terminal tabs to current directory name
+            tabManager.on("tabCreate", function(e) {
+                setTmuxTitle(e.tab);
+            }, plugin);
 
             // add terminal sound
             terminalSound = new Audio(options.staticPrefix + "/sounds/bell.mp3");
