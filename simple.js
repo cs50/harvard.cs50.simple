@@ -530,19 +530,24 @@ define(function(require, exports, module) {
          * (if any) and registers event handlers to update title when necessary.
          */
         function setTitleFromTabs() {
-            // udpate document title once
+            // udpate document title initially
             updateTitle(tabManager.focussedTab);
 
-            // update document title when tabs change
+            // update document title when tab is focused
             tabManager.on("focusSync", function(e) {
                 updateTitle(e.tab);
             }, plugin);
 
-            // update document title when
+            // update document title when tab is destroyed
             tabManager.on("tabDestroy", function(e) {
                 if (e.last)
                 updateTitle();
             }, plugin);
+
+            // update document title when preference is toggled
+            settings.on("user/tabs/@title", function() {
+                updateTitle(tabManager.focussedTab);
+            });
         }
 
         /**
