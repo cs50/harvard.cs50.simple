@@ -237,8 +237,8 @@ define(function(require, exports, module) {
 
             // adds tooltips as a callback after the consoleButtons are created
             imports.console.getElement("consoleButtons", function(aml) {
-                aml.childNodes[0].setAttribute("tooltip", "Maximize");
-                aml.childNodes[1].setAttribute("tooltip", "Close Console");
+                aml.childNodes[0].setAttribute("tooltip", "Maximize Console");
+                aml.childNodes[2].setAttribute("tooltip", "Close Console");
             });
         }
 
