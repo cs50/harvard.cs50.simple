@@ -2,11 +2,12 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "ace", "ace.status", "auth", "c9", "clipboard", "collab", "commands",
-        "console", "dialog.file", "immediate", "info",  "keymaps", "navigate",
-        "outline", "layout", "login", "Menu", "menus", "newresource", "panels",
-        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
-        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
+        "ace", "ace.status", "auth", "c9", "clipboard", "collab",
+        "collab.workspace", "commands", "console", "dialog.file", "immediate",
+        "info",  "keymaps", "navigate", "outline", "layout", "login", "Menu",
+        "menus", "newresource", "panels", "Plugin", "preferences", "preview",
+        "run.gui", "save", "settings", "tabManager", "terminal", "tooltip",
+        "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -34,6 +35,7 @@ define(function(require, exports, module) {
         var tabManager = imports.tabManager;
         var tree = imports.tree;
         var ui = imports.ui;
+        var workspace = imports["collab.workspace"];
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -45,6 +47,7 @@ define(function(require, exports, module) {
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
+        var authorInfoToggled = null;
         var avatar = null;
         var dark = null;
         var divider = null;
@@ -862,6 +865,27 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Enables author info when workspace is shared only.
+         */
+        function updateAuthorInfo(force) {
+            // whether to force enable or disable the setting (without saving)
+            if (_.isBoolean(force))
+                authorInfoToggled = force;
+
+            // handle when author info should be automatically toggled
+            if (authorInfoToggled === true) {
+                settings.set("user/collab/@show-author-info", workspace.members.length > 1);
+            }
+            // reset default setting when automatic toggling is disabled
+            else if (authorInfoToggled === false) {
+                settings.set(
+                    "user/collab/@show-author-info",
+                    settings.getBool("user/cs50/simple/collab/@originAuthorInfo")
+                );
+            }
+        }
+
+        /**
          * Updates items of "View > Font Size".
          */
         function updateFontSize() {
@@ -1128,6 +1152,51 @@ define(function(require, exports, module) {
             // add C template
             newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
             updateTemplates();
+
+            // enable author info when workspace is shared only
+            if (c9.hosted) {
+                settings.setDefaults("user/cs50/simple/collab", [
+                    // cache original author info setting
+                    ["originAuthorInfo", settings.getBool("user/collab/@show-author-info")],
+
+                    // automatically toggle author info by default
+                    ["authorInfoToggled", true]
+                ]);
+
+                // update author info as setting is toggled
+                settings.on("user/cs50/simple/collab/@authorInfoToggled", updateAuthorInfo);
+
+                // update author info initially
+                updateAuthorInfo(settings.getBool("user/cs50/simple/collab/@authorInfoToggled"));
+
+                // cache original author info setting as it changes
+                settings.on("user/collab/@show-author-info", function(val) {
+                    // ensure only original setting is cached
+                    if (authorInfoToggled === false)
+                        settings.set("user/cs50/simple/collab/@originAuthorInfo", val);
+                });
+
+                // add preference toggle
+                prefs.add({
+                    "CS50" : {
+                        position: 5,
+                        "IDE Behavior" : {
+                            position: 10,
+                            "Automatically Toggle Author Info" : {
+                                type: "checkbox",
+                                setting: "user/cs50/simple/collab/@authorInfoToggled",
+                                position: 900
+                            }
+                        }
+                    }
+                }, plugin);
+
+                // load members in the workspace
+                workspace.loadMembers(updateAuthorInfo);
+
+                // update author info as members are added or removed
+                workspace.on("sync", updateAuthorInfo);
+            }
         }
 
         /***** Lifecycle *****/
@@ -1138,6 +1207,7 @@ define(function(require, exports, module) {
 
         plugin.on("unload", function() {
             toggleSimpleMode(false);
+            authorInfoToggled = null;
             avatar = null;
             dark = null;
             divider = null;
