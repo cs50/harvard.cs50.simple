@@ -895,7 +895,7 @@ define(function(require, exports, module) {
              */
             function isAvailable() {
                 var editorType = tabManager.focussedTab.editor.type;
-                return editorType === "ace" || editorType === "terminal";
+                return ["ace", "hex", "terminal"].indexOf(editorType) > -1;
             };
 
             // cache and delete keyboard shortcuts for largerfont & smallerfont
@@ -908,18 +908,13 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "largerfonts",
                 exec: function() {
-
                     // increase ace's font size
-                    commands.exec("largerfont");
+                    var size = settings.getNumber("user/ace/@fontSize");
+                    settings.set("user/ace/@fontSize", ++size > 72 ? 72 : size);
 
                     // increase terminal's font size
-                    var currSize = settings.getNumber(
-                        "user/terminal/@fontsize"
-                    );
-                    settings.set(
-                        "user/terminal/@fontsize",
-                        ++currSize > 72 ? 72 : currSize
-                    );
+                    size = settings.getNumber("user/terminal/@fontsize");
+                    settings.set("user/terminal/@fontsize", ++size > 72 ? 72 : size);
                 },
                 bindKey: largerfontKeys,
                 isAvailable: isAvailable
@@ -952,18 +947,13 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "smallerfonts",
                 exec: function() {
-
                     // decrease ace's font size
-                    commands.exec("smallerfont");
+                    var size = settings.getNumber("user/ace/@fontSize");
+                    settings.set("user/ace/@fontSize", --size < 1 ? 1 : size);
 
                     // decrease terminal's font size
-                    var currSize = settings.getNumber(
-                        "user/terminal/@fontsize"
-                    );
-                    settings.set(
-                        "user/terminal/@fontsize",
-                        --currSize < 1 ? 1 : currSize
-                    );
+                    size = settings.getNumber("user/terminal/@fontsize");
+                    settings.set("user/terminal/@fontsize", --size < 1 ? 1 : size);
                 },
                 bindKey: smallerfontKeys,
                 isAvailable: isAvailable
