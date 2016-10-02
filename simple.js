@@ -264,7 +264,7 @@ define(function(require, exports, module) {
                         "Code Editor (Ace)": {
                             "On Save, Add Trailing Newline": {
                                 type: "checkbox",
-                                position: 1000,
+                                position: 300,
                                 path: "project/cs50/ace/@trailingLine"
                             }
                         }
@@ -627,6 +627,24 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Toggles code folding
+         *
+         * @param {boolean} enable whether to enable code folding
+         */
+        function toggleCodeFolding(enable) {
+            if (_.isBoolean(enable)) {
+                if (!enable) {
+                    // unfold all folded code
+                    tabManager.getTabs().forEach(function(tab) {
+                        commands.exec("unfoldall", tab.editor);
+                    });
+                }
+
+                settings.set("user/ace/@showFoldWidgets", enable);
+            }
+        }
+
+        /**
          * Toggles avatar between Gravatar and C9 logo
          *
          * @param show whether to show Gravatar
@@ -822,6 +840,7 @@ define(function(require, exports, module) {
             toggleMiniButton(lessComfortable);
             toggleSideTabs(lessComfortable);
             togglePlus(lessComfortable);
+            toggleCodeFolding(!lessComfortable);
 
             // make sure that the checkbox is correct
             menus.get("View/Less Comfortable").item.checked = lessComfortable;
