@@ -51,6 +51,7 @@ define(function(require, exports, module) {
         var avatar = null;
         var dark = null;
         var divider = null;
+        var foldAvailFuncs = {};
         var lessComfortable = true;
         var openingFile = false;
         var presenting = false;
@@ -634,9 +635,36 @@ define(function(require, exports, module) {
         function toggleCodeFolding(enable) {
             if (_.isBoolean(enable)) {
                 if (!enable) {
+                    // cache fold-commands' isAvailable functions
+                    if (_.isEmpty(foldAvailFuncs)) {
+                        [
+                            "fold", "foldall", "foldOther", "toggleFoldWidget",
+                            "toggleParentFoldWidget"
+                        ].forEach(function(name) {
+                            var command = commands.commands[name];
+                            if (command && command.isAvailable) {
+                                foldAvailFuncs[name] = command.isAvailable;
+                            }
+                        });
+                    }
+
                     // unfold all folded code
                     tabManager.getTabs().forEach(function(tab) {
                         commands.exec("unfoldall", tab.editor);
+                    });
+
+                    // prevent folding with keyboard shortcuts
+                    Object.keys(foldAvailFuncs).forEach(function(name) {
+                        // disable command
+                        commands.commands[name].isAvailable = function() {
+                            return false;
+                        };
+                    });
+                }
+                else {
+                    // enable folding with keyboard shortcuts
+                    Object.keys(foldAvailFuncs).forEach(function(name) {
+                        commands.commands[name].isAvailable = foldAvailFuncs[name];
                     });
                 }
 
