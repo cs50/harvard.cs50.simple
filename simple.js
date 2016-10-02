@@ -51,6 +51,7 @@ define(function(require, exports, module) {
         var avatar = null;
         var dark = null;
         var divider = null;
+        var foldAvailFuncs = {};
         var lessComfortable = true;
         var openingFile = false;
         var presenting = false;
@@ -634,10 +635,35 @@ define(function(require, exports, module) {
         function toggleCodeFolding(enable) {
             if (_.isBoolean(enable)) {
                 if (!enable) {
+                    function getFalse() {
+                        return false;
+                    }
+
+                    // cache fold-commands' isAvailable functions
+                    if (_.isEmpty(foldAvailFuncs)) {
+                        [
+                            "fold", "foldall", "foldOther", "toggleFoldWidget",
+                            "toggleParentFoldWidget"
+                        ].forEach(function(name) {
+                            var command = commands.commands[name];
+                            if (command && command.isAvailable)
+                                foldAvailFuncs[name] = command.isAvailable;
+                        });
+                    }
+
                     // unfold all folded code
                     tabManager.getTabs().forEach(function(tab) {
                         commands.exec("unfoldall", tab.editor);
                     });
+
+                    // disable keyboard-shortcut colding by disabling commands
+                    for (var name in foldAvailFuncs)
+                        commands.commands[name].isAvailable = getFalse;
+                }
+                else {
+                    // enable folding with keyboard shortcuts
+                    for (var name in foldAvailFuncs)
+                        commands.commands[name].isAvailable = foldAvailFuncs[name];
                 }
 
                 settings.set("user/ace/@showFoldWidgets", enable);
@@ -1230,6 +1256,7 @@ define(function(require, exports, module) {
             avatar = null;
             dark = null;
             divider = null;
+            foldAvailFuncs = {};
             lessComfortable = false;
             openingFile = false;
             presenting = false;
