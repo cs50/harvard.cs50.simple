@@ -646,9 +646,8 @@ define(function(require, exports, module) {
                             "toggleParentFoldWidget"
                         ].forEach(function(name) {
                             var command = commands.commands[name];
-                            if (command && command.isAvailable) {
+                            if (command && command.isAvailable)
                                 foldAvailFuncs[name] = command.isAvailable;
-                            }
                         });
                     }
 
@@ -657,9 +656,8 @@ define(function(require, exports, module) {
                         commands.exec("unfoldall", tab.editor);
                     });
 
-                    // prevent folding with keyboard shortcuts
+                    // disable keyboard-shortcut colding by disabling commands
                     for (var name in foldAvailFuncs)
-                        // disable commands
                         commands.commands[name].isAvailable = getFalse;
                 }
                 else {
