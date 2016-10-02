@@ -635,6 +635,10 @@ define(function(require, exports, module) {
         function toggleCodeFolding(enable) {
             if (_.isBoolean(enable)) {
                 if (!enable) {
+                    function getFalse() {
+                        return false;
+                    }
+
                     // cache fold-commands' isAvailable functions
                     if (_.isEmpty(foldAvailFuncs)) {
                         [
@@ -654,18 +658,14 @@ define(function(require, exports, module) {
                     });
 
                     // prevent folding with keyboard shortcuts
-                    Object.keys(foldAvailFuncs).forEach(function(name) {
-                        // disable command
-                        commands.commands[name].isAvailable = function() {
-                            return false;
-                        };
-                    });
+                    for (var name in foldAvailFuncs)
+                        // disable commands
+                        commands.commands[name].isAvailable = getFalse;
                 }
                 else {
                     // enable folding with keyboard shortcuts
-                    Object.keys(foldAvailFuncs).forEach(function(name) {
+                    for (var name in foldAvailFuncs)
                         commands.commands[name].isAvailable = foldAvailFuncs[name];
-                    });
                 }
 
                 settings.set("user/ace/@showFoldWidgets", enable);
@@ -1258,6 +1258,7 @@ define(function(require, exports, module) {
             avatar = null;
             dark = null;
             divider = null;
+            foldAvailFuncs = {};
             lessComfortable = false;
             openingFile = false;
             presenting = false;
