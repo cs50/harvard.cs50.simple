@@ -50,7 +50,7 @@ define(function(require, exports, module) {
         var authorInfoToggled = null;
         var avatar = null;
         var dark = null;
-        var divider = null;
+        var divs = [];
         var foldAvailFuncs = {};
         var lessComfortable = true;
         var openingFile = false;
@@ -202,9 +202,12 @@ define(function(require, exports, module) {
             // places it in View tab
             menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
 
-            // divider before "Editors"
-            divider = new ui.divider();
-            menus.addItemByPath("View/~", divider, 10, plugin);
+            // add divider before "Editors"
+            var div = new ui.divider();
+            menus.addItemByPath("View/~", div, 10, plugin);
+
+            // cache divider to show in more-comfy
+            divs.push(div);
 
             // add preference pane button
             prefs.add({
@@ -429,8 +432,15 @@ define(function(require, exports, module) {
                 }
             }), 1, plugin);
 
-            // add divider
+            // add divider before "About Cloud9"
             menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
+
+            // add divider after "Preferences"
+            var div = new ui.divider();
+            menus.addItemByPath("Cloud9/~", div, 301, plugin);
+
+            // cache divider to show in more-comfy
+            divs.push(div);
 
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
@@ -780,9 +790,12 @@ define(function(require, exports, module) {
                 setMenuVisibility(path, !lessComfortable);
             });
 
-            // show divider in more-comfy only (auto-hidden in less-comfy)
-            if (!lessComfortable)
-                divider.show();
+            if (!lessComfortable) {
+                // show dividers that were automatically hidden in less-comfy
+                divs.forEach(function(div) {
+                    div.show();
+                });
+            }
         }
 
         /**
@@ -1255,7 +1268,7 @@ define(function(require, exports, module) {
             authorInfoToggled = null;
             avatar = null;
             dark = null;
-            divider = null;
+            divs = [];
             foldAvailFuncs = {};
             lessComfortable = false;
             openingFile = false;
