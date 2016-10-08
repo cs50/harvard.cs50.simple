@@ -894,8 +894,10 @@ define(function(require, exports, module) {
              * false otherwise.
              */
             function isAvailable() {
-                var editorType = tabManager.focussedTab.editor.type;
-                return ["ace", "hex", "terminal"].indexOf(editorType) > -1;
+                var type = _.isObject(tabManager.focussedTab)
+                    && tabManager.focussedTab.editorType;
+                if (_.isString(type))
+                    return ["ace", "hex", "terminal"].indexOf(type) > -1;
             };
 
             // cache and delete keyboard shortcuts for largerfont & smallerfont
