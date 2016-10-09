@@ -499,6 +499,10 @@ define(function(require, exports, module) {
                         hide(item);
                 });
             });
+
+            // disable "Run" through keyboard
+            commands.bindKey(null, commands.commands["run"], true);
+            commands.bindKey(null, commands.commands["runlast"], true);
         }
 
         /**
