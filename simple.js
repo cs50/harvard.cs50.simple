@@ -1176,6 +1176,12 @@ define(function(require, exports, module) {
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
+            // set Python version to Python3
+            if (!settings.getBool("project/cs50/simple/python/@verSet")) {
+                settings.set("project/cs50/simple/python/@verSet", true);
+                settings.set("project/python/@version", "python3");
+            }
+
             // add trailing line to text files upon saving (if enabled)
             addTrailingLine();
 
