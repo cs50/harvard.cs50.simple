@@ -1254,8 +1254,8 @@ define(function(require, exports, module) {
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
             // set Python version to Python3
-            if (!settings.getBool("project/cs50/simple/python/@verSet")) {
-                settings.set("project/cs50/simple/python/@verSet", true);
+            if (!settings.getBool("project/cs50/simple/python/@versionSet")) {
+                settings.set("project/cs50/simple/python/@versionSet", true);
                 settings.set("project/python/@version", "python3");
             }
 
