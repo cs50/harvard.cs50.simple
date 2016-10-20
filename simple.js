@@ -389,7 +389,7 @@ define(function(require, exports, module) {
                     var topLeftRect = topLeftPane.container.getBoundingClientRect();
 
                     // iterate over the rest of the panes
-                    for (var i = 1, len = codePanes.length; i < len; i++) {
+                    for (var i = 1; i < codePanes.length; i++) {
                         // get boundary of current pane
                         var rect = codePanes[i].container.getBoundingClientRect();
 
