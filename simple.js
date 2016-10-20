@@ -1036,7 +1036,7 @@ define(function(require, exports, module) {
                 var type = _.isObject(tabManager.focussedTab)
                     && tabManager.focussedTab.editorType;
                 if (_.isString(type))
-                    return ["ace", "hex", "terminal"].indexOf(type) > -1;
+                    return _.indexOf(["ace", "hex", "terminal"], type) > -1;
             };
 
             // cache and delete keyboard shortcuts for largerfont & smallerfont
