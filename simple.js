@@ -323,15 +323,8 @@ define(function(require, exports, module) {
             // reset tree visibility status (to prevent disablePanel from hiding tree)
             resetVisibility("tree");
 
-            // create toggle button
-            treeToggles.button = ui.button({
-                id: "treeToggle",
-                "class": "cs50-simple-tree-toggle",
-                command: "toggletree",
-                skin: "c9-simple-btn",
-                height: 16,
-                width: 16
-            });
+            // toggle ID
+            treeToggles.ID = "treeToggle";
 
             // create menu item
             treeToggles.menuItem = new ui.item({
@@ -342,16 +335,71 @@ define(function(require, exports, module) {
 
             // listen for pane creation
             tabManager.on("paneCreate", function(e) {
-                var pane = e.pane;
-                if (pane !== tabManager.getPanes()[0])
+                var codePanes = tabManager.getPanes(layout.findParent(tabManager));
+
+                // ensure pane is a code pane (i.e., not console)
+                var pane = codePanes.find(function(p) {
+                    return p === e.pane;
+                });
+
+                if (!pane)
                     return;
 
-                // make room for tree-toggle button
-                pane.aml.$ext.classList.add("cs50-simple-pane0");
-                pane.aml.$buttons.style.paddingLeft = "54px";
+                // create hidden toggle button
+                var button = ui.button({
+                    id: treeToggles.ID,
+                    "class": "cs50-simple-tree-toggle",
+                    command: "toggletree",
+                    skin: "c9-simple-btn",
+                    height: 16,
+                    width: 16,
+                    visible: false
+                });
 
-                // insert tree-toggle button
-                pane.aml.appendChild(treeToggles.button);
+                // insert button into pane
+                pane.aml.appendChild(button);
+
+                // register button for destruction on pane destruction
+                pane.addElement(button);
+
+                // show button in first pane initially
+                if (codePanes.length === 1)
+                    showTreeToggle(codePanes[0]);
+
+                // handle when the pane that holds the button is destroyed
+                tabManager.on("paneDestroy", function(e) {
+                    // ensure pane is button-holder
+                    if (e.pane !== treeToggles.button.pane)
+                        return;
+
+                    // get current code panes
+                    var codePanes = tabManager.getPanes(layout.findParent(tabManager));
+
+                    // ensure at least one pane left
+                    if (codePanes.length < 1)
+                        return;
+
+                    // find top-left pane
+                    var topLeftPane = codePanes[0];
+
+                    // remember boundaries of top-left pane
+                    var topLeftRect = topLeftPane.container.getBoundingClientRect();
+
+                    // iterate over the rest of the panes
+                    for (var i = 1, len = codePanes.length; i < len; i++) {
+                        // get boundary of current pane
+                        var rect = codePanes[i].container.getBoundingClientRect();
+
+                        // handle when pane is more top-left
+                        if (rect.left <= topLeftRect.left && rect.top <= topLeftRect.top) {
+                            topLeftPane = codePanes[i];
+                            topLeftRect = rect;
+                        }
+                    }
+
+                    // show tree toggle in top-left pane
+                    showTreeToggle(topLeftPane);
+                });
             });
 
             // add menu item to toggle tree (useful when toggle is hidden)
@@ -370,9 +418,6 @@ define(function(require, exports, module) {
             settings.on("user/tabs/@show", function(showing) {
                 showing ? show(treeToggles.button) : hide(treeToggles.button);
             });
-
-            // style tree-toggle initially
-            syncTreeToggles(tree.active);
         }
 
         /**
@@ -612,6 +657,35 @@ define(function(require, exports, module) {
                 return true;
             }
             return false;
+        }
+
+        /**
+         * Shows the tree toggle of the passed pane
+         *
+         * @param {Pane} the pane to show its tree toggle
+         */
+        function showTreeToggle(pane) {
+            if (!_.isObject(pane))
+                return;
+
+            // show button in first pane
+            pane.getElement(treeToggles.ID, function(button) {
+                // make room for button
+                pane.aml.$ext.classList.add("cs50-simple-pane0");
+                pane.aml.$buttons.style.paddingLeft = "54px";
+
+                // show button
+                button.setAttribute("visible", true);
+
+                // keep track of button
+                treeToggles.button = button;
+
+                // keep track of parent pane
+                treeToggles.button.pane = pane;
+
+                // sync button style with tree visibility
+                syncTreeToggles(tree.active);
+            });
         }
 
         /**
