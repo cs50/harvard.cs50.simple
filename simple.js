@@ -314,6 +314,9 @@ define(function(require, exports, module) {
             // remember if tree is shown or hidden initially
             var resetVisibility = tree.active ? tree.show : tree.hide;
 
+            // get middle column
+            var tabsParent = layout.findParent(tabManager);
+
             // hide workspace from window menu
             setMenuVisibility("Window/Workspace", false);
 
@@ -335,7 +338,7 @@ define(function(require, exports, module) {
 
             // listen for pane creation
             tabManager.on("paneCreate", function(e) {
-                var codePanes = tabManager.getPanes(layout.findParent(tabManager));
+                var codePanes = tabManager.getPanes(tabsParent);
 
                 // ensure pane is a code pane (i.e., not console)
                 var pane = codePanes.find(function(p) {
@@ -373,7 +376,7 @@ define(function(require, exports, module) {
                         return;
 
                     // get current code panes
-                    var codePanes = tabManager.getPanes(layout.findParent(tabManager));
+                    var codePanes = tabManager.getPanes(tabsParent);
 
                     // ensure at least one pane left
                     if (codePanes.length < 1)
