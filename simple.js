@@ -372,7 +372,7 @@ define(function(require, exports, module) {
                 // handle when the pane that holds the button is destroyed
                 tabManager.on("paneDestroy", function(e) {
                     // ensure pane is button-holder
-                    if (e.pane !== treeToggles.button.pane)
+                    if (_.isObject(treeToggles.button) && e.pane !== treeToggles.button.pane)
                         return;
 
                     // get current code panes
