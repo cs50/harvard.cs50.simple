@@ -6,8 +6,8 @@ define(function(require, exports, module) {
         "collab.workspace", "commands", "console", "dialog.file", "immediate",
         "info",  "keymaps", "navigate", "outline", "layout", "login", "Menu",
         "menus", "newresource", "panels", "Plugin", "preferences", "preview",
-        "run.gui", "save", "settings", "tabManager", "terminal", "tooltip",
-        "tree", "ui", "util"
+        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
+        "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -33,6 +33,7 @@ define(function(require, exports, module) {
         var save = imports.save;
         var settings = imports.settings;
         var tabManager = imports.tabManager;
+        var tabMenu = imports.tabbehavior.contextMenu;
         var tree = imports.tree;
         var ui = imports.ui;
         var workspace = imports["collab.workspace"];
@@ -545,6 +546,14 @@ define(function(require, exports, module) {
                 e.menu.childNodes.forEach(function(item) {
                     if (item.caption === "Run" || item.caption === "Preview")
                         hide(item);
+                });
+            });
+
+            // hide "Run This File" item from tab context
+            tabMenu.once("prop.visible", function(e) {
+                e.currentTarget.childNodes.some(function(item) {
+                    if (item.caption === "Run This File")
+                        return hide(item);
                 });
             });
 
