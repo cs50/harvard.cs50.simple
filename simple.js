@@ -549,7 +549,7 @@ define(function(require, exports, module) {
                 });
             });
 
-            // hide "Run This File" item from tab context
+            // hide "Run This File" item from tab context menu
             tabMenu.once("prop.visible", function(e) {
                 e.currentTarget.childNodes.some(function(item) {
                     if (item.caption === "Run This File")
