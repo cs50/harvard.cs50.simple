@@ -513,7 +513,7 @@ define(function(require, exports, module) {
             tabManager.on("open", function(e) {
                 var tab = e.tab;
 
-                // only handle files with no extensions and open in Ace
+                // only handle files with no extensions that are open with Ace
                 if (tab.editorType !== "ace" || !_.isEmpty(extname(tab.path)))
                     return;
 
@@ -523,7 +523,7 @@ define(function(require, exports, module) {
                 // ensure first line is a shebang
                 var firstLine = session.getLine(0);
                 if (firstLine.startsWith("#!")) {
-                    // turn lines like #!/usr/bin/env [VAR=val] python to #!/usr/bin/python for easy matching
+                    // turn lines like #!/usr/bin/env [VAR=val]... bash to #!/usr/bin/bash for easy matching
                     if (/^#!\s*\S*\/env\s/.test(firstLine))
                         firstLine = firstLine.replace(/\S+=\S+/g, "").replace(/env\s+/, "");
 
