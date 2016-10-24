@@ -523,7 +523,7 @@ define(function(require, exports, module) {
                 // ensure first line is a shebang
                 var firstLine = session.getLine(0);
                 if (firstLine.startsWith("#!")) {
-                    // #!/usr/bin/env VAR=val python to #!/usr/bin/python for easy matching
+                    // turn lines like #!/usr/bin/env [VAR=val] python to #!/usr/bin/python for easy matching
                     if (/^#!\s*\S*\/env\s/.test(firstLine))
                         firstLine = firstLine.replace(/\S+=\S+/g, "").replace(/env\s+/, "");
 
