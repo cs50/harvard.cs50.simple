@@ -507,7 +507,7 @@ define(function(require, exports, module) {
                 php: /php/,
                 python: /python/,
                 ruby: /ruby/,
-                sh: /(bash|ksh)\d*|sh/
+                sh: /^(bash2?|ksh|sh)/
             };
 
             tabManager.on("open", function(e) {
