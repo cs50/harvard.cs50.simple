@@ -1213,9 +1213,6 @@ define(function(require, exports, module) {
             // get setting's version number
             var ver = settings.getNumber("user/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
-                // set Python default to Python 3
-                settings.set("project/python/@version", "python3");
-
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
 
@@ -1262,10 +1259,16 @@ define(function(require, exports, module) {
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
-            // set Python version to Python3
-            if (!settings.getBool("project/cs50/simple/python/@versionSet")) {
-                settings.set("project/cs50/simple/python/@versionSet", true);
+            // configure pylint's env
+            if (!settings.getBool("project/cs50/simple/python/@configured")) {
+                // prevent re-configuring if settings changed manually
+                settings.set("project/cs50/simple/python/@configured", true);
+
+                // set Python's version
                 settings.set("project/python/@version", "python3");
+
+                // set pylint's flags
+                settings.set("project/python/@pylintFlags", "-d all -e E -e F --generated-members=app.jinja_env.*");
             }
 
             // add trailing line to text files upon saving (if enabled)
