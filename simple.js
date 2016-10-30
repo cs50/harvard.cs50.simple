@@ -1268,7 +1268,18 @@ define(function(require, exports, module) {
                 settings.set("project/python/@version", "python3");
 
                 // set pylint's flags
-                settings.set("project/python/@pylintFlags", "-d all -e E -e F --generated-members=app.jinja_env.*");
+                settings.set(
+                    "project/python/@pylintFlags",
+                    "-d all -e E -e F --generated-members=app.jinja_env.*"
+                );
+
+                // set PYTHONPATH
+                settings.set(
+                    "project/python/@path",
+                    "/home/ubuntu/.local/lib/python3.4/site-packages" +
+                    ":/usr/lib/python3/dist-packages" +
+                    ":/usr/local/lib/python3.4/dist-packages"
+                );
             }
 
             // add trailing line to text files upon saving (if enabled)
