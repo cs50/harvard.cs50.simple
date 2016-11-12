@@ -672,7 +672,8 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Shows the tree toggle of the passed pane
+         * Shows the tree toggle of the passed pane only if tab buttons are
+         * visible
          *
          * @param {Pane} the pane to show its tree toggle
          */
@@ -686,8 +687,8 @@ define(function(require, exports, module) {
                 pane.aml.$ext.classList.add("cs50-simple-pane0");
                 pane.aml.$buttons.style.paddingLeft = "54px";
 
-                // show button
-                button.setAttribute("visible", true);
+                // show button only if tab buttons are visible
+                button.setAttribute("visible", settings.getBool("user/tabs/@show"));
 
                 // keep track of button
                 treeToggles.button = button;
