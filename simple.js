@@ -31,6 +31,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
+        var preview = imports.preview;
         var save = imports.save;
         var settings = imports.settings;
         var tabManager = imports.tabManager;
