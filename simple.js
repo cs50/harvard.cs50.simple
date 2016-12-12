@@ -651,6 +651,9 @@ define(function(require, exports, module) {
                         docList.forEach(function(doc) {
                             if (doc.hasOwnProperty("title"))
                                 doc.title = title;
+
+                            if (doc.hasOwnProperty("tooltip"))
+                                doc.tooltip = title;
                         });
                     }
                 }, plugin);
