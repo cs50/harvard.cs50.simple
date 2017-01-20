@@ -189,26 +189,6 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Adds and updates file templates
-         */
-        function addTemplates() {
-            // add C template
-            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
-
-            // remove default Python template item
-            menus.remove("File/New From Template/Python file");
-
-            // add Python template
-            newresource.addFileTemplate(require("text!./templates/py.templates"), plugin);
-
-            // remove JavaScript template item
-            menus.remove("File/New From Template/JavaScript file");
-
-            // update captions of template items
-            updateTemplates();
-        }
-
-        /**
          * Adds the buttons to toggle comfort level
          */
         function addToggle() {
@@ -1169,9 +1149,23 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Sorts templates and removes the " file" suffix from their names
+         * Adds, and updates templates, and sorts template items and removes the
+         * " file" suffix from their captions
          */
         function updateTemplates() {
+            // add C template
+            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
+
+            // remove default Python template item
+            menus.remove("File/New From Template/Python file");
+
+            // add Python template
+            newresource.addFileTemplate(require("text!./templates/py.templates"), plugin);
+
+            // remove JavaScript template item
+            menus.remove("File/New From Template/JavaScript file");
+
+            // sort template items and update their captions
             var templates = menus.get("File/New From Template").menu;
             var index = 100;
             templates && templates.childNodes.map(function(item) {
@@ -1333,7 +1327,7 @@ define(function(require, exports, module) {
             info.getUser(addGravatarToggle);
 
             // add and update templates
-            addTemplates();
+            updateTemplates();
 
             // enable author info when workspace is shared only
             if (c9.hosted) {
