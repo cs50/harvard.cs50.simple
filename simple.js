@@ -1156,11 +1156,13 @@ define(function(require, exports, module) {
             // add C template
             newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
 
-            // remove default Python template item
-            menus.remove("File/New From Template/Python file");
+            // overwrite default PHP template
+            menus.remove("File/New From Template/PHP file");
+            newresource.addFileTemplate(require("text!./templates/php.templates"), plugin);
 
-            // add Python template
-            newresource.addFileTemplate(require("text!./templates/py.templates"), plugin);
+            // overwrite default Python template
+            menus.remove("File/New From Template/Python file");
+            newresource.addFileTemplate(require("text!./templates/python.templates"), plugin);
 
             // remove JavaScript template item
             menus.remove("File/New From Template/JavaScript file");
