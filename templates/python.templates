@@ -6,7 +6,7 @@ caption Python
 	import cs50
 	
 	def main():
-		"""TODO"""
+	    """TODO"""
 	
 	if __name__ == "__main__":
-		main()
+	    main()
