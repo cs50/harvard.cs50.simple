@@ -189,6 +189,26 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Adds and updates file templates
+         */
+        function addTemplates() {
+            // add C template
+            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
+
+            // remove default Python template item
+            menus.remove("File/New From Template/Python file");
+
+            // add Python template
+            newresource.addFileTemplate(require("text!./templates/py.templates"), plugin);
+
+            // remove JavaScript template item
+            menus.remove("File/New From Template/JavaScript file");
+
+            // update captions of template items
+            updateTemplates();
+        }
+
+        /**
          * Adds the buttons to toggle comfort level
          */
         function addToggle() {
@@ -873,7 +893,6 @@ define(function(require, exports, module) {
                 "File/New From Template/SCSS file",
                 "File/New From Template/LESS file",
                 "File/New From Template/SVG file",
-                "File/New From Template/Python file",
                 "File/New From Template/Ruby file",
                 "File/New From Template/OCaml file",
                 "File/New From Template/Clojure file",
@@ -1313,10 +1332,8 @@ define(function(require, exports, module) {
             // add Gravatar toggle online only
             info.getUser(addGravatarToggle);
 
-            // add templates
-            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
-            newresource.addFileTemplate(require("text!./templates/py.templates"), plugin);
-            updateTemplates();
+            // add and update templates
+            addTemplates();
 
             // enable author info when workspace is shared only
             if (c9.hosted) {
