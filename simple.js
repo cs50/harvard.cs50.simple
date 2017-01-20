@@ -1313,8 +1313,9 @@ define(function(require, exports, module) {
             // add Gravatar toggle online only
             info.getUser(addGravatarToggle);
 
-            // add C template
+            // add templates
             newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
+            newresource.addFileTemplate(require("text!./templates/py.templates"), plugin);
             updateTemplates();
 
             // enable author info when workspace is shared only
