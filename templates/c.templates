@@ -1,6 +1,6 @@
 filename .c
 section General
-caption C file
+caption C
 	#include <cs50.h>
 	#include <stdio.h>
 	

@@ -873,7 +873,6 @@ define(function(require, exports, module) {
                 "File/New From Template/SCSS file",
                 "File/New From Template/LESS file",
                 "File/New From Template/SVG file",
-                "File/New From Template/Python file",
                 "File/New From Template/Ruby file",
                 "File/New From Template/OCaml file",
                 "File/New From Template/Clojure file",
@@ -1150,9 +1149,25 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Sorts templates and removes the " file" suffix from their names
+         * Adds, and updates templates, and sorts template items and removes the
+         * " file" suffix from their captions
          */
         function updateTemplates() {
+            // add C template
+            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
+
+            // overwrite default PHP template
+            menus.remove("File/New From Template/PHP file");
+            newresource.addFileTemplate(require("text!./templates/php.templates"), plugin);
+
+            // overwrite default Python template
+            menus.remove("File/New From Template/Python file");
+            newresource.addFileTemplate(require("text!./templates/python.templates"), plugin);
+
+            // remove JavaScript template item
+            menus.remove("File/New From Template/JavaScript file");
+
+            // sort template items and update their captions
             var templates = menus.get("File/New From Template").menu;
             var index = 100;
             templates && templates.childNodes.map(function(item) {
@@ -1313,8 +1328,7 @@ define(function(require, exports, module) {
             // add Gravatar toggle online only
             info.getUser(addGravatarToggle);
 
-            // add C template
-            newresource.addFileTemplate(require("text!./templates/c.templates"), plugin);
+            // add and update templates
             updateTemplates();
 
             // enable author info when workspace is shared only

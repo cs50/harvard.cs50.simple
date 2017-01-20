@@ -1,0 +1,12 @@
+filename .py
+section General
+caption Python
+	#!/usr/bin/env python3
+	
+	import cs50
+	
+	def main():
+	    """TODO"""
+	
+	if __name__ == "__main__":
+	    main()
