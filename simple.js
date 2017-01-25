@@ -722,7 +722,7 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
-            // TODO determine if possible to do for "c9 exec browser" command only
+
             editors.on("create", function(e) {
                 // ensure editor type is "preview"
                 var editor = e.editor;
