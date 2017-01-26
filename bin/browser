@@ -9,5 +9,5 @@ fi
 
 c9="$c9 exec"
 
-# 
+# must s/$HOME/~/ to support files under ~
 $c9 browser $(readlink -f "$1" | sed "s#^$HOME#~#")

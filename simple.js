@@ -766,7 +766,7 @@ define(function(require, exports, module) {
 
                     // handle HTML-with-shebang files
                     fs.readFile(args[1], function(err, data) {
-                    if (err)
+                        if (err)
                             throw err;
 
                         // remove shebang (if present)
