@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
         "collab.workspace", "commands", "console", "dialog.file", "editors",
-        "immediate", "info",  "keymaps", "navigate", "outline", "layout",
+        "fs", "immediate", "info",  "keymaps", "navigate", "outline", "layout",
         "login", "Menu", "menus", "newresource", "panels", "Plugin",
         "preferences", "preview", "run.gui", "save", "settings", "tabbehavior",
         "tabManager", "terminal", "tooltip", "tree", "ui", "util"
@@ -19,6 +19,7 @@ define(function(require, exports, module) {
         var commands = imports.commands;
         var editors = imports.editors;
         var fileDialog = imports["dialog.file"];
+        var fs = imports.fs;
         var info = imports.info;
         var layout = imports.layout;
         var menus = imports.menus;
@@ -42,11 +43,13 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
+        var BROWSER_VER = 1;
         var SETTINGS_VER = 9;
 
         // https://lodash.com/docs
         var _ = require("lodash");
         var basename = require("path").basename;
+        var join = require("path").join;
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
@@ -705,41 +708,94 @@ define(function(require, exports, module) {
             });
         }
 
+
         /**
-         * Simplifies Preview's UI and adds browser C9 command
+         * Opens a preview tab for path with name
+         *
+         * @param {string} path the path or URL to open
+         * @param [string] name the name of the tab
          */
-        function simplifyPreview() {
-            // add command to open URL
+        function openPreview(path, name) {
+            if (!_.isString(path) || (name && !_.isString(name)))
+                return;
+
+            // open preview tab
+            tabManager.open({
+                name: name || path,
+                editorType: "preview",
+                active: true,
+                document: {
+                    preview: {
+                        path: path
+                    }
+                }
+            }, function(err, tab, done, existing){
+                // if tab with the same name exists
+                if (existing) {
+                    // if path/URL changed
+                    if (tab.path !== path) {
+                        // update path/URL and reload
+                        var previewer = preview.findPreviewer(path);
+                        previewer && previewer.navigate({url: path});
+                    }
+                    else {
+                        // just reload
+                        tab.editor.reload();
+                    }
+                }
+            });
+        }
+
+        /**
+         * Adds browser C9 command and simplifies Preview's UI
+         */
+        function tweakPreview() {
+            // add browser command
             commands.addCommand({
                 name: "browser",
                 exec: function(args) {
-                    // ensure URL is given
+                    // ensure single argument is given
                     if (!_.isArray(args) || args.length !== 2 || !_.isString(args[1]))
-                        return console.log("Usage: c9 exec browser URL");
+                        return console.error("Usage: c9 exec browser [URL|path]");
 
-                    // open URL in built-in browser tab
-                    preview.openPreview(args[1], null, true);
+                    // handle URLs (e.g., phpliteadmin's)
+                    if (/^https?:\/\//.test(args[1]))
+                        return openPreview(args[1], args[1].replace(/\?.*$/, ""));
+
+                    // TODO compare mtimes?
+
+                    // handle HTML-with-shebang files
+                    fs.readFile(args[1], function(err, data) {
+                    if (err)
+                            throw err;
+
+                        // remove shebang (if present)
+                        data = data.replace(/^#!\/usr\/bin\/env browser\s+$/m, "");
+
+                        // build path for temp HTML file
+                        // DO NOT change prefix to ~/.tmp or ~/workspace/.tmp
+                        // preview's root (i.e., /) is ~/workspace
+                        var htmlPath = join("/.tmp", basename(args[1]) + ".html");
+
+                        // write temp HTML file
+                        fs.writeFile(htmlPath, data, function(err) {
+                            if (err)
+                                throw err;
+
+                            // open temp HTML file in built-in browser
+                            openPreview(htmlPath);
+                        });
+                    });
                 }
             }, plugin);
 
-
+            // handle creation of Preview editors
             editors.on("create", function(e) {
-                // ensure editor type is "preview"
                 var editor = e.editor;
-                if (editor.type === "preview") {
-                    editor.getElement("locationbar", function(e) {
-                        // disable location bar
-                        e.setAttribute("disabled", true);
 
-                        // hide previewers list
-                        if (e.childNodes[1])
-                            e.childNodes[1].setAttribute("visible", false);
-
-                        // shift location bar to left
-                        if (e.parentNode)
-                            ui.setStyleRule(".previewbar .hbox", "left", "9px !important");
-                    });
-                }
+                // pull preview's iframe up
+                if (editor.type === "preview")
+                    editor.container.style.top = "7px";
             });
         }
 
@@ -1265,7 +1321,7 @@ define(function(require, exports, module) {
             hideElements();
             hideGearIcon();
             setTitleFromTabs();
-            simplifyPreview();
+            tweakPreview();
             updateFontSize();
             updateMenuCaptions();
 
@@ -1300,6 +1356,25 @@ define(function(require, exports, module) {
                     settings.set("user/tabs/editorTypes/@"+i, "none");
                 });
             }
+
+            // ensure browser script is written and up-to-date
+            var browserPath = "~/bin/browser";
+            fs.exists(browserPath, function(exists) {
+                var ver = settings.getNumber("user/cs50/simple/@browser");
+                if (!exists || isNaN(ver) || ver < BROWSER_VER) {
+                    fs.writeFile(browserPath, require("text!./bin/browser"), function(err) {
+                        if (err)
+                            throw err;
+
+                        fs.chmod(browserPath, 755, function(err) {
+                            if (err)
+                                throw err;
+
+                            settings.set("user/cs50/simple/@browser", BROWSER_VER);
+                        });
+                    });
+                }
+            });
 
             settings.on("read", function() {
                 settings.setDefaults("user/cs50/simple", [

@@ -46,7 +46,13 @@ body:after {
     background-image: url("@{image-path}/c9.png") !important;
 }
 
-/* hide preview's reload and settings buttons */
-.previewbar > div:first-child, .previewbar .settings {
+/* narrow preview bar down */
+.hsplitbox.toolbar-top.previewbar {
+    border-bottom: initial;
+    height: 7px !important;
+}
+
+/* hide buttons, menu, and location bar */
+.previewbar > div {
     display: none !important;
 }
