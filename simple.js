@@ -715,28 +715,29 @@ define(function(require, exports, module) {
          * @param {string} path the path or URL to open
          * @param [string] name the name of the tab
          */
-        function openPreview(path, name) {
-            if (!_.isString(path) || (name && !_.isString(name)))
+        function openPreview(options) {
+            if (!_.isString(options.path) || (options.id && !_.isString(options.id)))
                 return;
 
             // open preview tab
             tabManager.open({
-                name: name || path,
+                name: options.id || options.path,
                 editorType: "preview",
                 active: true,
                 document: {
+                    title: options.title,
                     preview: {
-                        path: path
+                        path: options.path
                     }
                 }
             }, function(err, tab, done, existing){
                 // if tab with the same name exists
                 if (existing) {
                     // if path/URL changed
-                    if (tab.path !== path) {
+                    if (tab.path !== options.path) {
                         // update path/URL and reload
-                        var previewer = preview.findPreviewer(path);
-                        previewer && previewer.navigate({url: path});
+                        var previewer = preview.findPreviewer(options.path);
+                        previewer && previewer.navigate({url: options.path});
                     }
                     else {
                         // just reload
@@ -760,7 +761,10 @@ define(function(require, exports, module) {
 
                     // handle URLs (e.g., phpliteadmin's)
                     if (/^https?:\/\//.test(args[1]))
-                        return openPreview(args[1], args[1].replace(/\?.*$/, ""));
+                        return openPreview({
+                            id: args[1].replace(/\?.*$/, ""),
+                            path: args[1]
+                        });
 
                     // TODO compare mtimes?
 
@@ -783,7 +787,10 @@ define(function(require, exports, module) {
                                 throw err;
 
                             // open temp HTML file in built-in browser
-                            openPreview(htmlPath);
+                            openPreview({
+                                path: htmlPath,
+                                title: basename(args[1])
+                            });
                         });
                     });
                 }
