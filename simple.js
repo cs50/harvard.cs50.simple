@@ -721,7 +721,8 @@ define(function(require, exports, module) {
 
             // open preview tab
             tabManager.open({
-                name: options.id || options.path,
+                // prefixed with "preview-" to avoid mistaking tab for ace tab
+                name: "preview-" + (options.id || options.path),
                 editorType: "preview",
                 active: true,
                 document: {
