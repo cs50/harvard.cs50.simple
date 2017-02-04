@@ -543,9 +543,8 @@ define(function(require, exports, module) {
                 if (!e.menu)
                     return;
 
-                e.menu.childNodes.forEach(function(item) {
-                    if (item.caption === "Run" || item.caption === "Preview")
-                        hide(item);
+                e.menu.childNodes.some(function(item) {
+                    return item.caption === "Run" && hide(item);
                 });
             });
 
