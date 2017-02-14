@@ -3,11 +3,11 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
-        "collab.workspace", "commands", "console", "dialog.file", "immediate",
-        "info",  "keymaps", "navigate", "outline", "layout", "login", "Menu",
-        "menus", "newresource", "panels", "Plugin", "preferences", "preview",
-        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "util"
+        "collab.workspace", "commands", "console", "dialog.file", "editors",
+        "immediate", "info",  "keymaps", "navigate", "outline", "layout",
+        "login", "Menu", "menus", "newresource", "panels", "Plugin",
+        "preferences", "preview", "run.gui", "save", "settings", "tabbehavior",
+        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -17,6 +17,7 @@ define(function(require, exports, module) {
         var c9 = imports.c9;
         var collab = imports.collab;
         var commands = imports.commands;
+        var editors = imports.editors;
         var fileDialog = imports["dialog.file"];
         var info = imports.info;
         var layout = imports.layout;
@@ -30,6 +31,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
+        var preview = imports.preview;
         var save = imports.save;
         var settings = imports.settings;
         var tabManager = imports.tabManager;
@@ -704,6 +706,44 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Simplifies Preview's UI and adds browser C9 command
+         */
+        function simplifyPreview() {
+            // add command to open URL
+            commands.addCommand({
+                name: "browser",
+                exec: function(args) {
+                    // ensure URL is given
+                    if (!_.isArray(args) || args.length !== 2 || !_.isString(args[1]))
+                        return console.log("Usage: c9 exec browser URL");
+
+                    // open URL in built-in browser tab
+                    preview.openPreview(args[1], null, true);
+                }
+            }, plugin);
+
+            // TODO determine if possible to do for "c9 exec browser" command only
+            editors.on("create", function(e) {
+                // ensure editor type is "preview"
+                var editor = e.editor;
+                if (editor.type === "preview") {
+                    editor.getElement("locationbar", function(e) {
+                        // disable location bar
+                        e.setAttribute("disabled", true);
+
+                        // hide previewers list
+                        if (e.childNodes[1])
+                            e.childNodes[1].setAttribute("visible", false);
+
+                        // shift location bar to left
+                        if (e.parentNode)
+                            ui.setStyleRule(".previewbar .hbox", "left", "9px !important");
+                    });
+                }
+            });
+        }
+
+        /**
          * Syncs tree toggle button and menu item with tree visibility state.
          *
          * @param {boolean} active whether to toggle the buttons on
@@ -1225,6 +1265,7 @@ define(function(require, exports, module) {
             hideElements();
             hideGearIcon();
             setTitleFromTabs();
+            simplifyPreview();
             updateFontSize();
             updateMenuCaptions();
 
