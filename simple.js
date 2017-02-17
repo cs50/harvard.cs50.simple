@@ -859,10 +859,7 @@ define(function(require, exports, module) {
                 "Window/Changes",
 
                 // Support menu
-                "Support/Show Guided Tour",
-                "Support/Get Help (Community)",
-                "Support/Request a Feature",
-                "Support/Go To YouTube Channel",
+                "Support",
 
                 // extraneous templates
                 "File/New From Template/Text file",
