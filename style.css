@@ -45,3 +45,14 @@ body:after {
 .c9-logo .icon {
     background-image: url("@{image-path}/c9.png") !important;
 }
+
+/* narrow preview bar down */
+.hsplitbox.toolbar-top.previewbar {
+    border-bottom: initial;
+    height: 7px !important;
+}
+
+/* hide buttons, menu, and location bar */
+.previewbar > div {
+    display: none !important;
+}

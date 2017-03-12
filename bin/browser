@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# determine c9
+if [ $IDE_OFFLINE+x ]; then
+    c9="/var/c9sdk/bin/c9"
+else
+    c9="/mnt/shared/c9"
+fi
+
+c9="$c9 exec"
+
+# must s/$HOME/~/ to support files under ~
+$c9 browser $(readlink -f "$1" | sed "s#^$HOME#~#")

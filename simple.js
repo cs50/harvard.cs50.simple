@@ -3,11 +3,11 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
-        "collab.workspace", "commands", "console", "dialog.file", "immediate",
-        "info",  "keymaps", "navigate", "outline", "layout", "login", "Menu",
-        "menus", "newresource", "panels", "Plugin", "preferences", "preview",
-        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "util"
+        "collab.workspace", "commands", "console", "dialog.file", "editors",
+        "fs", "immediate", "info",  "keymaps", "navigate", "outline", "layout",
+        "login", "Menu", "menus", "newresource", "panels", "Plugin",
+        "preferences", "preview", "run.gui", "save", "settings", "tabbehavior",
+        "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -17,7 +17,9 @@ define(function(require, exports, module) {
         var c9 = imports.c9;
         var collab = imports.collab;
         var commands = imports.commands;
+        var editors = imports.editors;
         var fileDialog = imports["dialog.file"];
+        var fs = imports.fs;
         var info = imports.info;
         var layout = imports.layout;
         var menus = imports.menus;
@@ -30,6 +32,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
+        var preview = imports.preview;
         var save = imports.save;
         var settings = imports.settings;
         var tabManager = imports.tabManager;
@@ -40,11 +43,13 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
+        var BROWSER_VER = 1;
         var SETTINGS_VER = 9;
 
         // https://lodash.com/docs
         var _ = require("lodash");
         var basename = require("path").basename;
+        var join = require("path").join;
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
@@ -703,6 +708,105 @@ define(function(require, exports, module) {
             });
         }
 
+
+        /**
+         * Opens a preview tab for path with name
+         *
+         * @param {string} path the path or URL to open
+         * @param [string] name the name of the tab
+         */
+        function openPreview(options) {
+            if (!_.isString(options.path) || (options.id && !_.isString(options.id)))
+                return;
+
+            // open preview tab
+            tabManager.open({
+                // prefixed with "preview-" to avoid mistaking tab for ace tab
+                name: "preview-" + (options.id || options.path),
+                editorType: "preview",
+                active: true,
+                document: {
+                    title: options.title,
+                    preview: {
+                        path: options.path
+                    }
+                }
+            }, function(err, tab, done, existing){
+                // if tab with the same name exists
+                if (existing) {
+                    // if path/URL changed
+                    if (tab.path !== options.path) {
+                        // update path/URL and reload
+                        var previewer = preview.findPreviewer(options.path);
+                        previewer && previewer.navigate({url: options.path});
+                    }
+                    else {
+                        // just reload
+                        tab.editor.reload();
+                    }
+                }
+            });
+        }
+
+        /**
+         * Adds browser C9 command and simplifies Preview's UI
+         */
+        function tweakPreview() {
+            // add browser command
+            commands.addCommand({
+                name: "browser",
+                exec: function(args) {
+                    // ensure single argument is given
+                    if (!_.isArray(args) || args.length !== 2 || !_.isString(args[1]))
+                        return console.error("Usage: c9 exec browser [URL|path]");
+
+                    // handle URLs (e.g., phpliteadmin's)
+                    if (/^https?:\/\//.test(args[1]))
+                        return openPreview({
+                            id: args[1].replace(/\?.*$/, ""),
+                            path: args[1]
+                        });
+
+                    // TODO compare mtimes?
+
+                    // handle HTML-with-shebang files
+                    fs.readFile(args[1], function(err, data) {
+                        if (err)
+                            throw err;
+
+                        // remove shebang (if present)
+                        data = data.replace(/^#!\/usr\/bin\/env browser\s+$/m, "");
+
+                        // build path for temp HTML file
+                        // DO NOT change prefix to ~/.tmp or ~/workspace/.tmp
+                        // preview's root (i.e., /) is ~/workspace
+                        var htmlPath = join("/.tmp", basename(args[1]) + ".html");
+
+                        // write temp HTML file
+                        fs.writeFile(htmlPath, data, function(err) {
+                            if (err)
+                                throw err;
+
+                            // open temp HTML file in built-in browser
+                            openPreview({
+                                path: htmlPath,
+                                title: basename(args[1])
+                            });
+                        });
+                    });
+                }
+            }, plugin);
+
+            // handle creation of Preview editors
+            editors.on("create", function(e) {
+                var editor = e.editor;
+
+                // pull preview's iframe up
+                if (editor.type === "preview")
+                    editor.container.style.top = "7px";
+            });
+        }
+
         /**
          * Syncs tree toggle button and menu item with tree visibility state.
          *
@@ -1222,6 +1326,7 @@ define(function(require, exports, module) {
             hideElements();
             hideGearIcon();
             setTitleFromTabs();
+            tweakPreview();
             updateFontSize();
             updateMenuCaptions();
 
@@ -1256,6 +1361,25 @@ define(function(require, exports, module) {
                     settings.set("user/tabs/editorTypes/@"+i, "none");
                 });
             }
+
+            // ensure browser script is written and up-to-date
+            var browserPath = "~/bin/browser";
+            fs.exists(browserPath, function(exists) {
+                var ver = settings.getNumber("user/cs50/simple/@browser");
+                if (!exists || isNaN(ver) || ver < BROWSER_VER) {
+                    fs.writeFile(browserPath, require("text!./bin/browser"), function(err) {
+                        if (err)
+                            throw err;
+
+                        fs.chmod(browserPath, 755, function(err) {
+                            if (err)
+                                throw err;
+
+                            settings.set("user/cs50/simple/@browser", BROWSER_VER);
+                        });
+                    });
+                }
+            });
 
             settings.on("read", function() {
                 settings.setDefaults("user/cs50/simple", [
