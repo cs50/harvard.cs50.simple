@@ -3,11 +3,11 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
-        "collab.workspace", "commands", "console", "dialog.file", "immediate",
-        "info",  "keymaps", "navigate", "outline", "layout", "login", "Menu",
-        "menus", "newresource", "panels", "Plugin", "preferences", "preview",
-        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
-        "tooltip", "tree", "ui", "util"
+        "collab.workspace", "commands", "console", "dialog.file",
+        "dialog.notification", "immediate", "info",  "keymaps", "navigate",
+        "outline", "layout", "login", "Menu", "menus", "newresource", "panels",
+        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
+        "tabbehavior", "tabManager", "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -22,7 +22,7 @@ define(function(require, exports, module) {
         var layout = imports.layout;
         var menus = imports.menus;
         var newresource = imports.newresource;
-
+        var notify = imports["dialog.notification"].show;
         // outline adds "Goto/Goto Symbol..."
         // listing it as dependency ensures item exists before simple is loaded
         var outline = imports.outline;
@@ -1204,6 +1204,88 @@ define(function(require, exports, module) {
                 : title
         }
 
+        /**
+         * Warns about unsaved file when focusing terminal
+         */
+        function warnUnsaved() {
+            /**
+             * Shows the warning
+             *
+             * @param {string} title the title of the unsaved file
+             */
+            function show(title) {
+                // clear current timer (if any)
+                if (notify.timer)
+                    clearTimeout(notify.timer);
+
+                // extend timeout if notifying about same title
+                if (title === notify.currTitle && _.isFunction(notify.hasClosed) && !notify.hasClosed()) {
+                    notify.timer = setTimeout(notify.hide, 5000);
+                    return;
+                }
+
+                // hide old notification (if any)
+                if (_.isFunction(notify.hide)) {
+                    notify.hide();
+
+                    // wait for old notification to be closed before showing
+                    if (_.isFunction(notify.hasClosed) && !notify.hasClosed()) {
+                        notify.hasClosed.interval = setInterval(function() {
+                            clearInterval(notify.hasClosed.interval);
+                            show(title);
+                        }, 300);
+
+                        return;
+                    }
+                }
+
+                // new notification
+                var div = '<div class="cs50-unsaved-notification">You haven\'t saved your changes to <pre>' + title + '</pre> yet.</div>';
+
+                // show new notification
+                notify.hide = notify(div, true);
+
+                // shortcut for hasClosed
+                notify.hasClosed = notify.hide.hasClosed;
+
+                // cache current title
+                notify.currTitle = title;
+
+                // timeout before hiding notification automatically
+                notify.timer = setTimeout(notify.hide, 5000);
+
+            }
+
+            // handle when a tab goes blur
+            tabManager.on("blur", function(e) {
+                var blurTab = e.tab;
+                var doc = blurTab.document;
+
+                // ensure blur tab is ace
+                if (!blurTab || blurTab.editorType !== "ace" || !doc)
+                    return;
+
+                // wait for a tab to be focussed
+                tabManager.once("focus", function(e) {
+                    if (e.tab.editorType === "terminal" && doc.changed) {
+                        show(blurTab.title);
+
+                        // hide notification when tab is closed
+                        blurTab.on("close", function() {
+                            if (notify.currTitle === blurTab.title && _.isFunction(notify.hide))
+                                notify.hide();
+                        });
+                    }
+                });
+            });
+
+            // hide notification on save
+            save.on("afterSave", function(e) {
+                if (notify.currTitle === e.tab.title && _.isFunction(notify.hide))
+                    notify.hide();
+            });
+        }
+
         var loaded = false;
         function load() {
             if (loaded)
@@ -1224,6 +1306,7 @@ define(function(require, exports, module) {
             setTitleFromTabs();
             updateFontSize();
             updateMenuCaptions();
+            warnUnsaved();
 
             // get setting's version number
             var ver = settings.getNumber("user/cs50/simple/@ver");
