@@ -38,6 +38,19 @@ body:after {
     left: 40px !important;
 }
 
+/* notification about unsaved file */
+.cs50-unsaved-notification {
+    background-color: red;
+    color: white;
+    font-size: 14px;
+    padding: 10px;
+}
+.cs50-unsaved-notification pre {
+    display: inline;
+    font-style: monospace;
+    font-weight: bold;
+}
+
 .has_apf .session_btn.changed strong:not(:hover) {
   background-position: -9px 0px !important;
 }
