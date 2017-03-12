@@ -1327,6 +1327,12 @@ define(function(require, exports, module) {
             // add and update templates
             updateTemplates();
 
+            // forcibly enable changes panel once
+            if (!settings.getBool("project/cs50/simple/@scm-enabled")) {
+                settings.set("state/experiments/@git", true);
+                settings.set("project/cs50/simple/@scm-enabled", true);
+            }
+
             // enable author info when workspace is shared only
             if (c9.hosted) {
                 settings.setDefaults("user/cs50/simple/collab", [
