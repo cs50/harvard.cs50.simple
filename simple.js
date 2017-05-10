@@ -54,6 +54,7 @@ define(function(require, exports, module) {
         var divs = [];
         var foldAvailFuncs = {};
         var lessComfortable = true;
+        var notification = {};
         var openingFile = false;
         var presenting = false;
         var terminalSound = null;
@@ -1208,30 +1209,32 @@ define(function(require, exports, module) {
          * Warns about unsaved file when focusing terminal
          */
         function warnUnsaved() {
+
             /**
              * Shows the warning
              *
              * @param {string} title the title of the unsaved file
              */
             function show(title) {
+
                 // clear current timer (if any)
-                if (notify.timer)
-                    clearTimeout(notify.timer);
+                if (notification.timer)
+                    clearTimeout(notification.timer);
 
                 // extend timeout if notifying about same title
-                if (title === notify.currTitle && _.isFunction(notify.hasClosed) && !notify.hasClosed()) {
-                    notify.timer = setTimeout(notify.hide, 5000);
+                if (title === notification.currTitle && _.isFunction(notification.hasClosed) && !notification.hasClosed()) {
+                    notification.timer = setTimeout(notification.hide, 5000);
                     return;
                 }
 
                 // hide old notification (if any)
-                if (_.isFunction(notify.hide)) {
-                    notify.hide();
+                if (_.isFunction(notification.hide)) {
+                    notification.hide();
 
                     // wait for old notification to be closed before showing
-                    if (_.isFunction(notify.hasClosed) && !notify.hasClosed()) {
-                        notify.hasClosed.interval = setInterval(function() {
-                            clearInterval(notify.hasClosed.interval);
+                    if (_.isFunction(notification.hasClosed) && !notification.hasClosed()) {
+                        notification.hasClosed.interval = setInterval(function() {
+                            clearInterval(notification.hasClosed.interval);
                             show(title);
                         }, 300);
 
@@ -1243,16 +1246,16 @@ define(function(require, exports, module) {
                 var div = '<div class="cs50-unsaved-notification">You haven\'t saved your changes to <pre>' + title + '</pre> yet.</div>';
 
                 // show new notification
-                notify.hide = notify(div, true);
+                notification.hide = notify(div, true);
 
                 // shortcut for hasClosed
-                notify.hasClosed = notify.hide.hasClosed;
+                notification.hasClosed = notification.hide.hasClosed;
 
                 // cache current title
-                notify.currTitle = title;
+                notification.currTitle = title;
 
                 // timeout before hiding notification automatically
-                notify.timer = setTimeout(notify.hide, 5000);
+                notification.timer = setTimeout(notification.hide, 5000);
 
             }
 
@@ -1272,8 +1275,8 @@ define(function(require, exports, module) {
 
                         // hide notification when tab is closed
                         blurTab.on("close", function() {
-                            if (notify.currTitle === blurTab.title && _.isFunction(notify.hide))
-                                notify.hide();
+                            if (notification.currTitle === blurTab.title && _.isFunction(notification.hide))
+                                notification.hide();
                         });
                     }
                 });
@@ -1281,8 +1284,8 @@ define(function(require, exports, module) {
 
             // hide notification on save
             save.on("afterSave", function(e) {
-                if (notify.currTitle === e.tab.title && _.isFunction(notify.hide))
-                    notify.hide();
+                if (notification.currTitle === e.tab.title && _.isFunction(notification.hide))
+                    notification.hide();
             });
         }
 
@@ -1476,6 +1479,7 @@ define(function(require, exports, module) {
             divs = [];
             foldAvailFuncs = {};
             lessComfortable = false;
+            notification = {};
             openingFile = false;
             presenting = false;
             terminalSound = null;
