@@ -32,7 +32,7 @@ define(function(require, exports, module) {
         var prefs = imports.preferences;
         var save = imports.save;
         var settings = imports.settings;
-        var tabManager = imports.tabManager;
+        var tabs = imports.tabManager;
         var tabMenu = imports.tabbehavior.contextMenu;
         var tree = imports.tree;
         var ui = imports.ui;
@@ -87,7 +87,7 @@ define(function(require, exports, module) {
                     // show open file dialog
                     fileDialog.show("Open file", null, function(path) {
                         // open and activate file at path
-                        tabManager.openFile(path, true);
+                        tabs.openFile(path, true);
 
                         // hide file dialog
                         fileDialog.hide();
@@ -317,7 +317,7 @@ define(function(require, exports, module) {
             var resetVisibility = tree.active ? tree.show : tree.hide;
 
             // get middle column
-            var tabsParent = layout.findParent(tabManager);
+            var tabsParent = layout.findParent(tabs);
 
             // hide workspace from window menu
             setMenuVisibility("Window/Workspace", false);
@@ -339,8 +339,8 @@ define(function(require, exports, module) {
             });
 
             // listen for pane creation
-            tabManager.on("paneCreate", function(e) {
-                var codePanes = tabManager.getPanes(tabsParent);
+            tabs.on("paneCreate", function(e) {
+                var codePanes = tabs.getPanes(tabsParent);
 
                 // ensure pane is a code pane (i.e., not console)
                 var pane = codePanes.find(function(p) {
@@ -372,13 +372,13 @@ define(function(require, exports, module) {
                     showTreeToggle(codePanes[0]);
 
                 // handle when the pane that holds the button is destroyed
-                tabManager.on("paneDestroy", function(e) {
+                tabs.on("paneDestroy", function(e) {
                     // ensure pane is button-holder
                     if (_.isObject(treeToggles.button) && e.pane !== treeToggles.button.pane)
                         return;
 
                     // get current code panes
-                    var codePanes = tabManager.getPanes(tabsParent);
+                    var codePanes = tabs.getPanes(tabsParent);
 
                     // ensure at least one pane left
                     if (codePanes.length < 1)
@@ -606,22 +606,22 @@ define(function(require, exports, module) {
          */
         function setTitleFromTabs() {
             // udpate document title initially
-            updateTitle(tabManager.focussedTab);
+            updateTitle(tabs.focussedTab);
 
             // update document title when tab is focused
-            tabManager.on("focusSync", function(e) {
+            tabs.on("focusSync", function(e) {
                 updateTitle(e.tab);
             }, plugin);
 
             // update document title when tab is destroyed
-            tabManager.on("tabDestroy", function(e) {
+            tabs.on("tabDestroy", function(e) {
                 if (e.last)
                 updateTitle();
             }, plugin);
 
             // update document title when preference is toggled
             settings.on("user/tabs/@title", function() {
-                updateTitle(tabManager.focussedTab);
+                updateTitle(tabs.focussedTab);
             });
         }
 
@@ -756,7 +756,7 @@ define(function(require, exports, module) {
                     }
 
                     // unfold all folded code
-                    tabManager.getTabs().forEach(function(tab) {
+                    tabs.getTabs().forEach(function(tab) {
                         commands.exec("unfoldall", tab.editor);
                     });
 
@@ -913,7 +913,7 @@ define(function(require, exports, module) {
             var toggle = lessComfortable ? hide : show;
 
             // finds the menu bar and then executes callback
-            tabManager.getElement("mnuEditors", function(menu) {
+            tabs.getElement("mnuEditors", function(menu) {
                 var menuItems = menu.childNodes;
 
                 // tries to toggle the menu items on the plus sign
@@ -1042,8 +1042,8 @@ define(function(require, exports, module) {
              * false otherwise.
              */
             function isAvailable() {
-                var type = _.isObject(tabManager.focussedTab)
-                    && tabManager.focussedTab.editorType;
+                var type = _.isObject(tabs.focussedTab)
+                    && tabs.focussedTab.editorType;
                 if (_.isString(type))
                     return _.indexOf(["ace", "hex", "terminal"], type) > -1;
             };
@@ -1260,7 +1260,7 @@ define(function(require, exports, module) {
             }
 
             // handle when a tab goes blur
-            tabManager.on("blur", function(e) {
+            tabs.on("blur", function(e) {
                 var blurTab = e.tab;
                 var doc = blurTab.document;
 
@@ -1269,15 +1269,18 @@ define(function(require, exports, module) {
                     return;
 
                 // wait for a tab to be focussed
-                tabManager.once("focus", function(e) {
+                tabs.once("focus", function(e) {
                     if (e.tab.editorType === "terminal" && doc.changed) {
-                        show(blurTab.title);
 
                         // hide notification when tab is closed
                         blurTab.on("close", function() {
                             if (notification.currTitle === blurTab.title && _.isFunction(notification.hide))
                                 notification.hide();
                         });
+
+                        // ensure tab is still open before showing warning
+                        if (tabs.findTab(blurTab.path))
+                            show(blurTab.title);
                     }
                 });
             });
@@ -1387,10 +1390,10 @@ define(function(require, exports, module) {
             addTrailingLine();
 
             // stop marking undeclared variables for javascript files
-            tabManager.on("tabAfterActivate", toggleUndeclaredVars);
+            tabs.on("tabAfterActivate", toggleUndeclaredVars);
 
             // set titles of terminal tabs to current directory name
-            tabManager.on("tabCreate", function(e) {
+            tabs.on("tabCreate", function(e) {
                 setTmuxTitle(e.tab);
             }, plugin);
 
