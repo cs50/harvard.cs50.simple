@@ -1210,6 +1210,31 @@ define(function(require, exports, module) {
          */
         function warnUnsaved() {
 
+            // warning toggle
+            notification.enabled = settings.getBool("user/cs50/simple/@unsavedWarning");
+            settings.on("user/cs50/simple/@unsavedWarning", function(enabled) {
+                notification.enabled = enabled;
+                if (!enabled && _.isFunction(notification.hide))
+                    notification.hide();
+            });
+
+            // add toggle to preferences
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "IDE Behavior" : {
+                        position: 10,
+                        "Warn about Unsaved Files" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@unsavedWarning",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+
             /**
              * Shows the warning
              *
@@ -1279,7 +1304,7 @@ define(function(require, exports, module) {
                         });
 
                         // ensure tab is still open before showing warning
-                        if (tabs.findTab(blurTab.path))
+                        if (notification.enabled && tabs.findTab(blurTab.path))
                             show(blurTab.title);
                     }
                 });
@@ -1351,7 +1376,8 @@ define(function(require, exports, module) {
                     ["gravatar", false],
                     ["lessComfortable", true],
                     ["terminalSound", true],
-                    ["undeclaredVars", true]
+                    ["undeclaredVars", true],
+                    ["unsavedWarning", true]
                 ]);
             });
 
