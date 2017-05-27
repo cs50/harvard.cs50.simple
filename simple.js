@@ -217,13 +217,6 @@ define(function(require, exports, module) {
                     position: 5,
                     "IDE Behavior" : {
                         position: 10,
-                        "Less Comfortable Mode" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@lessComfortable",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        },
                         "Mark Undeclared Variables" : {
                             type: "checkbox",
                             setting: "user/cs50/simple/@undeclaredVars",
