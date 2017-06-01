@@ -13,6 +13,7 @@ define(function(require, exports, module) {
     return main;
 
     function main(options, imports, register) {
+        var ace = imports.ace;
         var auth = imports.auth;
         var c9 = imports.c9;
         var collab = imports.collab;
@@ -508,6 +509,17 @@ define(function(require, exports, module) {
          * Hides unneeded elements.
          */
         function hideElements() {
+
+            /**
+             * Event handler for hiding "Run This File" item from menu.
+             */
+            function hideRunThisFile(e) {
+                e.currentTarget.childNodes.some(function(item) {
+                    if (item.caption === "Run This File")
+                        return hide(item);
+                });
+            }
+
             // hide "Collaborate" panel offline
             if (!c9.hosted) {
                 // remove panel button
@@ -543,11 +555,11 @@ define(function(require, exports, module) {
             });
 
             // hide "Run This File" item from tab context menu
-            tabMenu.once("prop.visible", function(e) {
-                e.currentTarget.childNodes.some(function(item) {
-                    if (item.caption === "Run This File")
-                        return hide(item);
-                });
+            tabMenu.once("prop.visible", hideRunThisFile);
+
+            // remove "Run This File" item from ace's context menu
+            ace.getElement("menu", function(menu) {
+                menu.once("prop.visible", hideRunThisFile);
             });
 
             // disable "Run" through keyboard
