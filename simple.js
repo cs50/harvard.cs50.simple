@@ -1394,6 +1394,12 @@ define(function(require, exports, module) {
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
 
+            // change default value for terminal scrollback
+            if (!settings.getBool("user/cs50/simple/terminal/@scrollbackSet")) {
+                settings.set("user/terminal/@scrollback", 2000);
+                settings.set("user/cs50/simple/terminal/@scrollbackSet", true);
+            }
+
             // configure pylint's env
             if (!settings.getBool("project/cs50/simple/python/@configured")) {
                 // prevent re-configuring if settings changed manually
