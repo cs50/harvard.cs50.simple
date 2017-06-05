@@ -45,7 +45,9 @@ define(function(require, exports, module) {
 
         // https://lodash.com/docs
         var _ = require("lodash");
-        var basename = require("path").basename;
+        var path = require("path");
+        var basename = path.basename;
+        var extname = path.extname;
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
@@ -488,6 +490,48 @@ define(function(require, exports, module) {
 
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
+        }
+
+        /**
+         * Detects Ace syntax mode from shebang for files with no extension
+         */
+        function detectSyntax() {
+            // syntax modes
+            var MODES = {
+                perl: /perl/,
+                php: /php/,
+                python: /python/,
+                ruby: /ruby/,
+                sh: /^(bash2?|ksh|sh)/
+            };
+
+            tabManager.on("open", function(e) {
+                var tab = e.tab;
+
+                // only handle files with no extensions that are open with Ace
+                if (tab.editorType !== "ace" || !_.isEmpty(extname(tab.path)))
+                    return;
+
+                var editor = tab.editor;
+                var session = editor.ace.getSession();
+
+                // ensure first line is a shebang
+                var firstLine = session.getLine(0);
+                if (firstLine.startsWith("#!")) {
+                    // turn lines like #!/usr/bin/env [VAR=val]... bash to #!/usr/bin/bash for easy matching
+                    if (/^#!\s*\S*\/env\s/.test(firstLine))
+                        firstLine = firstLine.replace(/\S+=\S+/g, "").replace(/env\s+/, "");
+
+                    // extract the name of the interpreter
+                    var interpreter = basename(firstLine.substring(2));
+
+                    // map interpreter to syntax mode (if any)
+                    for (var name in MODES){
+                        if (MODES[name].test(interpreter))
+                            return editor.setOption("syntax", name);
+                    }
+                }
+            });
         }
 
         /**
@@ -1337,6 +1381,7 @@ define(function(require, exports, module) {
             addTreeToggles();
             addTooltips();
             customizeC9Menu();
+            detectSyntax();
             hideElements();
             hideGearIcon();
             setTitleFromTabs();
