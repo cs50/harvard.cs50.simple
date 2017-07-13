@@ -1384,7 +1384,7 @@ define(function(require, exports, module) {
                 // set pylint's flags
                 settings.set(
                     "project/python/@pylintFlags",
-                    "-d all -e E -e F --generated-members=app.jinja_env.*,db.* --load-plugins pylint50"
+                    "-d all -e E -e F --generated-members=app.jinja_env.* --ignored-classes=SQLAlchemy --load-plugins pylint50"
                 );
 
                 // set PYTHONPATH
