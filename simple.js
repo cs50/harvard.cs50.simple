@@ -41,7 +41,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 9;
+        var SETTINGS_VER = 10;
 
         // https://lodash.com/docs
         var _ = require("lodash");
@@ -1374,6 +1374,26 @@ define(function(require, exports, module) {
                 types.map(function(i) {
                     settings.set("user/tabs/editorTypes/@"+i, "none");
                 });
+
+                // increase default value for terminal scrollback buffer
+                settings.set("user/terminal/@scrollback", 2000);
+
+                // set Python's version
+                settings.set("project/python/@version", "python3");
+
+                // set pylint's flags
+                settings.set(
+                    "project/python/@pylintFlags",
+                    "-d all -e E -e F --generated-members=app.jinja_env.* --ignored-classes=SQLAlchemy --load-plugins pylint50"
+                );
+
+                // set PYTHONPATH
+                settings.set(
+                    "project/python/@path",
+                    "/home/ubuntu/.local/lib/python3.4/site-packages" +
+                    ":/usr/lib/python3/dist-packages" +
+                    ":/usr/local/lib/python3.4/dist-packages"
+                );
             }
 
             settings.on("read", function() {
@@ -1393,35 +1413,6 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
-
-            // change default value for terminal scrollback
-            if (!settings.getBool("user/cs50/simple/terminal/@scrollbackSet")) {
-                settings.set("user/terminal/@scrollback", 2000);
-                settings.set("user/cs50/simple/terminal/@scrollbackSet", true);
-            }
-
-            // configure pylint's env
-            if (!settings.getBool("project/cs50/simple/python/@configured")) {
-                // prevent re-configuring if settings changed manually
-                settings.set("project/cs50/simple/python/@configured", true);
-
-                // set Python's version
-                settings.set("project/python/@version", "python3");
-
-                // set pylint's flags
-                settings.set(
-                    "project/python/@pylintFlags",
-                    "-d all -e E -e F --generated-members=app.jinja_env.*"
-                );
-
-                // set PYTHONPATH
-                settings.set(
-                    "project/python/@path",
-                    "/home/ubuntu/.local/lib/python3.4/site-packages" +
-                    ":/usr/lib/python3/dist-packages" +
-                    ":/usr/local/lib/python3.4/dist-packages"
-                );
-            }
 
             // add trailing line to text files upon saving (if enabled)
             addTrailingLine();
