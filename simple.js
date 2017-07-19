@@ -41,7 +41,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 10;
+        var SETTINGS_VER = 11;
 
         // https://lodash.com/docs
         var _ = require("lodash");
@@ -1345,16 +1345,13 @@ define(function(require, exports, module) {
             warnUnsaved();
 
             // get setting's version number
-            var ver = settings.getNumber("user/cs50/simple/@ver");
+            var ver = settings.getNumber("project/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
 
                 // set status bar to always show
                 settings.set("user/ace/statusbar/@show", true);
-
-                // update settings version
-                settings.set("user/cs50/simple/@ver", SETTINGS_VER);
 
                 // turn off auto-save by default
                 settings.set("user/general/@autosave", false);
@@ -1381,12 +1378,6 @@ define(function(require, exports, module) {
                 // set Python's version
                 settings.set("project/python/@version", "python3");
 
-                // set pylint's flags
-                settings.set(
-                    "project/python/@pylintFlags",
-                    "-d all -e E -e F --generated-members=app.jinja_env.* --ignored-classes=SQLAlchemy --load-plugins pylint50"
-                );
-
                 // set PYTHONPATH
                 settings.set(
                     "project/python/@path",
@@ -1394,6 +1385,15 @@ define(function(require, exports, module) {
                     ":/usr/lib/python3/dist-packages" +
                     ":/usr/local/lib/python3.4/dist-packages"
                 );
+
+                // set pylint's flags
+                settings.set(
+                    "project/python/@pylintFlags",
+                    "-d all -e E -e F --generated-members=app.jinja_env.* --ignored-classes=SQL,SQLAlchemy --load-plugins pylint50"
+                );
+
+                // update settings version
+                settings.set("project/cs50/simple/@ver", SETTINGS_VER);
             }
 
             settings.on("read", function() {
