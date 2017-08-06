@@ -1381,9 +1381,8 @@ define(function(require, exports, module) {
                 // set PYTHONPATH
                 settings.set(
                     "project/python/@path",
-                    "/home/ubuntu/.local/lib/python3.4/site-packages" +
-                    ":/usr/lib/python3/dist-packages" +
-                    ":/usr/local/lib/python3.4/dist-packages"
+                    "/home/ubuntu/.cs50/py_modules" +
+                    ":/opt/pyenv/versions/3.6.0/lib/python3.6/site-packages"
                 );
 
                 // set pylint's flags
