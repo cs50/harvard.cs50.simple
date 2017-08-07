@@ -45,8 +45,7 @@ body:after {
     font-size: 14px;
     padding: 10px;
 }
-.cs50-unsaved-notification pre {
-    display: inline;
+.cs50-unsaved-notification code {
     font-style: monospace;
     font-weight: bold;
 }

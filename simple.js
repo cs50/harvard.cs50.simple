@@ -1273,7 +1273,7 @@ define(function(require, exports, module) {
                 }
 
                 // new notification
-                var div = '<div class="cs50-unsaved-notification">You haven\'t saved your changes to <pre>' + title + '</pre> yet.</div>';
+                var div = '<div class="cs50-unsaved-notification">You haven\'t saved your changes to <code>' + title + '</code> yet.</div>';
 
                 // show new notification
                 notification.hide = notify(div, true);
