@@ -47,7 +47,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 11;
+        var SETTINGS_VER = 12;
 
         // https://lodash.com/docs
         var _ = require("lodash");
@@ -1491,6 +1491,9 @@ define(function(require, exports, module) {
                     "project/python/@pylintFlags",
                     "-d all -e E -e F --generated-members=app.jinja_env.* --ignored-classes=SQL,SQLAlchemy --load-plugins pylint50"
                 );
+
+                // strip trailing whitespaces on save by default
+                settings.set("project/general/@stripws", true);
 
                 // update settings version
                 settings.set("project/cs50/simple/@ver", SETTINGS_VER);
