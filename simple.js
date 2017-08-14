@@ -3,11 +3,12 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
-        "collab.workspace", "commands", "console", "dialog.file",
-        "dialog.notification", "immediate", "info",  "keymaps", "navigate",
-        "outline", "layout", "login", "Menu", "menus", "newresource", "panels",
-        "Plugin", "preferences", "preview", "run.gui", "save", "settings",
-        "tabbehavior", "tabManager", "terminal", "tooltip", "tree", "ui", "util"
+        "collab.workspace", "commands", "console", "dialog.confirm",
+        "dialog.file", "dialog.notification", "fs", "immediate", "info",
+        "keymaps", "navigate", "outline", "layout", "login", "Menu", "MenuItem",
+        "menus", "newresource", "panels", "Plugin", "preferences", "preview",
+        "proc", "run.gui", "save", "settings", "tabbehavior", "tabManager",
+        "terminal", "tooltip", "tree", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -18,9 +19,13 @@ define(function(require, exports, module) {
         var c9 = imports.c9;
         var collab = imports.collab;
         var commands = imports.commands;
+        var confirm = imports["dialog.confirm"].show;
         var fileDialog = imports["dialog.file"];
+        var fs = imports.fs;
         var info = imports.info;
         var layout = imports.layout;
+        var Menu = imports.Menu;
+        var MenuItem = imports.MenuItem;
         var menus = imports.menus;
         var newresource = imports.newresource;
         var notify = imports["dialog.notification"].show;
@@ -31,6 +36,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
+        var proc = imports.proc;
         var save = imports.save;
         var settings = imports.settings;
         var tabs = imports.tabManager;
@@ -54,6 +60,10 @@ define(function(require, exports, module) {
         var dark = null;
         var divs = [];
         var foldAvailFuncs = {};
+        var languages = {
+            en: "en_US.UTF-8",
+            es: "es_ES.UTF-8"
+        };
         var lessComfortable = true;
         var notification = {};
         var openingFile = false;
@@ -188,6 +198,40 @@ define(function(require, exports, module) {
                 // handle toggling gravatar setting
                 settings.on("user/cs50/simple/@gravatar", toggleGravatar);
             }
+        }
+
+        /**
+         * Adds View > Languages
+         */
+        function addLanguages() {
+
+            // create Language submenu
+            var languagesItem = new MenuItem({
+                caption: "Languages",
+                submenu: new Menu({}, plugin)
+            });
+
+            // add Language to View menu
+            menus.addItemByPath("View/~", new ui.divider(), 3, plugin);
+            menus.addItemByPath("View/Languages", languagesItem, 4, plugin);
+
+            // fetch current language from settings or fallback to English
+            var currLanguage = settings.get("project/cs50/simple/@language") || "en";
+
+            // create language menu items
+            Object.keys(languages).forEach(function(language) {
+                var item = new MenuItem({
+                    caption: language,
+                    onclick: function() {
+                        setLanguage(language);
+                    },
+                    type: "radio"
+                });
+
+                item.aml.setAttribute("selected", language === currLanguage);
+                menus.addItemByPath("View/Languages/" + language, item, plugin);
+            });
+
         }
 
         /**
@@ -578,6 +622,62 @@ define(function(require, exports, module) {
                         hide(node);
                 });
             }
+        }
+
+        /**
+         * Sets and exports LANGUAGE env var in ~/.cs50/language
+         */
+        function setLanguage(language) {
+
+            // ensure we know locale for language or fallback to English
+            if (!languages[language])
+                language = "en";
+
+            // write a shell script that sets LANGUAGE env var to be sourced by ~/.bashrc
+            var path = "~/.cs50/language";
+            fs.writeFile(path, "export LANGUAGE=" + languages[language], function(err) {
+                if (err) {
+                    console.log(err);
+                    return showError("Failed to set language.");
+                }
+
+                // chmod 644
+                fs.chmod(path, 644, function(err) {
+                    if (err) {
+                        console.log(err);
+                        return showError("Failed to chmod language file.");
+                    }
+
+                    // warn before restarting terminal
+                    var count = 0;
+                    tabs.getTabs().some(function(tab) {
+                        return (tab.editorType === "terminal") && (++count === 2);
+                    });
+
+                    // remember chosen language
+                    settings.set("project/cs50/simple/@language", language);
+
+                    confirm("Language updated",
+                        "Restart terminal window" + (count == 2 ? "s" : "") + "?",
+                        (count === 2)
+                            ? "Doing so will kill any programs that are running in open terminal windows."
+                            : "",
+
+                        // OK
+                        function() {
+
+                            // restart all terminal sessions
+                            proc.spawn("killall", { args: ["tmux"] }, function(err) {
+                                if (err)
+                                    showError("Failed to restart terminals!");
+                            });
+                        },
+
+                        // Cancel
+                        function() {}
+                    );
+                });
+            });
         }
 
         /**
@@ -1333,6 +1433,7 @@ define(function(require, exports, module) {
 
             // add the permanent changes
             addFileDialog();
+            addLanguages();
             addToggle(plugin);
             addTreeToggles();
             addTooltips();
