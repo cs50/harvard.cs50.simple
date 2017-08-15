@@ -578,6 +578,34 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Moves some menu items from their original menus to different menus.
+         */
+        function moveMenuItems() {
+
+            // move Collaborate, Outline, and Share from Window to View
+            ["Collaborate", "Outline", "Share..."].forEach(function(caption) {
+
+                // get menu item
+                var item = menus.get("Window/" + caption).item;
+                var index = 800;
+                if (item) {
+
+                    // remove trailing ... from caption if exists
+                    if (caption.endsWith("...")) {
+                        caption = caption.substring(0, caption.length - 3);
+                        item.setAttribute("caption", caption);
+                    }
+
+                    // move to View menu
+                    menus.addItemByPath("View/" + caption, item, index += 10, plugin);
+                }
+
+                // add divider before View/Layout
+                menus.addItemByPath("View/~", new ui.divider(), index += 10, plugin);
+            });
+        }
+
+        /**
          * Sets and exports LANGUAGE env var in ~/.cs50/language
          */
         function setLanguage(language) {
@@ -1362,6 +1390,7 @@ define(function(require, exports, module) {
             customizeC9Menu();
             hideElements();
             hideGearIcon();
+            moveMenuItems();
             setTitleFromTabs();
             updateFontSize();
             updateMenuCaptions();
