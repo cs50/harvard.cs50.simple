@@ -888,12 +888,7 @@ define(function(require, exports, module) {
                 "Tools",
 
                 // Window menu
-                "Window/New Immediate Window",
-                "Window/Installer...",
-                "Window/Navigate",
-                "Window/Commands",
-                "Window/Presets",
-                "Window/Changes",
+                "Window",
 
                 // Support menu
                 "Support",
