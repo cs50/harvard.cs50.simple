@@ -40,6 +40,7 @@ define(function(require, exports, module) {
         var proc = imports.proc;
         var save = imports.save;
         var settings = imports.settings;
+        var statusbar = imports["ace.status"];
         var tabs = imports.tabManager;
         var tabMenu = imports.tabbehavior.contextMenu;
         var tree = imports.tree;
@@ -1064,6 +1065,33 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Toggles gear icon in ace's statusbar
+         */
+        function toggleStatusbarGear() {
+
+            // handle ace instance creation
+            ace.on("create", function(e) {
+
+                // get statusbar for this instance
+                var bar = statusbar.getStatusbar(e.editor);
+                if (!bar)
+                    return;
+
+                // get gear button from statusbar
+                bar.getElement("btnSbPrefs", function(btn) {
+
+                    // toggle button's visibility initially
+                    btn.setAttribute("visible", !lessComfortable);
+
+                    // toggle button's visibility as less-comfy is toggled
+                    settings.on("user/cs50/simple/@lessComfortable", function(enabled) {
+                        btn.setAttribute("visible", !enabled);
+                    });
+                });
+            });
+        }
+
+        /**
          * Enables or disables terminal sound.
          *
          * @param {boolean} enable whether to enable terminal sound
@@ -1497,6 +1525,9 @@ define(function(require, exports, module) {
 
             // add trailing line to text files upon saving (if enabled)
             addTrailingLine();
+
+            // toggle gear icon in ace's statusbar
+            toggleStatusbarGear();
 
             // stop marking undeclared variables for javascript files
             tabs.on("tabAfterActivate", toggleUndeclaredVars);
