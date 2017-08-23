@@ -978,6 +978,29 @@ define(function(require, exports, module) {
          * Enables simple mode
          */
         function enableSimpleMode() {
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "IDE Behavior" : {
+                        position: 10,
+                        "Mark Undeclared Variables" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@undeclaredVars",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        },
+                        "Audible Terminal Bell" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@terminalSound",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+
             hideMenus();
             hideMiniButton();
             hideSideTabs();
