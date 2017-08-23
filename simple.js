@@ -29,6 +29,7 @@ define(function(require, exports, module) {
         var menus = imports.menus;
         var newresource = imports.newresource;
         var notify = imports["dialog.notification"].show;
+
         // outline adds "Goto/Goto Symbol..."
         // listing it as dependency ensures item exists before simple is loaded
         var outline = imports.outline;
@@ -58,13 +59,11 @@ define(function(require, exports, module) {
         var authorInfoToggled = null;
         var avatar = null;
         var dark = null;
-        var divs = [];
-        var foldAvailFuncs = {};
         var languages = {
             en: "en_US.UTF-8",
             es: "es_ES.UTF-8"
         };
-        var lessComfortable = true;
+
         var notification = {};
         var openingFile = false;
         var presenting = false;
@@ -74,7 +73,7 @@ define(function(require, exports, module) {
 
         /**
          * Overrides the behavior of the "File/Open" menu item to open a file
-         * dialog instead of the "Navigation" pane in less-comfy only.
+         * dialog instead of the "Navigation" pane.
          */
         function addFileDialog() {
             // get the "File/Open" menu item
@@ -82,15 +81,12 @@ define(function(require, exports, module) {
             if (!openItem)
                 return;
 
-            // add command that opens file dialog in less-comfy only
+            // add command that opens file dialog
             commands.addCommand({
                 name: "openFileDialog",
                 hint: "Opens file dialog for opening files",
                 bindKey: commands.commands.navigate.bindKey,
                 exec: function() {
-                    // override in less-comfy only
-                    if (!lessComfortable)
-                        return commands.exec("navigate");
 
                     // wehther to customize file dialog
                     openingFile = true;
@@ -167,6 +163,7 @@ define(function(require, exports, module) {
          */
         function addGravatarToggle(err, user) {
             if (!err && user && user.id) {
+
                 // get avatar button
                 avatar = menus.get("user_" + user.id).item;
                 if (!avatar)
@@ -235,53 +232,6 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Adds the buttons to toggle comfort level
-         */
-        function addToggle() {
-
-            // creates the toggle menu item
-            var toggle = new ui.item({
-                type: "check",
-                caption: "Less Comfortable",
-                onclick: toggleSimpleMode
-            });
-
-            // places it in View tab
-            menus.addItemByPath("View/Less Comfortable", toggle, 0, plugin);
-
-            // add divider before "Editors"
-            var div = new ui.divider();
-            menus.addItemByPath("View/~", div, 10, plugin);
-
-            // cache divider to show in more-comfy
-            divs.push(div);
-
-            // add preference pane button
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "IDE Behavior" : {
-                        position: 10,
-                        "Mark Undeclared Variables" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@undeclaredVars",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        },
-                        "Audible Terminal Bell" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@terminalSound",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        }
-                    }
-                }
-            }, plugin);
-        }
-
-        /**
          * Adds tooltips to console buttons
          */
         function addTooltips() {
@@ -301,6 +251,7 @@ define(function(require, exports, module) {
          */
         function addTrailingLine(e) {
             if (trailingLine === null) {
+
                 // add preference toggle
                 prefs.add({
                     "Project": {
@@ -526,9 +477,6 @@ define(function(require, exports, module) {
             // add divider after "Preferences"
             var div = new ui.divider();
             menus.addItemByPath("Cloud9/~", div, 301, plugin);
-
-            // cache divider to show in more-comfy
-            divs.push(div);
 
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
@@ -837,46 +785,27 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Toggles code folding
+         * Disable code folding
          *
-         * @param {boolean} enable whether to enable code folding
          */
-        function toggleCodeFolding(enable) {
-            if (_.isBoolean(enable)) {
-                if (!enable) {
-                    function getFalse() {
-                        return false;
-                    }
-
-                    // cache fold-commands' isAvailable functions
-                    if (_.isEmpty(foldAvailFuncs)) {
-                        [
-                            "fold", "foldall", "foldOther", "toggleFoldWidget",
-                            "toggleParentFoldWidget"
-                        ].forEach(function(name) {
-                            var command = commands.commands[name];
-                            if (command && command.isAvailable)
-                                foldAvailFuncs[name] = command.isAvailable;
-                        });
-                    }
-
-                    // unfold all folded code
-                    tabs.getTabs().forEach(function(tab) {
-                        commands.exec("unfoldall", tab.editor);
-                    });
-
-                    // disable keyboard-shortcut colding by disabling commands
-                    for (var name in foldAvailFuncs)
-                        commands.commands[name].isAvailable = getFalse;
-                }
-                else {
-                    // enable folding with keyboard shortcuts
-                    for (var name in foldAvailFuncs)
-                        commands.commands[name].isAvailable = foldAvailFuncs[name];
-                }
-
-                settings.set("user/ace/@showFoldWidgets", enable);
+        function disableCodeFolding() {
+            function getFalse() {
+                return false;
             }
+
+            [
+                "fold", "foldall", "foldOther", "toggleFoldWidget",
+                "toggleParentFoldWidget"
+            ].forEach(function(name) {
+                commands.commands[name].isAvailable = getFalse;
+            });
+
+            // unfold all folded code
+            tabs.getTabs().forEach(function(tab) {
+                commands.exec("unfoldall", tab.editor);
+            });
+
+            settings.set("user/ace/@showFoldWidgets", false);
         }
 
         /**
@@ -900,8 +829,8 @@ define(function(require, exports, module) {
         /**
          * Toggles simplification of the menus at the top of Cloud 9
          */
-        function toggleMenus(lessComfortable) {
-            // toggle visibility of each menu item
+        function hideMenus() {
+            // hide each menu item
             [
                 // CS50 IDE menu
                 "Cloud9/Open Your Project Settings",
@@ -982,51 +911,43 @@ define(function(require, exports, module) {
                 "File/New From Template/Express file",
                 "File/New From Template/Node.js web server",
             ].forEach(function(path) {
-                setMenuVisibility(path, !lessComfortable);
+                setMenuVisibility(path, false);
             });
-
-            if (!lessComfortable) {
-                // show dividers that were automatically hidden in less-comfy
-                divs.forEach(function(div) {
-                    div.show();
-                });
-            }
         }
 
         /**
-         * Toggles the button in top left that minimizes the menu bar
+         * Hides the button in top left that minimizes the menu bar
          */
-        function toggleMiniButton(lessComfortable) {
+        function hideMiniButton() {
             // menu bar
             var bar = layout.findParent(menus);
             if (bar && bar.childNodes[0]) {
                 var minimizeBtn = bar.childNodes[0].childNodes[0];
                 if (minimizeBtn) {
-                    // hide minimize button in less-comfy only
-                    minimizeBtn.setAttribute("visible", !lessComfortable);
+                    // hide minimize button
+                    minimizeBtn.setAttribute("visible", false);
 
                     // left-align "CS50 IDE" menu within menu bar
-                    bar.$int.style.paddingLeft = lessComfortable ? "0" : "";
+                    bar.$int.style.paddingLeft = "0";
                 }
             }
         }
 
         /**
-         * Toggles menu simplification that you get when you click the plus icon
+         * Simplifies menu that you get when you click the plus icon
          */
-        function togglePlus(lessComfortable) {
-            var toggle = lessComfortable ? hide : show;
+        function simplifyPlus() {
 
             // finds the menu bar and then executes callback
             tabs.getElement("mnuEditors", function(menu) {
                 var menuItems = menu.childNodes;
 
-                // tries to toggle the menu items on the plus sign
+                // tries to hide the menu items on the plus sign
                 // until it works (sometimes this is called before they load)
                 var test = setInterval(function() {
-                    if (toggle(menuItems[2]) &&
-                        toggle(menuItems[3]) &&
-                        toggle(menuItems[4])) {
+                    if (hide(menuItems[2]) &&
+                        hide(menuItems[3]) &&
+                        hide(menuItems[4])) {
                         clearInterval(test);
                     }
                 }, 0);
@@ -1034,9 +955,9 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Toggles the left Navigate and Commands side tabs
+         * Hides the left Navigate and Commands side tabs
          */
-        function toggleSideTabs(lessComfortable) {
+        function hideSideTabs() {
             var panelList = ["navigate", "commands.panel", "scm"];
 
             // remember tree visibility status
@@ -1045,39 +966,21 @@ define(function(require, exports, module) {
             // temporarily overcomes a bug in C9 (tree is forcibly hidden by enabling panels)
             tree.hide();
 
-            if (lessComfortable)
-                // only shows tabs automatically when less comfortable is disabled
-                panelList.forEach(function(p) {panels.disablePanel(p);});
-            else
-                panelList.forEach(function(p) {panels.enablePanel(p);});
+            panelList.forEach(function(p) {panels.disablePanel(p);});
 
             // reset tree visibility status
             resetVisibility();
         }
 
         /**
-         * Toggles whether or not simple mode is enabled
+         * Enables simple mode
          */
-        function toggleSimpleMode(override) {
-
-            // if we're unloading, remove menu customizations but don't save
-            if (_.isBoolean(override))
-                lessComfortable = override;
-            else {
-                // toggle comfort level
-                lessComfortable = !lessComfortable;
-                settings.set("user/cs50/simple/@lessComfortable", lessComfortable);
-            }
-
-            // toggle features
-            toggleMenus(lessComfortable);
-            toggleMiniButton(lessComfortable);
-            toggleSideTabs(lessComfortable);
-            togglePlus(lessComfortable);
-            toggleCodeFolding(!lessComfortable);
-
-            // make sure that the checkbox is correct
-            menus.get("View/Less Comfortable").item.checked = lessComfortable;
+        function enableSimpleMode() {
+            hideMenus();
+            hideMiniButton();
+            hideSideTabs();
+            simplifyPlus();
+            disableCodeFolding();
         }
 
         /**
@@ -1434,7 +1337,6 @@ define(function(require, exports, module) {
             // add the permanent changes
             addFileDialog();
             addLanguages();
-            addToggle(plugin);
             addTreeToggles();
             addTooltips();
             customizeC9Menu();
@@ -1502,20 +1404,13 @@ define(function(require, exports, module) {
             settings.on("read", function() {
                 settings.setDefaults("user/cs50/simple", [
                     ["gravatar", false],
-                    ["lessComfortable", true],
                     ["terminalSound", true],
                     ["undeclaredVars", true],
                     ["unsavedWarning", true]
                 ]);
             });
 
-            // when less comfortable option is changed
-            settings.on("user/cs50/simple/@lessComfortable", function(saved) {
-                if (saved !== lessComfortable) {
-                    menus.click("View/Less Comfortable");
-                }
-            }, plugin);
-            toggleSimpleMode(settings.get("user/cs50/simple/@lessComfortable"));
+            enableSimpleMode();
 
             // add trailing line to text files upon saving (if enabled)
             addTrailingLine();
@@ -1606,13 +1501,11 @@ define(function(require, exports, module) {
         });
 
         plugin.on("unload", function() {
-            toggleSimpleMode(false);
+            // TODO unload correctly
+            // toggleSimpleMode(false);
             authorInfoToggled = null;
             avatar = null;
             dark = null;
-            divs = [];
-            foldAvailFuncs = {};
-            lessComfortable = false;
             notification = {};
             openingFile = false;
             presenting = false;
