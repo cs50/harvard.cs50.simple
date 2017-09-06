@@ -1219,7 +1219,8 @@ define(function(require, exports, module) {
                 "Goto/Goto Symbol...": "Symbol...",
                 "Goto/Goto Command...": "Command...",
                 "Support/Check Cloud9 Status": "Cloud9 Status",
-                "Support/Read Documentation": "Cloud9 Documentation"
+                "Support/Read Documentation": "Cloud9 Documentation",
+                "View/Gutter": "Line Numbers"
             };
 
             // update captions
