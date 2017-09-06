@@ -924,6 +924,9 @@ define(function(require, exports, module) {
                 "View/Syntax",
                 "View/Wrap Lines",
                 "View/Wrap To Print Margin",
+                "View/Status Bar",
+                "View/Menu Bar",
+                "View/Tab Buttons",
 
                 // Goto menu
                 "Goto/Goto Anything...",
