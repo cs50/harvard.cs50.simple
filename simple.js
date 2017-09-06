@@ -469,14 +469,6 @@ define(function(require, exports, module) {
                 }
             }), 0, plugin);
 
-            // add "What's New?"
-            menus.addItemByPath("Cloud9/What's New?", new ui.item({
-                caption: "What's New?",
-                onclick: function() {
-                    window.open("http://docs.cs50.net/ide/new.html", "_blank");
-                }
-            }), 1, plugin);
-
             // add divider before "About Cloud9"
             menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
 
