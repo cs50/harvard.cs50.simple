@@ -1065,9 +1065,9 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Toggles gear icon in ace's statusbar
+         *  Simplifies ace's statusbar
          */
-        function toggleStatusbarGear() {
+        function simplifyStatusbar() {
 
             // handle ace instance creation
             ace.on("create", function(e) {
@@ -1076,16 +1076,16 @@ define(function(require, exports, module) {
                 var bar = statusbar.getStatusbar(e.editor);
                 if (!bar)
                     return;
+                [
+                    "btnSbPrefs", "itmTabSize", "lblEditorStatus",
+                    "lblSelectionLength", "lblSyntax", "lblTabs"
+                ].forEach(function(element) {
+                    // hide element from statusbar
+                    bar.getElement(element, function(e) {
+                        e.hide();
 
-                // get gear button from statusbar
-                bar.getElement("btnSbPrefs", function(btn) {
-
-                    // toggle button's visibility initially
-                    btn.setAttribute("visible", !lessComfortable);
-
-                    // toggle button's visibility as less-comfy is toggled
-                    settings.on("user/cs50/simple/@lessComfortable", function(enabled) {
-                        btn.setAttribute("visible", !enabled);
+                        // prevent statusbar from showing them again
+                        e.show = function() {};
                     });
                 });
             });
@@ -1526,8 +1526,8 @@ define(function(require, exports, module) {
             // add trailing line to text files upon saving (if enabled)
             addTrailingLine();
 
-            // toggle gear icon in ace's statusbar
-            toggleStatusbarGear();
+            // simplify ace's statusbar
+            simplifyStatusbar();
 
             // stop marking undeclared variables for javascript files
             tabs.on("tabAfterActivate", toggleUndeclaredVars);
