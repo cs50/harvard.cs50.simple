@@ -612,6 +612,11 @@ define(function(require, exports, module) {
                 // add divider before View/Layout
                 menus.addItemByPath("View/~", new ui.divider(), index += 10, plugin);
             });
+
+            // move New Terminal to File menu
+            var newTerminal = menus.get("Window/New Terminal").item;
+            if (newTerminal)
+                menus.addItemByPath("File/New Terminal", newTerminal, 150, plugin);
         }
 
         /**
