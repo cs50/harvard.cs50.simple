@@ -606,18 +606,12 @@ define(function(require, exports, module) {
         function moveMenuItems() {
 
             // move Collaborate, Outline, and Share from Window to View
-            ["Collaborate", "Outline", "Share..."].forEach(function(caption) {
+            ["Collaborate", "Outline"].forEach(function(caption) {
 
                 // get menu item
                 var item = menus.get("Window/" + caption).item;
                 var index = 800;
                 if (item) {
-
-                    // remove trailing ... from caption if exists
-                    if (caption.endsWith("...")) {
-                        caption = caption.substring(0, caption.length - 3);
-                        item.setAttribute("caption", caption);
-                    }
 
                     // move to View menu
                     menus.addItemByPath("View/" + caption, item, index += 10, plugin);
