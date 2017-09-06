@@ -211,7 +211,7 @@ define(function(require, exports, module) {
 
             // add Language to View menu
             menus.addItemByPath("View/~", new ui.divider(), 3, plugin);
-            menus.addItemByPath("View/Languages", languagesItem, 4, plugin);
+            menus.addItemByPath("View/Language", languagesItem, 4, plugin);
 
             // fetch current language from settings or fallback to English
             var currLanguage = settings.get("project/cs50/simple/@language") || "en";
