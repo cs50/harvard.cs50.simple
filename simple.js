@@ -477,7 +477,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/Reset Settings", new ui.item({
                 caption: "Reset Settings",
                 onclick: function() {
-                    confirm("Reset settings",
+                    confirm("Reset Settings",
                         "",
                         "Are you sure you want to reset CS50 IDE to factory " +
                         "defaults? It will then look just as it did when you " +
@@ -672,7 +672,7 @@ define(function(require, exports, module) {
                     // remember chosen language
                     settings.set("project/cs50/simple/@language", language);
 
-                    confirm("Language updated",
+                    confirm("Language Updated",
                         "Restart terminal window" + (count == 2 ? "s" : "") + "?",
                         (count === 2)
                             ? "Doing so will kill any programs that are running in open terminal windows."
