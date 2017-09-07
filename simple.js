@@ -444,9 +444,6 @@ define(function(require, exports, module) {
                         });
                     }
                 });
-
-                // CS50 IDE > Restart Workspace to CS50 IDE > Restart
-                setMenuCaption("Cloud9/Restart Workspace", "Restart");
             }
             else {
                 // remove "Dashboard" offline
@@ -475,6 +472,29 @@ define(function(require, exports, module) {
             // add divider after "Preferences"
             var div = new ui.divider();
             menus.addItemByPath("Cloud9/~", div, 301, plugin);
+
+            // add "Reset"
+            menus.addItemByPath("Cloud9/Reset Settings", new ui.item({
+                caption: "Reset Settings",
+                onclick: function() {
+                    confirm("Reset settings",
+                        "",
+                        "Are you sure you want to reset CS50 IDE to factory " +
+                        "defaults? It will then look just as it did when you " +
+                        "created it. Your files and folders will not be deleted.",
+                        // OK
+                        function() {
+                            window.location.search += "&reset=1";
+                        },
+
+                        // Cancel
+                        function() {}
+                    );
+                }
+            }), 302, plugin);
+
+            // cache divider to show in more-comfy
+            divs.push(div);
 
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
