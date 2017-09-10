@@ -458,6 +458,7 @@ define(function(require, exports, module) {
             // project and user settings
             setMenuCaption("Cloud9/Open Your Project Settings", "Project Settings");
             setMenuCaption("Cloud9/Open Your User Settings", "User Settings");
+            setMenuCaption("Cloud9/Open Your Init Script", "Init Script");
 
             // add "About CS50"
             menus.addItemByPath("Cloud9/About CS50", new ui.item({
@@ -838,7 +839,6 @@ define(function(require, exports, module) {
             [
                 // CS50 IDE menu
                 "Cloud9/Open Your Keymap",
-                "Cloud9/Open Your Init Script",
                 "Cloud9/Open Your Stylesheet",
 
                 // File menu
