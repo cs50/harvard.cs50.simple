@@ -204,13 +204,13 @@ define(function(require, exports, module) {
 
             // create Language submenu
             var languagesItem = new MenuItem({
-                caption: "Languages",
+                caption: "Language",
                 submenu: new Menu({}, plugin)
             });
 
             // add Language to View menu
             menus.addItemByPath("View/~", new ui.divider(), 3, plugin);
-            menus.addItemByPath("View/Languages", languagesItem, 4, plugin);
+            menus.addItemByPath("View/Language", languagesItem, 4, plugin);
 
             // fetch current language from settings or fallback to English
             var currLanguage = settings.get("project/cs50/simple/@language") || "en";
@@ -226,7 +226,7 @@ define(function(require, exports, module) {
                 });
 
                 item.aml.setAttribute("selected", language === currLanguage);
-                menus.addItemByPath("View/Languages/" + language, item, plugin);
+                menus.addItemByPath("View/Language/" + language, item, plugin);
             });
 
         }
@@ -443,9 +443,6 @@ define(function(require, exports, module) {
                         });
                     }
                 });
-
-                // CS50 IDE > Restart Workspace to CS50 IDE > Restart
-                setMenuCaption("Cloud9/Restart Workspace", "Restart");
             }
             else {
                 // remove "Dashboard" offline
@@ -468,14 +465,6 @@ define(function(require, exports, module) {
                 }
             }), 0, plugin);
 
-            // add "What's New?"
-            menus.addItemByPath("Cloud9/What's New?", new ui.item({
-                caption: "What's New?",
-                onclick: function() {
-                    window.open("http://docs.cs50.net/ide/new.html", "_blank");
-                }
-            }), 1, plugin);
-
             // add divider before "About Cloud9"
             menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
 
@@ -483,8 +472,49 @@ define(function(require, exports, module) {
             var div = new ui.divider();
             menus.addItemByPath("Cloud9/~", div, 301, plugin);
 
+            // add "Reset"
+            menus.addItemByPath("Cloud9/Reset Settings", new ui.item({
+                caption: "Reset Settings",
+                onclick: function() {
+                    confirm("Reset Settings",
+                        "",
+                        "Are you sure you want to reset CS50 IDE to factory " +
+                        "defaults? It will then look just as it did when you " +
+                        "created it. Your files and folders will not be deleted.",
+                        // OK
+                        function() {
+
+                            // reset user, state, and project settings
+                            window.location.search += "&reset=user|state|project";
+                        },
+
+                        // Cancel
+                        function() {}
+                    );
+                }
+            }), 302, plugin);
+
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
+        }
+
+        /**
+         * Finds bars for left and right areas and disables their context menus
+         */
+        function disableAreaBarsMenu() {
+
+            // find bars for left and right panel areas
+            [panels.areas["left"], panels.areas["right"]].forEach(function(area) {
+                if (area && area.aml && area.aml.childNodes.length > 0) {
+                    area.aml.childNodes.some(function(bar) {
+                        if (bar.$baseCSSname === "panelsbar") {
+
+                            // disable context menu
+                            bar.oncontextmenu = function() {};
+                        }
+                    });
+                }
+            });
         }
 
         /**
@@ -578,6 +608,33 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Moves some menu items from their original menus to different menus.
+         */
+        function moveMenuItems() {
+
+            // move Collaborate, Outline, and Share from Window to View
+            ["Collaborate", "Outline"].forEach(function(caption) {
+
+                // get menu item
+                var item = menus.get("Window/" + caption).item;
+                var index = 800;
+                if (item) {
+
+                    // move to View menu
+                    menus.addItemByPath("View/" + caption, item, index += 10, plugin);
+                }
+
+                // add divider before View/Layout
+                menus.addItemByPath("View/~", new ui.divider(), index += 10, plugin);
+            });
+
+            // move New Terminal to File menu
+            var newTerminal = menus.get("Window/New Terminal").item;
+            if (newTerminal)
+                menus.addItemByPath("File/New Terminal", newTerminal, 150, plugin);
+        }
+
+        /**
          * Sets and exports LANGUAGE env var in ~/.cs50/language
          */
         function setLanguage(language) {
@@ -610,7 +667,7 @@ define(function(require, exports, module) {
                     // remember chosen language
                     settings.set("project/cs50/simple/@language", language);
 
-                    confirm("Language updated",
+                    confirm("Language Updated",
                         "Restart terminal window" + (count == 2 ? "s" : "") + "?",
                         (count === 2)
                             ? "Doing so will kill any programs that are running in open terminal windows."
@@ -832,7 +889,7 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Toggles simplification of the menus at the top of Cloud 9
+         * Simplifies menus at the top of Cloud9
          */
         function hideMenus() {
             // hide each menu item
@@ -873,6 +930,9 @@ define(function(require, exports, module) {
                 "View/Syntax",
                 "View/Wrap Lines",
                 "View/Wrap To Print Margin",
+                "View/Status Bar",
+                "View/Menu Bar",
+                "View/Tab Buttons",
 
                 // Goto menu
                 "Goto/Goto Anything...",
@@ -888,12 +948,7 @@ define(function(require, exports, module) {
                 "Tools",
 
                 // Window menu
-                "Window/New Immediate Window",
-                "Window/Installer...",
-                "Window/Navigate",
-                "Window/Commands",
-                "Window/Presets",
-                "Window/Changes",
+                "Window",
 
                 // Support menu
                 "Support",
@@ -1170,7 +1225,8 @@ define(function(require, exports, module) {
                 "Goto/Goto Symbol...": "Symbol...",
                 "Goto/Goto Command...": "Command...",
                 "Support/Check Cloud9 Status": "Cloud9 Status",
-                "Support/Read Documentation": "Cloud9 Documentation"
+                "Support/Read Documentation": "Cloud9 Documentation",
+                "View/Gutter": "Line Numbers"
             };
 
             // update captions
@@ -1365,8 +1421,10 @@ define(function(require, exports, module) {
             addTreeToggles();
             addTooltips();
             customizeC9Menu();
+            disableAreaBarsMenu();
             hideElements();
             hideGearIcon();
+            moveMenuItems();
             setTitleFromTabs();
             updateFontSize();
             updateMenuCaptions();
