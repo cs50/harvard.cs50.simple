@@ -40,6 +40,7 @@ define(function(require, exports, module) {
         var proc = imports.proc;
         var save = imports.save;
         var settings = imports.settings;
+        var statusbar = imports["ace.status"];
         var tabs = imports.tabManager;
         var tabMenu = imports.tabbehavior.contextMenu;
         var tree = imports.tree;
@@ -1064,6 +1065,33 @@ define(function(require, exports, module) {
         }
 
         /**
+         *  Simplifies ace's statusbar
+         */
+        function simplifyStatusbar() {
+
+            // handle ace instance creation
+            ace.on("create", function(e) {
+
+                // get statusbar for this instance
+                var bar = statusbar.getStatusbar(e.editor);
+                if (!bar)
+                    return;
+                [
+                    "btnSbPrefs", "itmTabSize", "lblEditorStatus",
+                    "lblSelectionLength", "lblSyntax", "lblTabs"
+                ].forEach(function(element) {
+                    // hide element from statusbar
+                    bar.getElement(element, function(e) {
+                        e.hide();
+
+                        // prevent statusbar from showing them again
+                        e.show = function() {};
+                    });
+                });
+            });
+        }
+
+        /**
          * Enables or disables terminal sound.
          *
          * @param {boolean} enable whether to enable terminal sound
@@ -1497,6 +1525,9 @@ define(function(require, exports, module) {
 
             // add trailing line to text files upon saving (if enabled)
             addTrailingLine();
+
+            // simplify ace's statusbar
+            simplifyStatusbar();
 
             // stop marking undeclared variables for javascript files
             tabs.on("tabAfterActivate", toggleUndeclaredVars);
