@@ -204,7 +204,7 @@ define(function(require, exports, module) {
 
             // create Language submenu
             var languagesItem = new MenuItem({
-                caption: "Languages",
+                caption: "Language",
                 submenu: new Menu({}, plugin)
             });
 
@@ -226,7 +226,7 @@ define(function(require, exports, module) {
                 });
 
                 item.aml.setAttribute("selected", language === currLanguage);
-                menus.addItemByPath("View/Languages/" + language, item, plugin);
+                menus.addItemByPath("View/Language/" + language, item, plugin);
             });
 
         }
