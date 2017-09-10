@@ -484,7 +484,9 @@ define(function(require, exports, module) {
                         "created it. Your files and folders will not be deleted.",
                         // OK
                         function() {
-                            window.location.search += "&reset=1";
+
+                            // reset user, state, and project settings
+                            window.location.search += "&reset=user|state|project";
                         },
 
                         // Cancel
@@ -492,9 +494,6 @@ define(function(require, exports, module) {
                     );
                 }
             }), 302, plugin);
-
-            // cache divider to show in more-comfy
-            divs.push(div);
 
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
