@@ -416,6 +416,44 @@ define(function(require, exports, module) {
         }
 
         /**
+         * Shows confirmation dialog before restarting IDE.
+         */
+        function confirmRestart() {
+
+            // no Restart Workspace item offline
+            if (!c9.hosted)
+                return;
+
+            // get Restart Workspace menu item
+            var item = menus.get("Cloud9/Restart Workspace").item;
+            if (!item)
+                return;
+
+            // add command that wraps restartc9vm
+            commands.addCommand({
+                name: "confirmrestartc9vm",
+                isAvailable: commands.commands.restartc9vm.isAvailable,
+                exec: function() {
+                    confirm("Restart Workspace?",
+                        "Are you sure you want to restart CS50 IDE?",
+                        "Any files you have open will stay open.",
+
+                        // OK
+                        function() {
+                            commands.exec("restartc9vm");
+                        },
+
+                        // Cancel
+                        function() {}
+                    );
+                }
+            }, plugin);
+
+            // update command associated with menu item
+            item.setAttribute("command", "confirmrestartc9vm");
+        }
+
+        /**
          * Customizes "Cloud9" menu for CS50 IDE
          */
         function customizeC9Menu() {
@@ -493,7 +531,7 @@ define(function(require, exports, module) {
                         function() {}
                     );
                 }
-            }), 302, plugin);
+            }), 2000079, plugin);
 
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
@@ -1448,6 +1486,7 @@ define(function(require, exports, module) {
             addLanguages();
             addTreeToggles();
             addTooltips();
+            confirmRestart();
             customizeC9Menu();
             disableAreaBarsMenu();
             hideElements();
