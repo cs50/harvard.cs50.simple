@@ -56,7 +56,6 @@ define(function(require, exports, module) {
 
         var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
-        var areaBars = [];
         var authorInfoToggled = null;
         var avatar = null;
         var dark = null;
@@ -500,27 +499,24 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Finds bars for left and right areas and caches original context menu
-         * handlers to disable context menu in less-comfy mode
+         * Finds bars for left and right areas and disables their context menus
          */
-        function findAreaBars() {
+        function disableAreaBarsMenu() {
 
             // find bars for left and right panel areas
             [panels.areas["left"], panels.areas["right"]].forEach(function(area) {
                 if (area && area.aml && area.aml.childNodes.length > 0) {
-                    area.aml.childNodes.some(function(child) {
-                        if (child.$baseCSSname === "panelsbar") {
+                    area.aml.childNodes.some(function(bar) {
+                        if (bar.$baseCSSname === "panelsbar") {
 
-                            // remember original context menu handler
-                            child.originaloncontextmenu = child.oncontextmenu;
-
-                            // remember bar
-                            areaBars.push(child);
+                            // disable context menu
+                            bar.oncontextmenu = function() {};
                         }
                     });
                 }
             });
         }
+
         /**
          * Hides the given div by changing CSS
          *
@@ -851,15 +847,6 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Toggles context menu for right and left areas
-         */
-        function toggleAreaMenu(enabled) {
-            areaBars.forEach(function(bar) {
-                bar.oncontextmenu = enabled ? bar.originaloncontextmenu : function() {};
-            });
-        }
-
-        /**
          * Disable code folding
          *
          */
@@ -902,7 +889,7 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Toggles simplification of the menus at the top of Cloud 9
+         * Simplifies menus at the top of Cloud9
          */
         function hideMenus() {
             // hide each menu item
@@ -1434,7 +1421,7 @@ define(function(require, exports, module) {
             addTreeToggles();
             addTooltips();
             customizeC9Menu();
-            findAreaBars();
+            disableAreaBarsMenu();
             hideElements();
             hideGearIcon();
             moveMenuItems();
@@ -1599,7 +1586,6 @@ define(function(require, exports, module) {
         plugin.on("unload", function() {
             // TODO unload correctly
             // toggleSimpleMode(false);
-            areaBars = [];
             authorInfoToggled = null;
             avatar = null;
             dark = null;
