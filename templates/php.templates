@@ -1,7 +1,0 @@
-filename .php
-section General
-caption PHP
-	#!/usr/bin/env php
-	<?php
-	
-	?>
