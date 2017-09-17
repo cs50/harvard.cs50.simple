@@ -507,9 +507,6 @@ define(function(require, exports, module) {
                 }
             }), 0, plugin);
 
-            // add divider before "About Cloud9"
-            menus.addItemByPath("Cloud9/~", new ui.divider(), 50, plugin);
-
             // add divider after "Preferences"
             var div = new ui.divider();
             menus.addItemByPath("Cloud9/~", div, 301, plugin);
