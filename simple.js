@@ -482,6 +482,9 @@ define(function(require, exports, module) {
                         });
                     }
                 });
+
+                // add divider after restart workspace
+                menus.addItemByPath("Cloud9/~", new ui.divider(), 2000081, plugin);
             }
             else {
                 // remove "Dashboard" offline
