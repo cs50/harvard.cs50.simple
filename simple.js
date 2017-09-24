@@ -499,14 +499,6 @@ define(function(require, exports, module) {
             setMenuCaption("Cloud9/Open Your User Settings", "User Settings");
             setMenuCaption("Cloud9/Open Your Init Script", "Init Script");
 
-            // add "About CS50"
-            menus.addItemByPath("Cloud9/About CS50", new ui.item({
-                caption: "About CS50",
-                onclick: function() {
-                    window.open("https://cs50.harvard.edu/", "_blank");
-                }
-            }), 0, plugin);
-
             // add divider after "Preferences"
             var div = new ui.divider();
             menus.addItemByPath("Cloud9/~", div, 301, plugin);
