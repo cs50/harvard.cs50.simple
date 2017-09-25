@@ -1397,7 +1397,7 @@ define(function(require, exports, module) {
         var loaded = false;
         function load() {
 
-            // remove trailing ? or & (e.g., when left after restting setting)
+            // remove trailing ? or & (e.g., when left after resetting setting)
             if (history.replaceState && /\?*&*$/.test(window.location.href))
                 history.replaceState({}, window.title, window.location.href.replace(/\?*&*$/, ""));
 
