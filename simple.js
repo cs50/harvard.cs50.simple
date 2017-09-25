@@ -1396,6 +1396,11 @@ define(function(require, exports, module) {
 
         var loaded = false;
         function load() {
+
+            // remove trailing ? or & (e.g., when left after restting setting)
+            if (history.pushState && /\?*&*$/.test(window.location.href))
+                history.pushState({}, window.title, window.location.href.replace(/\?*&*$/, ""));
+
             if (loaded)
                return false;
 
