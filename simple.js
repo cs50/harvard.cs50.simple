@@ -578,14 +578,14 @@ define(function(require, exports, module) {
                 });
             }
 
-            // hide "Collaborate" panel offline
-            if (!c9.hosted) {
-                // remove panel button
+            // hide Collaborate panel offline but always enable online
+            if (!c9.hosted)
                 collab.disable();
+            else
+                collab.enable();
 
-                // hide Window > Collaborate
-                setMenuVisibility("Window/Collaborate", false);
-            }
+            // always enable Outline online
+            outline.enable();
 
             // get parent of "Preview" and "Run" buttons
             var p = layout.findParent({ name: "preview" });
@@ -642,22 +642,6 @@ define(function(require, exports, module) {
          * Moves some menu items from their original menus to different menus.
          */
         function moveMenuItems() {
-
-            // move Collaborate, Outline, and Share from Window to View
-            ["Collaborate", "Outline"].forEach(function(caption) {
-
-                // get menu item
-                var item = menus.get("Window/" + caption).item;
-                var index = 800;
-                if (item) {
-
-                    // move to View menu
-                    menus.addItemByPath("View/" + caption, item, index += 10, plugin);
-                }
-
-                // add divider before View/Layout
-                menus.addItemByPath("View/~", new ui.divider(), index += 10, plugin);
-            });
 
             // move New Terminal to File menu
             var newTerminal = menus.get("Window/New Terminal").item;
