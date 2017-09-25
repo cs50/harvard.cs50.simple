@@ -964,6 +964,7 @@ define(function(require, exports, module) {
                 "View/Status Bar",
                 "View/Menu Bar",
                 "View/Tab Buttons",
+                "View/Themes",
 
                 // Goto menu
                 "Goto/Goto Anything...",
