@@ -4,11 +4,12 @@ define(function(require, exports, module) {
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
         "collab.workspace", "commands", "console", "dialog.confirm",
-        "dialog.file", "dialog.notification", "fs", "immediate", "info",
-        "keymaps", "navigate", "outline", "layout", "login", "Menu", "MenuItem",
-        "menus", "newresource", "panels", "Plugin", "preferences", "preview",
-        "proc", "run.gui", "save", "settings", "tabbehavior", "tabManager",
-        "terminal", "tooltip", "tree", "ui", "util"
+        "dialog.file", "dialog.notification", "fs", "fs.cache", "immediate",
+        "info", "keymaps", "navigate", "outline", "layout", "login", "Menu",
+        "MenuItem", "menus", "newresource", "panels", "Plugin", "preferences",
+        "preview", "proc", "run.gui", "save", "settings", "tabbehavior",
+        "tabManager", "terminal", "tooltip", "tree", "tree.favorites", "ui",
+        "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -20,13 +21,16 @@ define(function(require, exports, module) {
         var collab = imports.collab;
         var commands = imports.commands;
         var confirm = imports["dialog.confirm"].show;
+        var favorites = imports["tree.favorites"];
         var fileDialog = imports["dialog.file"];
         var fs = imports.fs;
+        var fsCache = imports["fs.cache"];
         var info = imports.info;
         var layout = imports.layout;
         var Menu = imports.Menu;
         var MenuItem = imports.MenuItem;
         var menus = imports.menus;
+        var model = fsCache.model;
         var newresource = imports.newresource;
         var notify = imports["dialog.notification"].show;
 
@@ -230,6 +234,34 @@ define(function(require, exports, module) {
                 menus.addItemByPath("View/Language/" + language, item, plugin);
             });
 
+        }
+
+        /**
+         * Adds slashes to directory names in file browser
+         */
+        function addSlashToDirs() {
+
+            // ensure slashes don't disappear when hiding favorites
+            favorites.on("favoriteRemove", helper);
+
+            // always reset getCaptionHTML to helper after adding favorite
+            favorites.on("favoriteAdd", helper);
+
+            // overrides getCaptionHTML to add slash to dir names and redraws file browser
+            function helper() {
+                var getCaptionHTML = model.getCaptionHTML;
+                model.getCaptionHTML = function(node) {
+                        var caption = getCaptionHTML(node);
+                        if (node.isFolder && !node.isFavorite && !node.path.startsWith("!") && !caption.endsWith("/"))
+                            caption += "/";
+
+                        return caption;
+                };
+
+                tree.tree.redraw();
+            }
+
+            helper();
         }
 
         /**
@@ -1411,6 +1443,7 @@ define(function(require, exports, module) {
             // add the permanent changes
             addFileDialog();
             addLanguages();
+            addSlashToDirs();
             addTreeToggles();
             addTooltips();
             confirmRestart();
