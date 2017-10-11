@@ -4,12 +4,12 @@ define(function(require, exports, module) {
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
         "collab.workspace", "commands", "console", "dialog.confirm",
-        "dialog.file", "dialog.notification", "fs", "fs.cache", "immediate",
-        "info", "keymaps", "navigate", "outline", "layout", "login", "Menu",
-        "MenuItem", "menus", "newresource", "panels", "Plugin", "preferences",
-        "preview", "proc", "run.gui", "save", "settings", "tabbehavior",
-        "tabManager", "terminal", "tooltip", "tree", "tree.favorites", "ui",
-        "util"
+        "dialog.file", "dialog.notification", "fs", "fs.cache",
+        "harvard.cs50.info", "immediate", "info", "keymaps", "navigate",
+        "outline", "layout", "login", "Menu", "MenuItem", "menus",
+        "newresource", "panels", "Plugin", "preferences", "preview", "proc",
+        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
+        "tooltip", "tree", "tree.favorites", "ui", "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -26,6 +26,7 @@ define(function(require, exports, module) {
         var fs = imports.fs;
         var fsCache = imports["fs.cache"];
         var info = imports.info;
+        var info50 = imports["harvard.cs50.info"];
         var layout = imports.layout;
         var Menu = imports.Menu;
         var MenuItem = imports.MenuItem;
@@ -234,6 +235,73 @@ define(function(require, exports, module) {
                 menus.addItemByPath("View/Language/" + language, item, plugin);
             });
 
+        }
+
+        /**
+         * Adds Serve menu item to context menu of file browser.
+         */
+        function addServe() {
+            tree.getElement("mnuCtxTree", function(mnuCtxTree) {
+
+                // add "Serve" to tree context menu
+                menus.addItemToMenu(mnuCtxTree, new ui.item({
+                    caption: "Serve",
+                    match: "folder",
+
+                    // disable "Serve"
+                    isAvailable: function() {
+
+                        // disable item when more than one folder is selected
+                        return tree.selectedNodes.filter(function(node) {
+                            return node.isFolder;
+                        }).length === 1;
+                    },
+                    onclick: function() {
+                        var node = tree.selectedNodes.find(function(node) {
+                            return node.isFolder;
+                        });
+
+                        if (!node)
+                            return;
+
+                        // path for selected directory
+                        var path = node.path.replace(/^\//, c9.workspaceDir + "/");
+
+                        // open new browser tab
+                        var tab = window.open("", "_blank");
+                        if (!tab)
+                            return;
+
+                        tab.document.write(
+                            'Starting http-server...<br>' +
+                            'Please wait! This page will reload automatically.'
+                        );
+
+                        // spawn http-server
+                        // alias isn't seen by subshell
+                        proc.spawn("/bin/bash", {
+                            args: [ "-c", "_http_server" ],
+                            cwd: path
+                        },
+                        function(err, process) {
+                            if (err) {
+                                // showError("Could not start http-server");
+                                tab.document.write("Could not start http-server.");
+                                return console.error(err);
+                            }
+
+                            process.stderr.on("data", function(chunk) {
+                                console.log(chunk);
+                            });
+
+                            setTimeout(function() {
+                                tab.location.href = info50.host;
+                            },
+                            1000);
+                        });
+                    }
+                }), 102, plugin);
+            });
         }
 
         /**
@@ -1443,6 +1511,7 @@ define(function(require, exports, module) {
             // add the permanent changes
             addFileDialog();
             addLanguages();
+            addServe();
             addSlashToDirs();
             addTreeToggles();
             addTooltips();
