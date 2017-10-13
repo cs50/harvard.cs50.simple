@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
         "collab.workspace", "commands", "console", "dialog.confirm",
-        "dialog.file", "dialog.notification", "fs", "fs.cache",
+        "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
         "harvard.cs50.info", "immediate", "info", "keymaps", "navigate",
         "outline", "layout", "login", "Menu", "MenuItem", "menus",
         "newresource", "panels", "Plugin", "preferences", "preview", "proc",
@@ -21,6 +21,7 @@ define(function(require, exports, module) {
         var collab = imports.collab;
         var commands = imports.commands;
         var confirm = imports["dialog.confirm"].show;
+        var editors = imports.editors;
         var favorites = imports["tree.favorites"];
         var fileDialog = imports["dialog.file"];
         var fs = imports.fs;
@@ -858,7 +859,7 @@ define(function(require, exports, module) {
         /**
          * Set the Terminal tab title to the current working directory
          */
-        function setTmuxTitle(tab){
+        function setTmuxTitle(tab) {
             // check if the tab exists and it is a terminal tab
             if (tab && tab.editorType === "terminal") {
                 var session = tab.document.getSession();
@@ -931,6 +932,85 @@ define(function(require, exports, module) {
 
                 // sync button style with tree visibility
                 syncTreeToggles(tree.active);
+            });
+        }
+
+        /**
+         * Simplifies UI for Cloud9's imgeditor
+         */
+        function simplifyImgeditor() {
+
+            // handle creation of new imgeditors
+            editors.on("create", function(e) {
+                var editor = e.editor;
+                if (editor.type !== "imgeditor")
+                    return;
+
+                // get the zoom dropdown
+                editor.getElement("zoom", function(zoom) {
+
+                    // remember parent node
+                    var parent = zoom.parentNode;
+
+                    // hide all controls
+                    parent.childNodes.forEach(function(n) {
+                        n.hide();
+                        n.show = function() {};
+                    });
+
+                    // increase bar height for buttons
+                    parent.setAttribute("height", 39);
+
+                    // label for current zoom level
+                    var label = new ui.label();
+                    label.setCaption = function(val) {
+                        label.setAttribute("caption", ((_.isNumber(val) && val) || "100") + "%");
+                    };
+                    label.setCaption(zoom.value);
+
+                    // add minus button
+                    var minus = new ui.button({
+                        caption: "-",
+                        skin: "btn-default-css3",
+                        onclick: function() {
+
+                            // ensure zoom.value is integer
+                            !_.isNumber(zoom.value) && (zoom.value = 100);
+
+                            // decrease by 100 so long as zoom level remains >= 100
+                            // otherwise decrease by 10, keeping min zoom level at 10
+                            zoom.value = Math.max(10, zoom.value - (zoom.value >= 200 ? 100 : 10));
+                            label.setCaption(zoom.value);
+                            zoom.dispatchEvent("afterchange");
+                        }
+                    });
+
+                    parent.appendChild(minus);
+                    editor.addElement(minus);
+
+                    parent.appendChild(label);
+                    editor.addElement(label);
+
+                    // add plus button
+                    var plus = new ui.button({
+                        caption: "+",
+                        skin: "btn-default-css3",
+                        onclick: function() {
+
+                            // ensure zoom.value is integer
+                            !_.isNumber(zoom.value) && (zoom.value = 100);
+
+                            // increase by 10 so long as zoom level is < 100
+                            // otherwise increase by 100
+                            zoom.value += zoom.value >= 100 ? 100 : 10;
+                            label.setCaption(zoom.value);
+                            zoom.dispatchEvent("afterchange");
+                        }
+                    });
+
+                    parent.appendChild(plus);
+                    editor.addElement(plus);
+                });
             });
         }
 
@@ -1522,6 +1602,7 @@ define(function(require, exports, module) {
             hideGearIcon();
             moveMenuItems();
             setTitleFromTabs();
+            simplifyImgeditor();
             updateFontSize();
             updateMenuCaptions();
             warnUnsaved();
