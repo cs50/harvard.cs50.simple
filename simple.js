@@ -966,7 +966,11 @@ define(function(require, exports, module) {
                     label.setCaption = function(val) {
                         label.setAttribute("caption", ((_.isNumber(val) && val) || "100") + "%");
                     };
-                    label.setCaption(zoom.value);
+
+                    // update caption when activating other tabs
+                    editor.on("documentActivate", function() {
+                        label.setCaption(zoom.value);
+                    });
 
                     // add minus button
                     var minus = new ui.button({
@@ -975,11 +979,11 @@ define(function(require, exports, module) {
                         onclick: function() {
 
                             // ensure zoom.value is integer
-                            !_.isNumber(zoom.value) && (zoom.value = 100);
+                            !_.isNumber(zoom.value) && (zoom.setValue(100));
 
                             // decrease by 100 so long as zoom level remains >= 100
                             // otherwise decrease by 10, keeping min zoom level at 10
-                            zoom.value = Math.max(10, zoom.value - (zoom.value >= 200 ? 100 : 10));
+                            zoom.setValue(Math.max(10, zoom.value - (zoom.value >= 200 ? 100 : 10)));
                             label.setCaption(zoom.value);
                             zoom.dispatchEvent("afterchange");
                         }
@@ -998,11 +1002,11 @@ define(function(require, exports, module) {
                         onclick: function() {
 
                             // ensure zoom.value is integer
-                            !_.isNumber(zoom.value) && (zoom.value = 100);
+                            !_.isNumber(zoom.value) && (zoom.setValue(100));
 
                             // increase by 10 so long as zoom level is < 100
                             // otherwise increase by 100
-                            zoom.value += zoom.value >= 100 ? 100 : 10;
+                            zoom.setValue(zoom.value + (zoom.value >= 100 ? 100 : 10));
                             label.setCaption(zoom.value);
                             zoom.dispatchEvent("afterchange");
                         }
