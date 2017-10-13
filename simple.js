@@ -279,8 +279,7 @@ define(function(require, exports, module) {
 
                         // spawn http-server
                         // alias isn't seen by subshell
-                        proc.spawn("/bin/bash", {
-                            args: [ "-c", "_http_server" ],
+                        proc.spawn("/home/ubuntu/.cs50/bin/http-server", {
                             cwd: path
                         },
                         function(err, process) {
