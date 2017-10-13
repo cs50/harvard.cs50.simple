@@ -1201,7 +1201,7 @@ define(function(require, exports, module) {
          */
         function toggleTerminalSound(enable) {
             libterm && (libterm.bell = (enable === true)
-                ? function() { terminalSound.play(); }
+                ? function() { !presenting && terminalSound.play(); }
                 : function() {});
         }
 
