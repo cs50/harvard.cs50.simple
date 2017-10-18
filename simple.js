@@ -6,10 +6,11 @@ define(function(require, exports, module) {
         "collab.workspace", "commands", "console", "dialog.confirm",
         "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
         "harvard.cs50.info", "immediate", "info", "keymaps", "navigate",
-        "outline", "layout", "login", "Menu", "MenuItem", "menus",
-        "newresource", "panels", "Plugin", "preferences", "preview", "proc",
-        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
-        "tooltip", "tree", "tree.favorites", "ui", "util"
+        "outline", "language", "language.python", "layout", "login", "Menu",
+        "MenuItem", "menus", "newresource", "panels", "Plugin", "preferences",
+        "preview", "proc", "run.gui", "save", "settings", "tabbehavior",
+        "tabManager", "terminal", "tooltip", "tree", "tree.favorites", "ui",
+        "util"
     ];
     main.provides = ["harvard.cs50.simple"];
     return main;
@@ -28,6 +29,7 @@ define(function(require, exports, module) {
         var fsCache = imports["fs.cache"];
         var info = imports.info;
         var info50 = imports["harvard.cs50.info"];
+        var language = imports.language;
         var layout = imports.layout;
         var Menu = imports.Menu;
         var MenuItem = imports.MenuItem;
@@ -1807,6 +1809,9 @@ define(function(require, exports, module) {
                 // update author info as members are added or removed
                 workspace.on("sync", updateAuthorInfo);
             }
+
+            // temporarily disable pylint
+            language.unregisterLanguageHandler("plugins/c9.ide.language.python/worker/python_linter");
         }
 
         /***** Lifecycle *****/
