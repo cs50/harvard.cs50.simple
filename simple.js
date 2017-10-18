@@ -280,8 +280,9 @@ define(function(require, exports, module) {
 
                         // spawn http-server
                         // alias isn't seen by subshell
-                        proc.spawn("/bin/bash", {
-                            args: [ "-c", "_http_server" ],
+                        var PORT = "8081";
+                        proc.spawn("/home/ubuntu/.cs50/bin/http-server", {
+                            args: [ "-p", PORT ],
                             cwd: path
                         },
                         function(err, process) {
@@ -296,7 +297,7 @@ define(function(require, exports, module) {
                             });
 
                             setTimeout(function() {
-                                tab.location.href = info50.host;
+                                tab.location.href = info50.host.replace(/:[0-9]+$/, ":" + PORT);
                             },
                             1000);
                         });
