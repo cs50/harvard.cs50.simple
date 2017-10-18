@@ -38,6 +38,42 @@ body:after {
     left: 40px !important;
 }
 
+/* imgeditor bar */
+.cs50-simple-imgeditor-bar {
+    height: 39px !important;
+    text-align: center;
+}
+
+/* plus and minus zoom buttons */
+.cs50-simple-zoom-button {
+    background-color: #f2f2f1;
+    background-image: initial !important;
+    border: 1px solid #767676;
+    color: #767676 !important;
+    width: 36px;
+}
+
+.cs50-simple-zoom-button:hover {
+    background-image: initial;
+    border-color: #363636;
+    color: #363636 !important;
+}
+
+.cs50-simple-zoom-button .caption {
+    padding: 5px !important;
+}
+
+.cs50-simple-zoom-button.dark {
+    background-color: #262626;
+    border-color: #c2c2c2;
+    color: #c2c2c2 !important;
+}
+
+.cs50-simple-zoom-button.dark:hover {
+    border-color: #ffffff;
+    color: #ffffff !important;
+}
+
 /* notification about unsaved file */
 .cs50-unsaved-notification {
     background-color: red;
