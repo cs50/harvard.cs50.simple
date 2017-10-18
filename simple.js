@@ -959,10 +959,10 @@ define(function(require, exports, module) {
                     });
 
                     // increase bar height for buttons
-                    parent.setAttribute("height", 39);
+                    parent.setAttribute("class", (parent.getAttribute("class") || "") + " cs50-simple-imgeditor-bar");
 
                     // label for current zoom level
-                    var label = new ui.label();
+                    var label = new ui.label({ width: 50 });
                     label.setCaption = function(val) {
                         label.setAttribute("caption", ((_.isNumber(val) && val) || "100") + "%");
                     };
@@ -975,6 +975,7 @@ define(function(require, exports, module) {
                     // add minus button
                     var minus = new ui.button({
                         caption: "-",
+                        class: "cs50-simple-zoom-button",
                         skin: "btn-default-css3",
                         onclick: function() {
 
@@ -986,7 +987,8 @@ define(function(require, exports, module) {
                             zoom.setValue(Math.max(10, zoom.value - (zoom.value >= 200 ? 100 : 10)));
                             label.setCaption(zoom.value);
                             zoom.dispatchEvent("afterchange");
-                        }
+                        },
+                        margin: "2 0 0 5"
                     });
 
                     parent.appendChild(minus);
@@ -998,6 +1000,7 @@ define(function(require, exports, module) {
                     // add plus button
                     var plus = new ui.button({
                         caption: "+",
+                        class: "cs50-simple-zoom-button",
                         skin: "btn-default-css3",
                         onclick: function() {
 
@@ -1009,11 +1012,58 @@ define(function(require, exports, module) {
                             zoom.setValue(zoom.value + (zoom.value >= 100 ? 100 : 10));
                             label.setCaption(zoom.value);
                             zoom.dispatchEvent("afterchange");
-                        }
+                        },
+                        margin: "2 0 0 5"
                     });
 
                     parent.appendChild(plus);
                     editor.addElement(plus);
+
+                    // add keyboard shortcuts to zoom in and out
+                    commands.addCommand({
+                        name: "zoom_in",
+                        hint: "Zooms in on image in image viewer",
+                        group: "imgeditor",
+                        bindKey: { mac: "Command-+", win: "Ctrl-+" },
+                        isAvailable: function(editor) {
+                            return editor && editor.type === "imgeditor";
+                        },
+                        exec: function() {
+                            plus.dispatchEvent("click");
+                        }
+                    }, plugin);
+
+                    commands.addCommand({
+                        name: "zoom_out",
+                        hint: "Zooms in on image in image viewer",
+                        group: "imgeditor",
+                        bindKey: { mac: "Command--", win: "Ctrl--" },
+                        isAvailable: function(editor) {
+                            return editor && editor.type === "imgeditor";
+                        },
+                        exec: function() {
+                            minus.dispatchEvent("click");
+                        }
+                    }, plugin);
+
+                    // handle light and dark themes
+                    function setTheme(e) {
+                        [plus, minus].forEach(function(button) {
+                            var _class = button.getAttribute("class") || "";
+                            if (e.theme.indexOf("dark") >  -1) {
+                                if (_class.search(/\bdark\b/) === -1)
+                                    _class += " dark";
+                            }
+                            else {
+                                _class = _class.replace(/\bdark\b/, "");
+                            }
+
+                            button.setAttribute("class", _class);
+                        });
+                    }
+
+                    layout.on("themeChange", setTheme);
+                    setTheme({ theme: settings.get("user/general/@skin") });
                 });
             });
         }
