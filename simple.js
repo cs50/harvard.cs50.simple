@@ -330,7 +330,7 @@ define(function(require, exports, module) {
                         return caption;
                 };
 
-                tree.tree.redraw();
+                tree.tree && tree.tree.redraw();
             }
 
             helper();
