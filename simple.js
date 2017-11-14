@@ -1809,9 +1809,6 @@ define(function(require, exports, module) {
                 // update author info as members are added or removed
                 workspace.on("sync", updateAuthorInfo);
             }
-
-            // temporarily disable pylint
-            language.unregisterLanguageHandler("plugins/c9.ide.language.python/worker/python_linter");
         }
 
         /***** Lifecycle *****/
