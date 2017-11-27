@@ -284,7 +284,7 @@ define(function(require, exports, module) {
                         // alias isn't seen by subshell
                         var PORT = "8081";
                         proc.spawn("/home/ubuntu/.cs50/bin/http-server", {
-                            args: ["-p", PORT],
+                            args: [ "-p", PORT ],
                             cwd: path
                         },
                         function(err, process) {
@@ -598,12 +598,6 @@ define(function(require, exports, module) {
                 menus.remove("Cloud9/Quit Cloud9");
             }
 
-            // add Adminer
-            menus.addItemByPath("Cloud9/Adminer", new ui.item({
-                caption: "Adminer",
-                onclick: startAdminer
-            }), 101, plugin);
-
             // project and user settings
             setMenuCaption("Cloud9/Open Your Project Settings", "Project Settings");
             setMenuCaption("Cloud9/Open Your User Settings", "User Settings");
@@ -638,7 +632,6 @@ define(function(require, exports, module) {
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
         }
-
 
         /**
          * Finds bars for left and right areas and disables their context menus
@@ -699,7 +692,7 @@ define(function(require, exports, module) {
             outline.enable();
 
             // get parent of "Preview" and "Run" buttons
-            var p = layout.findParent({name: "preview"});
+            var p = layout.findParent({ name: "preview" });
 
             // hide the divider
             hide(p.childNodes[0]);
@@ -803,7 +796,7 @@ define(function(require, exports, module) {
                         function() {
 
                             // restart all terminal sessions
-                            proc.spawn("killall", {args: ["tmux"]}, function(err) {
+                            proc.spawn("killall", { args: ["tmux"] }, function(err) {
                                 if (err)
                                     showError("Failed to restart terminals!");
                             });
@@ -972,7 +965,7 @@ define(function(require, exports, module) {
                     parent.setAttribute("class", (parent.getAttribute("class") || "") + " cs50-simple-imgeditor-bar");
 
                     // label for current zoom level
-                    var label = new ui.label({width: 50});
+                    var label = new ui.label({ width: 50 });
                     label.setCaption = function(val) {
                         label.setAttribute("caption", ((_.isNumber(val) && val) || "100") + "%");
                     };
@@ -1034,7 +1027,7 @@ define(function(require, exports, module) {
                         name: "zoom_in",
                         hint: "Zooms in on image in image viewer",
                         group: "imgeditor",
-                        bindKey: {mac: "Command-+", win: "Ctrl-+"},
+                        bindKey: { mac: "Command-+", win: "Ctrl-+" },
                         isAvailable: function(editor) {
                             return editor && editor.type === "imgeditor";
                         },
@@ -1047,7 +1040,7 @@ define(function(require, exports, module) {
                         name: "zoom_out",
                         hint: "Zooms in on image in image viewer",
                         group: "imgeditor",
-                        bindKey: {mac: "Command--", win: "Ctrl--"},
+                        bindKey: { mac: "Command--", win: "Ctrl--" },
                         isAvailable: function(editor) {
                             return editor && editor.type === "imgeditor";
                         },
@@ -1073,52 +1066,10 @@ define(function(require, exports, module) {
                     }
 
                     layout.on("themeChange", setTheme);
-                    setTheme({theme: settings.get("user/general/@skin")});
+                    setTheme({ theme: settings.get("user/general/@skin") });
                 });
             });
         }
-
-
-        /**
-         * Spawns adminer50 and opens it on port 8082 in a new browser tab
-         */
-        function startAdminer() {
-
-            // open new browser tab
-            var tab = window.open("", "_blank");
-            if (!tab)
-                return;
-
-            tab.document.write(
-                'Starting Adminer...<br>' +
-                'Please wait! This page will reload automatically.'
-            );
-
-            proc.spawn("adminer50", {args: ["--quiet"]}, function(err, process) {
-                if (err) {
-                    console.error(err);
-                    return tab.document.write("Could not start adminer50.");
-                }
-
-                // survive reloads
-                process.unref();
-
-                // read url from stdout
-                var url = "";
-                process.stdout.on("data", function handleOutput(chunk) {
-                    url += chunk;
-                    var matches = url.match(/(https?:\/\/.+)\s/);
-                    if (matches && matches[1]) {
-                        process.stdout.off("data", handleOutput);
-
-                        // open url in the browser tab
-                        tab.location.href = url;
-                    }
-
-                });
-            });
-        }
-
 
         /**
          * Syncs tree toggle button and menu item with tree visibility state.
@@ -1387,7 +1338,7 @@ define(function(require, exports, module) {
          */
         function toggleTerminalSound(enable) {
             libterm && (libterm.bell = (enable === true)
-                ? function() {!presenting && terminalSound.play();}
+                ? function() { !presenting && terminalSound.play(); }
                 : function() {});
         }
 
@@ -1886,8 +1837,8 @@ define(function(require, exports, module) {
         /**
          * Left this empty since nobody else should be using our plugin
          **/
-        plugin.freezePublicAPI({});
+        plugin.freezePublicAPI({ });
 
-        register(null, {"harvard.cs50.simple" : plugin});
+        register(null, { "harvard.cs50.simple" : plugin });
     }
 });
