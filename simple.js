@@ -1080,7 +1080,7 @@ define(function(require, exports, module) {
 
 
         /**
-         * Spawns adminer and opens it on port 8082 in a new browser tab
+         * Spawns adminer50 and opens it on port 8082 in a new browser tab
          */
         function startAdminer() {
 
@@ -1094,10 +1094,10 @@ define(function(require, exports, module) {
                 'Please wait! This page will reload automatically.'
             );
 
-            proc.spawn("adminer", {args: ["--url-only"]}, function(err, process) {
+            proc.spawn("adminer50", {args: ["--url-only"]}, function(err, process) {
                 if (err) {
                     console.error(err);
-                    return tab.document.write("Could not start adminer.");
+                    return tab.document.write("Could not start adminer50.");
                 }
 
                 // survive reloads
