@@ -284,7 +284,7 @@ define(function(require, exports, module) {
                         // alias isn't seen by subshell
                         var PORT = "8081";
                         proc.spawn("/home/ubuntu/.cs50/bin/http-server", {
-                            args: [ "-p", PORT ],
+                            args: ["-p", PORT],
                             cwd: path
                         },
                         function(err, process) {
@@ -699,7 +699,7 @@ define(function(require, exports, module) {
             outline.enable();
 
             // get parent of "Preview" and "Run" buttons
-            var p = layout.findParent({ name: "preview" });
+            var p = layout.findParent({name: "preview"});
 
             // hide the divider
             hide(p.childNodes[0]);
@@ -803,7 +803,7 @@ define(function(require, exports, module) {
                         function() {
 
                             // restart all terminal sessions
-                            proc.spawn("killall", { args: ["tmux"] }, function(err) {
+                            proc.spawn("killall", {args: ["tmux"]}, function(err) {
                                 if (err)
                                     showError("Failed to restart terminals!");
                             });
@@ -972,7 +972,7 @@ define(function(require, exports, module) {
                     parent.setAttribute("class", (parent.getAttribute("class") || "") + " cs50-simple-imgeditor-bar");
 
                     // label for current zoom level
-                    var label = new ui.label({ width: 50 });
+                    var label = new ui.label({width: 50});
                     label.setCaption = function(val) {
                         label.setAttribute("caption", ((_.isNumber(val) && val) || "100") + "%");
                     };
@@ -1034,7 +1034,7 @@ define(function(require, exports, module) {
                         name: "zoom_in",
                         hint: "Zooms in on image in image viewer",
                         group: "imgeditor",
-                        bindKey: { mac: "Command-+", win: "Ctrl-+" },
+                        bindKey: {mac: "Command-+", win: "Ctrl-+"},
                         isAvailable: function(editor) {
                             return editor && editor.type === "imgeditor";
                         },
@@ -1047,7 +1047,7 @@ define(function(require, exports, module) {
                         name: "zoom_out",
                         hint: "Zooms in on image in image viewer",
                         group: "imgeditor",
-                        bindKey: { mac: "Command--", win: "Ctrl--" },
+                        bindKey: {mac: "Command--", win: "Ctrl--"},
                         isAvailable: function(editor) {
                             return editor && editor.type === "imgeditor";
                         },
@@ -1073,7 +1073,7 @@ define(function(require, exports, module) {
                     }
 
                     layout.on("themeChange", setTheme);
-                    setTheme({ theme: settings.get("user/general/@skin") });
+                    setTheme({theme: settings.get("user/general/@skin")});
                 });
             });
         }
@@ -1094,7 +1094,7 @@ define(function(require, exports, module) {
                 'Please wait! This page will reload automatically.'
             );
 
-            proc.spawn("adminer", { args: [ "--url-only" ] }, function(err, process) {
+            proc.spawn("adminer", {args: ["--url-only"]}, function(err, process) {
                 if (err) {
                     console.error(err);
                     return tab.document.write("Could not start adminer.");
@@ -1387,7 +1387,7 @@ define(function(require, exports, module) {
          */
         function toggleTerminalSound(enable) {
             libterm && (libterm.bell = (enable === true)
-                ? function() { !presenting && terminalSound.play(); }
+                ? function() {!presenting && terminalSound.play();}
                 : function() {});
         }
 
@@ -1886,8 +1886,8 @@ define(function(require, exports, module) {
         /**
          * Left this empty since nobody else should be using our plugin
          **/
-        plugin.freezePublicAPI({ });
+        plugin.freezePublicAPI({});
 
-        register(null, { "harvard.cs50.simple" : plugin });
+        register(null, {"harvard.cs50.simple" : plugin});
     }
 });
