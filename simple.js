@@ -598,6 +598,12 @@ define(function(require, exports, module) {
                 menus.remove("Cloud9/Quit Cloud9");
             }
 
+            // add Adminer
+            menus.addItemByPath("Cloud9/Adminer", new ui.item({
+                caption: "Adminer",
+                onclick: startAdminer
+            }), 101, plugin);
+
             // project and user settings
             setMenuCaption("Cloud9/Open Your Project Settings", "Project Settings");
             setMenuCaption("Cloud9/Open Your User Settings", "User Settings");
@@ -632,6 +638,7 @@ define(function(require, exports, module) {
             // hide "Restart Cloud9"
             setMenuVisibility("Cloud9/Restart Cloud9", false);
         }
+
 
         /**
          * Finds bars for left and right areas and disables their context menus
@@ -1070,6 +1077,48 @@ define(function(require, exports, module) {
                 });
             });
         }
+
+
+        /**
+         * Spawns adminer and opens it on port 8082 in a new browser tab
+         */
+        function startAdminer() {
+
+            // open new browser tab
+            var tab = window.open("", "_blank");
+            if (!tab)
+                return;
+
+            tab.document.write(
+                'Starting adminer...<br>' +
+                'Please wait! This page will reload automatically.'
+            );
+
+            proc.spawn("adminer", { args: [ "--url-only" ] }, function(err, process) {
+                if (err) {
+                    console.error(err);
+                    return tab.document.write("Could not start adminer.");
+                }
+
+                // survive reloads
+                process.unref();
+
+                // read url from stdout
+                var url = "";
+                process.stdout.on("data", function handleOutput(chunk) {
+                    url += chunk;
+                    var matches = url.match(/(https?:\/\/.+)\s/);
+                    if (matches && matches[1]) {
+                        process.stdout.off("data", handleOutput);
+
+                        // open url in the browser tab
+                        tab.location.href = url;
+                    }
+
+                });
+            });
+        }
+
 
         /**
          * Syncs tree toggle button and menu item with tree visibility state.
