@@ -1094,7 +1094,7 @@ define(function(require, exports, module) {
                 'Please wait! This page will reload automatically.'
             );
 
-            proc.spawn("adminer50", {args: ["--url-only"]}, function(err, process) {
+            proc.spawn("adminer50", {args: ["--quiet"]}, function(err, process) {
                 if (err) {
                     console.error(err);
                     return tab.document.write("Could not start adminer50.");
