@@ -1090,7 +1090,7 @@ define(function(require, exports, module) {
                 return;
 
             tab.document.write(
-                'Starting adminer...<br>' +
+                'Starting Adminer...<br>' +
                 'Please wait! This page will reload automatically.'
             );
 
