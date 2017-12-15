@@ -57,7 +57,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 13;
+        var SETTINGS_VER = 14;
 
         // https://lodash.com/docs
         var _ = require("lodash");
@@ -1687,9 +1687,9 @@ define(function(require, exports, module) {
                 settings.set("user/tabs/@asterisk", false);
 
                 // default excluded formats
-                var types = ["class", "exe", "gz", "o", "pdf", "pyc", "raw", "tar", "zip"];
-                types.map(function(i) {
-                    settings.set("user/tabs/editorTypes/@"+i, "none");
+                var types = ["class", "exe", "gz", "o", "pyc", "raw", "tar", "zip"];
+                types.forEach(function(type) {
+                    settings.set("user/tabs/editorTypes/@" + type, "none");
                 });
 
                 // increase default value for terminal scrollback buffer
