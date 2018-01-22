@@ -1687,8 +1687,7 @@ define(function(require, exports, module) {
                 settings.set("user/tabs/@asterisk", false);
 
                 // default excluded formats
-                var types = ["class", "exe", "gz", "o", "pyc", "raw", "tar", "zip"];
-                types.forEach(function(type) {
+                ["class", "exe", "gz", "o", "pyc", "raw", "tar", "zip"].forEach(function(type) {
                     settings.set("user/tabs/editorTypes/@" + type, "none");
                 });
 
