@@ -5,13 +5,14 @@ define(function(require, exports, module) {
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
         "collab.workspace", "commands", "console", "dialog.confirm",
         "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
-        "harvard.cs50.info", "immediate", "info", "keymaps", "navigate",
-        "outline", "language", "language.python", "layout", "login", "Menu",
-        "MenuItem", "menus", "newresource", "panels", "Plugin", "preferences",
-        "preview", "proc", "run.gui", "save", "settings", "tabbehavior",
-        "tabManager", "terminal", "tooltip", "tree", "tree.favorites", "ui",
-        "util"
+        "harvard.cs50.info", "harvard.cs50.presentation", "immediate", "info",
+        "keymaps", "navigate", "outline", "language", "language.python",
+        "layout", "login", "Menu", "MenuItem", "menus", "newresource", "panels",
+        "Plugin", "preferences", "preview", "proc", "run.gui", "save",
+        "settings", "tabbehavior", "tabManager", "terminal", "tooltip", "tree",
+        "tree.favorites", "ui", "util"
     ];
+
     main.provides = ["harvard.cs50.simple"];
     return main;
 
@@ -45,6 +46,7 @@ define(function(require, exports, module) {
         var panels = imports.panels;
         var Plugin = imports.Plugin;
         var prefs = imports.preferences;
+        const presentation = imports["harvard.cs50.presentation"];
         var proc = imports.proc;
         var save = imports.save;
         var settings = imports.settings;
@@ -75,7 +77,6 @@ define(function(require, exports, module) {
 
         var notification = {};
         var openingFile = false;
-        var presenting = false;
         var terminalSound = null;
         var trailingLine = null;
         var treeToggles = {};
@@ -1337,9 +1338,13 @@ define(function(require, exports, module) {
          * @param {boolean} enable whether to enable terminal sound
          */
         function toggleTerminalSound(enable) {
-            libterm && (libterm.bell = (enable === true)
-                ? function() { !presenting && terminalSound.play(); }
-                : function() {});
+            if (!libterm)
+                return;
+
+            if (enable === true)
+                libterm.bell = () => !presentation.presenting && terminalSound.play();
+            else
+                libterm.bell = () => {};
         }
 
         /**
@@ -1435,7 +1440,7 @@ define(function(require, exports, module) {
                     var terminal = 12;
 
                     // determine default font sizes depending on current mode
-                    if (presenting)
+                    if (presentation.presenting)
                         ace = terminal = 20;
 
                     // reset font sizes of ace and terminal to defaults
@@ -1747,14 +1752,6 @@ define(function(require, exports, module) {
             toggleTerminalSound(settings.getBool("user/cs50/simple/@terminalSound"));
             settings.on("user/cs50/simple/@terminalSound", toggleTerminalSound, plugin);
 
-            // determine whether we're presenting initially
-            presenting = settings.getBool("user/cs50/presentation/@presenting");
-
-            // update presenting when necessary
-            settings.on("user/cs50/presentation/@presenting", function(val) {
-                presenting = val;
-            }, plugin);
-
             // add Gravatar toggle online only
             info.getUser(addGravatarToggle);
 
@@ -1824,7 +1821,6 @@ define(function(require, exports, module) {
             dark = null;
             notification = {};
             openingFile = false;
-            presenting = false;
             terminalSound = null;
             trailingLine = null;
             treeToggles = {};
