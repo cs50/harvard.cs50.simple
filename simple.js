@@ -7,10 +7,10 @@ define(function(require, exports, module) {
         "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
         "harvard.cs50.info", "harvard.cs50.presentation", "immediate", "info",
         "keymaps", "navigate", "outline", "language", "language.python",
-        "layout", "login", "Menu", "MenuItem", "menus", "newresource", "panels",
-        "Plugin", "preferences", "preview", "proc", "run.gui", "save",
-        "settings", "tabbehavior", "tabManager", "terminal", "tooltip", "tree",
-        "tree.favorites", "ui", "util"
+        "layout", "login", "Menu", "MenuItem", "menus", "newresource",
+        "openPath", "panels", "Plugin", "preferences", "preview", "proc",
+        "run.gui", "save", "settings", "tabbehavior", "tabManager", "terminal",
+        "tooltip", "tree", "tree.favorites", "ui", "util"
     ];
 
     main.provides = ["harvard.cs50.simple"];
@@ -38,6 +38,7 @@ define(function(require, exports, module) {
         var model = fsCache.model;
         var newresource = imports.newresource;
         var notify = imports["dialog.notification"].show;
+        const openPath = imports.openPath;
 
         // outline adds "Goto/Goto Symbol..."
         // listing it as dependency ensures item exists before simple is loaded
@@ -1806,6 +1807,20 @@ define(function(require, exports, module) {
                 // update author info as members are added or removed
                 workspace.on("sync", updateAuthorInfo);
             }
+
+            // hook into link menu creation
+            openPath.on("linkMenuCreated", (e) => {
+
+                // hide Open In Preview when link menu shows up
+                e.menu.on("show", () => {
+                    e.menu.items.some((item) => {
+                        if (item.caption === "Open In Preview") {
+                            item.hide();
+                            return true;
+                        }
+                    });
+                });
+            });
         }
 
         /***** Lifecycle *****/
