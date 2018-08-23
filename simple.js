@@ -3,7 +3,7 @@ define(function(require, exports, module) {
 
     main.consumes = [
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
-        "collab.workspace", "commands", "console", "dialog.confirm",
+        "collab.environment", "commands", "console", "dialog.confirm",
         "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
         "harvard.cs50.info", "harvard.cs50.presentation", "immediate", "info",
         "keymaps", "navigate", "outline", "language", "language.python",
@@ -55,7 +55,7 @@ define(function(require, exports, module) {
         var tabMenu = imports.tabbehavior.contextMenu;
         var tree = imports.tree;
         var ui = imports.ui;
-        var workspace = imports["collab.workspace"];
+        var workspace = imports["collab.environment"];
 
         var plugin = new Plugin("CS50", main.consumes);
 
@@ -65,7 +65,7 @@ define(function(require, exports, module) {
         var _ = require("lodash");
         var basename = require("path").basename;
 
-        var libterm = require("plugins/c9.ide.terminal/aceterm/libterm").prototype;
+        var libterm = require("@c9/ide/plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
         var authorInfoToggled = null;
         var avatar = null;
@@ -269,7 +269,7 @@ define(function(require, exports, module) {
                             return;
 
                         // path for selected directory
-                        var path = node.path.replace(/^\//, c9.workspaceDir + "/");
+                        var path = node.path.replace(/^\//, c9.environmentDir + "/");
 
                         // open new browser tab
                         var tab = window.open("", "_blank");
@@ -1820,7 +1820,7 @@ define(function(require, exports, module) {
                 }, plugin);
 
                 // load members in the workspace
-                workspace.loadMembers(updateAuthorInfo);
+                workspace.loadMembers(updateAuthorInfo, () => {});
 
                 // update author info as members are added or removed
                 workspace.on("sync", updateAuthorInfo);
