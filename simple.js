@@ -91,11 +91,13 @@ define(function(require, exports, module) {
             if (!openItem)
                 return;
 
+            const navigate = commands.commands.navigate || commands.commands.gotoanything;
+
             // add command that opens file dialog
             commands.addCommand({
                 name: "openFileDialog",
                 hint: "Opens file dialog for opening files",
-                bindKey: commands.commands.navigate.bindKey,
+                bindKey: navigate.bindKey,
                 exec: function() {
 
                     // wehther to customize file dialog
@@ -117,7 +119,7 @@ define(function(require, exports, module) {
             }, plugin);
 
             // delete navigate's keyboard shortcut
-            delete commands.commands.navigate.bindKey;
+            delete navigate.bindKey;
 
             /**
              * Prevents selection of multiple files in "open file" dialog's tree
