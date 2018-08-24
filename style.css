@@ -1,12 +1,12 @@
 /* preload images */
 body:after {
-    content: url("@{plugin-path}/images/c9.png") url("@{plugin-path}/images/tree-toggle.png") url("@{plugin-path}/images/tree-toggle-active.png") url("@{plugin-path}/images/tree-toggle-dark.png") url("@{plugin-path}/images/tree-toggle-dark-active.png");
+    content: url("@{plugin-image-path}/c9.png") url("@{plugin-image-path}/tree-toggle.png") url("@{plugin-image-path}/tree-toggle-active.png") url("@{plugin-image-path}/tree-toggle-dark.png") url("@{plugin-image-path}/tree-toggle-dark-active.png");
     display:none;
 }
 
 /* tree-toggle in light theme */
 .cs50-simple-tree-toggle {
-    background-image: url("@{plugin-path}/images/tree-toggle.png");
+    background-image: url("@{plugin-image-path}/tree-toggle.png");
     background-size: auto 11px;
     background-repeat: no-repeat;
     left: 15px;
@@ -18,19 +18,19 @@ body:after {
     -webkit-filter: brightness(0.5);
 }
 .cs50-simple-tree-toggle.active {
-    background-image: url("@{plugin-path}/images/tree-toggle-active.png");
+    background-image: url("@{plugin-image-path}/tree-toggle-active.png");
 }
 
 /* tree-toggle in dark theme */
 .cs50-simple-tree-toggle.dark {
-    background-image: url("@{plugin-path}/images/tree-toggle-dark.png");
+    background-image: url("@{plugin-image-path}/tree-toggle-dark.png");
 }
 .cs50-simple-tree-toggle.dark:hover {
     filter: brightness(1.5);
     -webkit-filter:brightness(1.5);
 }
 .cs50-simple-tree-toggle.dark.active {
-    background-image: url("@{plugin-path}/images/tree-toggle-dark-active.png");
+    background-image: url("@{plugin-image-path}/tree-toggle-dark-active.png");
 }
 
 /* shift pane menu button to the right */
@@ -91,5 +91,5 @@ body:after {
 }
 
 .c9-logo .icon {
-    background-image: url("@{plugin-path}/images/c9.png") !important;
+    background-image: url("@{plugin-image-path}/c9.png") !important;
 }
