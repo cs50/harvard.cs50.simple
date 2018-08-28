@@ -1770,7 +1770,7 @@ define(function(require, exports, module) {
 
 
             // add terminal sound
-            terminalSound = new Audio(require("asset-url!@harvard/cs50/plugins/harvard.cs50.simple/sounds/bell.mp3"));
+            terminalSound = new Audio(require("asset-url!@cs50/ide/plugins/harvard.cs50.simple/sounds/bell.mp3"));
             toggleTerminalSound(settings.getBool("user/cs50/simple/@terminalSound"));
             settings.on("user/cs50/simple/@terminalSound", toggleTerminalSound, plugin);
 
