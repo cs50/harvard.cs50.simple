@@ -1756,7 +1756,7 @@ define(function(require, exports, module) {
             tabs.on("tabAfterActivate", (e) => {
                 toggleUndeclaredVars(e);
 
-                // prevent other plugins from restting it
+                // prevent other plugins from resetting it
                 updateTooltip(e);
             });
 
