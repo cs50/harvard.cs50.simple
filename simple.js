@@ -1637,6 +1637,18 @@ define(function(require, exports, module) {
             });
         }
 
+
+        /**
+         * Updates tab tooltip to start with ~/workspace instead of /
+         */
+        function updateTooltip(e) {
+            if (e.tab.path && e.tab.tooltip === e.tab.path && e.tab.tooltip.startsWith("/")) {
+                e.tab.document.tooltip = e.tab.tooltip =
+                    `${c9.workspaceDir.replace(c9.home, "~")}${e.tab.tooltip}`;
+            }
+        }
+
+
         var loaded = false;
         function load() {
 
@@ -1741,12 +1753,19 @@ define(function(require, exports, module) {
             simplifyStatusbar();
 
             // stop marking undeclared variables for javascript files
-            tabs.on("tabAfterActivate", toggleUndeclaredVars);
+            tabs.on("tabAfterActivate", (e) => {
+                toggleUndeclaredVars(e);
+
+                // prevent other plugins from resetting it
+                updateTooltip(e);
+            });
 
             // set titles of terminal tabs to current directory name
             tabs.on("tabCreate", function(e) {
                 setTmuxTitle(e.tab);
+                updateTooltip(e);
             }, plugin);
+
 
             // add terminal sound
             terminalSound = new Audio(options.staticPrefix + "/sounds/bell.mp3");
