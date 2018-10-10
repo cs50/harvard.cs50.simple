@@ -5,7 +5,7 @@ define(function(require, exports, module) {
         "ace", "ace.status", "auth", "c9", "clipboard", "collab",
         "collab.environment", "commands", "console", "dialog.confirm",
         "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
-        "harvard.cs50.info", "harvard.cs50.presentation", "immediate", "info",
+        "harvard.cs50.presentation", "immediate", "info",
         "keymaps", "navigate", "outline", "language", "language.python",
         "layout", "login", "Menu", "MenuItem", "menus", "newresource", "panels",
         "Plugin", "preferences", "preview", "proc", "run.gui", "save",
@@ -29,7 +29,6 @@ define(function(require, exports, module) {
         var fs = imports.fs;
         var fsCache = imports["fs.cache"];
         var info = imports.info;
-        var info50 = imports["harvard.cs50.info"];
         var language = imports.language;
         var layout = imports.layout;
         var Menu = imports.Menu;
@@ -302,7 +301,7 @@ define(function(require, exports, module) {
                             });
 
                             setTimeout(function() {
-                                tab.location.href = info50.host.replace(/:[0-9]+$/, ":" + PORT);
+                                // tab.location.href = info50.host.replace(/:[0-9]+$/, ":" + PORT);
                             },
                             1000);
                         });
