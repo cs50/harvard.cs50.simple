@@ -17,68 +17,68 @@ define(function(require, exports, module) {
     return main;
 
     function main(options, imports, register) {
-        var ace = imports.ace;
-        var auth = imports.auth;
-        var c9 = imports.c9;
-        var collab = imports.collab;
-        var commands = imports.commands;
-        var confirm = imports["dialog.confirm"].show;
-        var editors = imports.editors;
-        var favorites = imports["tree.favorites"];
-        var fileDialog = imports["dialog.file"];
-        var fs = imports.fs;
-        var fsCache = imports["fs.cache"];
-        var info = imports.info;
-        var language = imports.language;
-        var layout = imports.layout;
-        var Menu = imports.Menu;
-        var MenuItem = imports.MenuItem;
-        var menus = imports.menus;
-        var model = fsCache.model;
-        var newresource = imports.newresource;
-        var notify = imports["dialog.notification"].show;
+        const ace = imports.ace;
+        const auth = imports.auth;
+        const c9 = imports.c9;
+        const collab = imports.collab;
+        const commands = imports.commands;
+        const confirm = imports["dialog.confirm"].show;
+        const editors = imports.editors;
+        const favorites = imports["tree.favorites"];
+        const fileDialog = imports["dialog.file"];
+        const fs = imports.fs;
+        const fsCache = imports["fs.cache"];
+        const info = imports.info;
+        const language = imports.language;
+        const layout = imports.layout;
+        const Menu = imports.Menu;
+        const MenuItem = imports.MenuItem;
+        const menus = imports.menus;
+        const model = fsCache.model;
+        const newresource = imports.newresource;
+        const notify = imports["dialog.notification"].show;
 
         // outline adds "Goto/Goto Symbol..."
         // listing it as dependency ensures item exists before simple is loaded
-        var outline = imports.outline;
+        const outline = imports.outline;
 
-        var panels = imports.panels;
-        var Plugin = imports.Plugin;
-        var prefs = imports.preferences;
+        const panels = imports.panels;
+        const Plugin = imports.Plugin;
+        const prefs = imports.preferences;
         const presentation = imports["harvard.cs50.presentation"];
-        var proc = imports.proc;
-        var save = imports.save;
-        var settings = imports.settings;
-        var statusbar = imports["ace.status"];
-        var tabs = imports.tabManager;
-        var tabMenu = imports.tabbehavior.contextMenu;
-        var tree = imports.tree;
-        var ui = imports.ui;
-        var workspace = imports["collab.environment"];
+        const proc = imports.proc;
+        const save = imports.save;
+        const settings = imports.settings;
+        const statusbar = imports["ace.status"];
+        const tabs = imports.tabManager;
+        const tabMenu = imports.tabbehavior.contextMenu;
+        const tree = imports.tree;
+        const ui = imports.ui;
+        const workspace = imports["collab.environment"];
 
-        var plugin = new Plugin("CS50", main.consumes);
+        const plugin = new Plugin("CS50", main.consumes);
 
-        var SETTINGS_VER = 14;
+        const SETTINGS_VER = 14;
 
         // https://lodash.com/docs
-        var _ = require("lodash");
-        var basename = require("path").basename;
+        const _ = require("lodash");
+        const basename = require("path").basename;
 
-        var libterm = require("@c9/ide/plugins/c9.ide.terminal/aceterm/libterm").prototype;
+        const libterm = require("@c9/ide/plugins/c9.ide.terminal/aceterm/libterm").prototype;
 
-        var authorInfoToggled = null;
-        var avatar = null;
-        var dark = null;
-        var languages = {
+        let authorInfoToggled = null;
+        let avatar = null;
+        let dark = null;
+        const languages = {
             en: "en_US.UTF-8",
             es: "es_ES.UTF-8"
         };
 
-        var notification = {};
-        var openingFile = false;
-        var terminalSound = null;
-        var trailingLine = null;
-        var treeToggles = {};
+        let notification = {};
+        let openingFile = false;
+        let terminalSound = null;
+        let trailingLine = null;
+        let treeToggles = {};
 
         /**
          * Overrides the behavior of the "File/Open" menu item to open a file
@@ -86,7 +86,7 @@ define(function(require, exports, module) {
          */
         function addFileDialog() {
             // get the "File/Open" menu item
-            var openItem = menus.get("File/Open...").item;
+            const openItem = menus.get("File/Open...").item;
             if (!openItem)
                 return;
 
@@ -97,7 +97,7 @@ define(function(require, exports, module) {
                 name: "openFileDialog",
                 hint: "Opens file dialog for opening files",
                 bindKey: navigate.bindKey,
-                exec: function() {
+                exec() {
 
                     // wehther to customize file dialog
                     openingFile = true;
@@ -124,8 +124,8 @@ define(function(require, exports, module) {
              * Prevents selection of multiple files in "open file" dialog's tree
              */
             function disableMultiSelect() {
-                var selection = fileDialog.tree.selection;
-                var selectedNodes = selection.getSelectedNodes();
+                const selection = fileDialog.tree.selection;
+                const selectedNodes = selection.getSelectedNodes();
 
                 if (selectedNodes.length > 1)
                     // select last selected node only
@@ -133,18 +133,18 @@ define(function(require, exports, module) {
             }
 
             // customize file dialog
-            fileDialog.on("show", function() {
+            fileDialog.on("show", () => {
                 // avoid customizing other file dialogs (e.g., save)
                 if (openingFile !== true)
                     return;
 
                 // hide "Folder:" label and text field
-                var txtDirectory = fileDialog.getElement("txtDirectory");
+                const txtDirectory = fileDialog.getElement("txtDirectory");
                 hide(txtDirectory.previousSibling);
                 hide(txtDirectory);
 
                 // allow opening file by double-clicking it
-                fileDialog.tree.once("afterChoose", function() {
+                fileDialog.tree.once("afterChoose", () => {
                     fileDialog.getElement("btnChoose").dispatchEvent("click");
                 });
 
@@ -153,7 +153,7 @@ define(function(require, exports, module) {
             }, plugin);
 
             // clean up to avoid affecting other file dialogs
-            fileDialog.on("hide", function() {
+            fileDialog.on("hide", () => {
                 // reset openingFile
                 openingFile = false;
 
@@ -214,7 +214,7 @@ define(function(require, exports, module) {
         function addLanguages() {
 
             // create Language submenu
-            var languagesItem = new MenuItem({
+            const languagesItem = new MenuItem({
                 caption: "Language",
                 submenu: new Menu({}, plugin)
             });
@@ -224,13 +224,13 @@ define(function(require, exports, module) {
             menus.addItemByPath("View/Language", languagesItem, 4, plugin);
 
             // fetch current language from settings or fallback to English
-            var currLanguage = settings.get("project/cs50/simple/@language") || "en";
+            const currLanguage = settings.get("project/cs50/simple/@language") || "en";
 
             // create language menu items
-            Object.keys(languages).forEach(function(language) {
-                var item = new MenuItem({
+            Object.keys(languages).forEach(language => {
+                const item = new MenuItem({
                     caption: language,
-                    onclick: function() {
+                    onclick() {
                         setLanguage(language);
                     },
                     type: "radio"
@@ -246,7 +246,7 @@ define(function(require, exports, module) {
          * Adds Serve menu item to context menu of file browser.
          */
         function addServe() {
-            tree.getElement("mnuCtxTree", function(mnuCtxTree) {
+            tree.getElement("mnuCtxTree", mnuCtxTree => {
 
                 // add "Serve" to tree context menu
                 menus.addItemToMenu(mnuCtxTree, new ui.item({
@@ -254,15 +254,15 @@ define(function(require, exports, module) {
                     match: "folder",
 
                     // disable "Serve"
-                    isAvailable: function() {
+                    isAvailable() {
 
                         // disable item when more than one folder is selected
-                        return tree.selectedNodes.filter(function(node) {
+                        return tree.selectedNodes.filter(node => {
                             return node.isFolder;
                         }).length === 1;
                     },
-                    onclick: function() {
-                        var node = tree.selectedNodes.find(function(node) {
+                    onclick() {
+                        const node = tree.selectedNodes.find(function(node) {
                             return node.isFolder;
                         });
 
@@ -270,10 +270,10 @@ define(function(require, exports, module) {
                             return;
 
                         // path for selected directory
-                        var path = node.path.replace(/^\//, c9.environmentDir + "/");
+                        const path = node.path.replace(/^\//, c9.environmentDir + "/");
 
                         // open new browser tab
-                        var tab = window.open("", "_blank");
+                        const tab = window.open("", "_blank");
                         if (!tab)
                             return;
 
@@ -284,23 +284,23 @@ define(function(require, exports, module) {
 
                         // spawn http-server
                         // alias isn't seen by subshell
-                        var PORT = "8081";
+                        const PORT = "8081";
                         proc.spawn("/home/ubuntu/.cs50/bin/http-server", {
                             args: [ "-p", PORT ],
                             cwd: path
                         },
-                        function(err, process) {
+                        (err, process) => {
                             if (err) {
                                 // showError("Could not start http-server");
                                 tab.document.write("Could not start http-server.");
                                 return console.error(err);
                             }
 
-                            process.stderr.on("data", function(chunk) {
+                            process.stderr.on("data", chunk => {
                                 console.log(chunk);
                             });
 
-                            setTimeout(function() {
+                            setTimeout(() => {
                                 // tab.location.href = info50.host.replace(/:[0-9]+$/, ":" + PORT);
                             },
                             1000);
@@ -323,9 +323,9 @@ define(function(require, exports, module) {
 
             // overrides getCaptionHTML to add slash to dir names and redraws file browser
             function helper() {
-                var getCaptionHTML = model.getCaptionHTML;
-                model.getCaptionHTML = function(node) {
-                        var caption = getCaptionHTML(node);
+                const getCaptionHTML = model.getCaptionHTML;
+                model.getCaptionHTML = node => {
+                        let caption = getCaptionHTML(node);
                         if (node.isFolder && !node.isFavorite && !node.path.startsWith("!") && !caption.endsWith("/"))
                             caption += "/";
 
@@ -344,7 +344,7 @@ define(function(require, exports, module) {
         function addTooltips() {
 
             // adds tooltips as a callback after the consoleButtons are created
-            imports.console.getElement("consoleButtons", function(aml) {
+            imports.console.getElement("consoleButtons", aml => {
                 aml.childNodes[0].setAttribute("tooltip", "Maximize Console");
                 aml.childNodes[2].setAttribute("tooltip", "Close Console");
             });
@@ -374,7 +374,7 @@ define(function(require, exports, module) {
                 }, plugin);
 
                 // update trailingLine when pref changes
-                settings.on("project/cs50/ace/@trailingLine", function(enabled) {
+                settings.on("project/cs50/ace/@trailingLine", enabled => {
                     trailingLine = enabled;
                 });
 
@@ -390,10 +390,10 @@ define(function(require, exports, module) {
                 && /^makefile$|\.(?:c|css|h|html|php|py|rb|sh)$/i.test(basename(e.tab.path))) {
 
                 // Ace Document (https://ace.c9.io/#nav=api&api=document)
-                var doc = e.document.getSession().session.getDocument();
+                const doc = e.document.getSession().session.getDocument();
 
                 // number of lines in the document
-                var length = doc.getLength();
+                const length = doc.getLength();
 
                 // insert trailing line only if last line isn't newline
                 if (trailingLine && doc.getLine(length - 1) !== "")
@@ -410,10 +410,10 @@ define(function(require, exports, module) {
             dark = settings.get("user/general/@skin").indexOf("dark") > -1;
 
             // remember if tree is shown or hidden initially
-            var resetVisibility = tree.active ? tree.show : tree.hide;
+            const resetVisibility = tree.active ? tree.show : tree.hide;
 
             // get middle column
-            var tabsParent = layout.findParent(tabs);
+            const tabsParent = layout.findParent(tabs);
 
             // hide workspace from window menu
             setMenuVisibility("Window/Workspace", false);
@@ -435,11 +435,11 @@ define(function(require, exports, module) {
             });
 
             // listen for pane creation
-            tabs.on("paneCreate", function(e) {
-                var codePanes = tabs.getPanes(tabsParent);
+            tabs.on("paneCreate", e => {
+                const codePanes = tabs.getPanes(tabsParent);
 
                 // ensure pane is a code pane (i.e., not console)
-                var pane = codePanes.find(function(p) {
+                const pane = codePanes.find(function(p) {
                     return p === e.pane;
                 });
 
@@ -447,7 +447,7 @@ define(function(require, exports, module) {
                     return;
 
                 // create hidden toggle button
-                var button = ui.button({
+                const button = ui.button({
                     id: treeToggles.ID,
                     "class": "cs50-simple-tree-toggle",
                     command: "toggletree",
@@ -468,28 +468,28 @@ define(function(require, exports, module) {
                     showTreeToggle(codePanes[0]);
 
                 // handle when the pane that holds the button is destroyed
-                tabs.on("paneDestroy", function(e) {
+                tabs.on("paneDestroy", e => {
                     // ensure pane is button-holder
                     if (_.isObject(treeToggles.button) && e.pane !== treeToggles.button.pane)
                         return;
 
                     // get current code panes
-                    var codePanes = tabs.getPanes(tabsParent);
+                    const codePanes = tabs.getPanes(tabsParent);
 
                     // ensure at least one pane left
                     if (codePanes.length < 1)
                         return;
 
                     // find top-left pane
-                    var topLeftPane = codePanes[0];
+                    const topLeftPane = codePanes[0];
 
                     // remember boundaries of top-left pane
-                    var topLeftRect = topLeftPane.container.getBoundingClientRect();
+                    const topLeftRect = topLeftPane.container.getBoundingClientRect();
 
                     // iterate over the rest of the panes
-                    for (var i = 1; i < codePanes.length; i++) {
+                    for (let i = 1; i < codePanes.length; i++) {
                         // get boundary of current pane
-                        var rect = codePanes[i].container.getBoundingClientRect();
+                        const rect = codePanes[i].container.getBoundingClientRect();
 
                         // handle when pane is more top-left
                         if (rect.left <= topLeftRect.left && rect.top <= topLeftRect.top) {
@@ -510,13 +510,13 @@ define(function(require, exports, module) {
             tree.once("draw", syncTreeToggles.bind(this, true));
             tree.on("show", syncTreeToggles.bind(this, true));
             tree.on("hide", syncTreeToggles);
-            settings.on("user/general/@skin", function(skin) {
+            settings.on("user/general/@skin", skin => {
                 dark = skin.indexOf("dark") > -1;
                 syncTreeToggles(tree.active);
             });
 
             // toggle visibility of tree toggle as tabs are shown or hidden
-            settings.on("user/tabs/@show", function(showing) {
+            settings.on("user/tabs/@show", showing => {
                 showing ? show(treeToggles.button) : hide(treeToggles.button);
             });
         }
@@ -531,7 +531,7 @@ define(function(require, exports, module) {
                 return;
 
             // get Restart Workspace menu item
-            var item = menus.get("Cloud9/Restart Workspace").item;
+            const item = menus.get("Cloud9/Restart Workspace").item;
             if (!item)
                 return;
 
@@ -539,18 +539,16 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "confirmrestartc9vm",
                 isAvailable: commands.commands.restartc9vm.isAvailable,
-                exec: function() {
+                exec() {
                     confirm("Restart Workspace?",
                         "Are you sure you want to restart CS50 IDE?",
                         "Any files you have open will stay open.",
 
                         // OK
-                        function() {
-                            commands.exec("restartc9vm");
-                        },
+                        (() => { commands.exec("restartc9vm"); }),
 
                         // Cancel
-                        function() {}
+                        (() => {})
                     );
                 }
             }, plugin);
@@ -563,9 +561,9 @@ define(function(require, exports, module) {
          * Customizes "Cloud9" menu for CS50 IDE
          */
         function customizeC9Menu() {
-            var dashboard = "Cloud9/Go To Your Dashboard";
+            const dashboard = "Cloud9/Go To Your Dashboard";
             if (c9.hosted) {
-                var dashboardItem = menus.get(dashboard).item;
+                const dashboardItem = menus.get(dashboard).item;
                 if (dashboardItem) {
                     // rename "Go To Your Dashboard" to "Dashboard"
                     setMenuCaption(dashboardItem, "Dashboard");
@@ -575,15 +573,15 @@ define(function(require, exports, module) {
                 }
 
                 // simplify user's menu
-                info.getUser(function(err, user) {
+                info.getUser((err, user) => {
                     if (user && user.id) {
-                        var path = "user_" + user.id + "/";
+                        const path = "user_" + user.id + "/";
 
                         // move "Account" to CS50 IDE menu
                         menus.addItemByPath("Cloud9/Account", menus.get(path + "Account").item, 298, plugin);
 
                         // remove items from user's menu
-                        ["Dashboard", "Home", "Log out"].forEach(function(item) {
+                        ["Dashboard", "Home", "Log out"].forEach(item => {
                             menus.remove(path + item);
                         });
                     }
@@ -606,27 +604,27 @@ define(function(require, exports, module) {
             setMenuCaption("Cloud9/Open Your Init Script", "Init Script");
 
             // add divider after "Preferences"
-            var div = new ui.divider();
+            const div = new ui.divider();
             menus.addItemByPath("Cloud9/~", div, 301, plugin);
 
             // add "Reset"
             menus.addItemByPath("Cloud9/Reset Settings", new ui.item({
                 caption: "Reset Settings",
-                onclick: function() {
+                onclick() {
                     confirm("Reset Settings",
                         "",
                         "Are you sure you want to reset CS50 IDE to factory " +
                         "defaults? It will then look just as it did when you " +
                         "created it. Your files and folders will not be deleted.",
                         // OK
-                        function() {
+                        (() => {
 
                             // reset user, state, and project settings
                             window.location.search += "&reset=user|state|project";
-                        },
+                        }),
 
                         // Cancel
-                        function() {}
+                        (() => {})
                     );
                 }
             }), 2000079, plugin);
@@ -641,13 +639,13 @@ define(function(require, exports, module) {
         function disableAreaBarsMenu() {
 
             // find bars for left and right panel areas
-            [panels.areas["left"], panels.areas["right"]].forEach(function(area) {
+            [panels.areas["left"], panels.areas["right"]].forEach(area => {
                 if (area && area.aml && area.aml.childNodes.length > 0) {
-                    area.aml.childNodes.some(function(bar) {
+                    area.aml.childNodes.some(bar => {
                         if (bar.$baseCSSname === "panelsbar") {
 
                             // disable context menu
-                            bar.oncontextmenu = function() {};
+                            bar.oncontextmenu = () => {};
                         }
                     });
                 }
@@ -678,7 +676,7 @@ define(function(require, exports, module) {
              * Event handler for hiding "Run This File" item from menu.
              */
             function hideRunThisFile(e) {
-                e.currentTarget.childNodes.some(function(item) {
+                e.currentTarget.childNodes.some(item => {
                     if (item.caption === "Run This File")
                         return hide(item);
                 });
@@ -694,7 +692,7 @@ define(function(require, exports, module) {
             outline.enable();
 
             // get parent of "Preview" and "Run" buttons
-            var p = layout.findParent({ name: "preview" });
+            const p = layout.findParent({ name: "preview" });
 
             // hide the divider
             hide(p.childNodes[0]);
@@ -709,11 +707,11 @@ define(function(require, exports, module) {
             setMenuVisibility("Run", false);
 
             // hide "Run" and "Preview" items from file browser's menu
-            tree.on("menuUpdate", function(e) {
+            tree.on("menuUpdate", e => {
                 if (!e.menu)
                     return;
 
-                e.menu.childNodes.forEach(function(item) {
+                e.menu.childNodes.forEach(item => {
                     if (item.caption === "Run" || item.caption === "Preview")
                         hide(item);
                 });
@@ -723,7 +721,7 @@ define(function(require, exports, module) {
             tabMenu.once("prop.visible", hideRunThisFile);
 
             // remove "Run This File" item from ace's context menu
-            ace.getElement("menu", function(menu) {
+            ace.getElement("menu", menu => {
                 menu.once("prop.visible", hideRunThisFile);
             });
 
@@ -736,7 +734,7 @@ define(function(require, exports, module) {
          * Hides gear icon
          */
         function hideGearIcon() {
-            var bar = layout.findParent({name: "preferences"});
+            const bar = layout.findParent({name: "preferences"});
             if (bar.childNodes) {
                 bar.childNodes.forEach(function(node) {
                     if (node.class === "preferences")
@@ -751,7 +749,7 @@ define(function(require, exports, module) {
         function moveMenuItems() {
 
             // move New Terminal to File menu
-            var newTerminal = menus.get("Window/New Terminal").item;
+            const newTerminal = menus.get("Window/New Terminal").item;
             if (newTerminal)
                 menus.addItemByPath("File/New Terminal", newTerminal, 150, plugin);
         }
@@ -766,23 +764,23 @@ define(function(require, exports, module) {
                 language = "en";
 
             // write a shell script that sets LANGUAGE env var to be sourced by ~/.bashrc
-            var path = "~/.cs50/language";
-            fs.writeFile(path, "export LANGUAGE=" + languages[language], function(err) {
+            const path = "~/.cs50/language";
+            fs.writeFile(path, "export LANGUAGE=" + languages[language], err => {
                 if (err) {
                     console.log(err);
                     return showError("Failed to set language.");
                 }
 
                 // chmod 644
-                fs.chmod(path, 644, function(err) {
+                fs.chmod(path, 644, err => {
                     if (err) {
                         console.log(err);
                         return showError("Failed to chmod language file.");
                     }
 
                     // warn before restarting terminal
-                    var count = 0;
-                    tabs.getTabs().some(function(tab) {
+                    let count = 0;
+                    tabs.getTabs().some(tab => {
                         return (tab.editorType === "terminal") && (++count === 2);
                     });
 
@@ -796,17 +794,17 @@ define(function(require, exports, module) {
                             : "",
 
                         // OK
-                        function() {
+                        (() => {
 
                             // restart all terminal sessions
                             proc.spawn("killall", { args: ["tmux"] }, function(err) {
                                 if (err)
                                     showError("Failed to restart terminals!");
                             });
-                        },
+                        }),
 
                         // Cancel
-                        function() {}
+                        (() => {})
                     );
                 });
             });
@@ -833,7 +831,7 @@ define(function(require, exports, module) {
          * Sets visibility of menu item with specified path.
          */
         function setMenuVisibility(path, visible) {
-            var menu = menus.get(path).item;
+            const menu = menus.get(path).item;
             visible ? show(menu) : hide(menu);
         }
 
@@ -846,18 +844,18 @@ define(function(require, exports, module) {
             updateTitle(tabs.focussedTab);
 
             // update document title when tab is focused
-            tabs.on("focusSync", function(e) {
+            tabs.on("focusSync", e => {
                 updateTitle(e.tab);
             }, plugin);
 
             // update document title when tab is destroyed
-            tabs.on("tabDestroy", function(e) {
+            tabs.on("tabDestroy", e => {
                 if (e.last)
                 updateTitle();
             }, plugin);
 
             // update document title when preference is toggled
-            settings.on("user/tabs/@title", function() {
+            settings.on("user/tabs/@title", () => {
                 updateTitle(tabs.focussedTab);
             });
         }
@@ -868,24 +866,24 @@ define(function(require, exports, module) {
         function setTmuxTitle(tab) {
             // check if the tab exists and it is a terminal tab
             if (tab && tab.editorType === "terminal") {
-                var session = tab.document.getSession();
+                const session = tab.document.getSession();
                 tab.document.on("setTitle", function(e) {
                     // fetch title from the object, fall back on tab
-                    var title = e.title || tab.document.title;
+                    let title = e.title || tab.document.title;
 
                     // remove terminating ' - ""', if it exists
-                    var re = /\s-\s""\s*$/;
+                    const re = /\s-\s""\s*$/;
                     if (title && re.test(title)) {
                         title = title.replace(re, "");
 
                         // list of items whose title should change
-                        var docList = [e, tab.document];
+                        const docList = [e, tab.document];
 
                         if (session && session.hasOwnProperty("doc"))
                             docList.push(session.doc, session.doc.tooltip);
 
                         // fix all titles
-                        docList.forEach(function(doc) {
+                        docList.forEach(doc => {
                             if (doc.hasOwnProperty("title"))
                                 doc.title = title;
 
@@ -908,6 +906,7 @@ define(function(require, exports, module) {
                 aml.setAttribute("visible", true);
                 return true;
             }
+
             return false;
         }
 
@@ -922,7 +921,7 @@ define(function(require, exports, module) {
                 return;
 
             // show button in first pane
-            pane.getElement(treeToggles.ID, function(button) {
+            pane.getElement(treeToggles.ID, button => {
                 // make room for button
                 pane.aml.$ext.classList.add("cs50-simple-pane0");
                 pane.aml.$buttons.style.paddingLeft = "54px";
@@ -947,43 +946,43 @@ define(function(require, exports, module) {
         function simplifyImgeditor() {
 
             // handle creation of new imgeditors
-            editors.on("create", function(e) {
-                var editor = e.editor;
+            editors.on("create", e => {
+                const editor = e.editor;
                 if (editor.type !== "imgeditor")
                     return;
 
                 // get the zoom dropdown
-                editor.getElement("zoom", function(zoom) {
+                editor.getElement("zoom", zoom => {
 
                     // remember parent node
-                    var parent = zoom.parentNode;
+                    const parent = zoom.parentNode;
 
                     // hide all controls
-                    parent.childNodes.forEach(function(n) {
+                    parent.childNodes.forEach(n => {
                         n.hide();
-                        n.show = function() {};
+                        n.show = () => {};
                     });
 
                     // increase bar height for buttons
                     parent.setAttribute("class", (parent.getAttribute("class") || "") + " cs50-simple-imgeditor-bar");
 
                     // label for current zoom level
-                    var label = new ui.label({ width: 50 });
-                    label.setCaption = function(val) {
+                    const label = new ui.label({ width: 50 });
+                    label.setCaption = val => {
                         label.setAttribute("caption", ((_.isNumber(val) && val) || "100") + "%");
                     };
 
                     // update caption when activating other tabs
-                    editor.on("documentActivate", function() {
+                    editor.on("documentActivate", () => {
                         label.setCaption(zoom.value);
                     });
 
                     // add minus button
-                    var minus = new ui.button({
+                    const minus = new ui.button({
                         caption: "-",
                         class: "cs50-simple-zoom-button",
                         skin: "btn-default-css3",
-                        onclick: function() {
+                        onclick() {
 
                             // ensure zoom.value is integer
                             !_.isNumber(zoom.value) && (zoom.setValue(100));
@@ -1004,11 +1003,11 @@ define(function(require, exports, module) {
                     editor.addElement(label);
 
                     // add plus button
-                    var plus = new ui.button({
+                    const plus = new ui.button({
                         caption: "+",
                         class: "cs50-simple-zoom-button",
                         skin: "btn-default-css3",
-                        onclick: function() {
+                        onclick() {
 
                             // ensure zoom.value is integer
                             !_.isNumber(zoom.value) && (zoom.setValue(100));
@@ -1031,10 +1030,10 @@ define(function(require, exports, module) {
                         hint: "Zooms in on image in image viewer",
                         group: "imgeditor",
                         bindKey: { mac: "Command-+", win: "Ctrl-+" },
-                        isAvailable: function(editor) {
+                        isAvailable(editor) {
                             return editor && editor.type === "imgeditor";
                         },
-                        exec: function() {
+                        exec() {
                             plus.dispatchEvent("click");
                         }
                     }, plugin);
@@ -1044,10 +1043,10 @@ define(function(require, exports, module) {
                         hint: "Zooms in on image in image viewer",
                         group: "imgeditor",
                         bindKey: { mac: "Command--", win: "Ctrl--" },
-                        isAvailable: function(editor) {
+                        isAvailable(editor) {
                             return editor && editor.type === "imgeditor";
                         },
-                        exec: function() {
+                        exec() {
                             minus.dispatchEvent("click");
                         }
                     }, plugin);
@@ -1055,7 +1054,7 @@ define(function(require, exports, module) {
                     // handle light and dark themes
                     function setTheme(e) {
                         [plus, minus].forEach(function(button) {
-                            var _class = button.getAttribute("class") || "";
+                            let _class = button.getAttribute("class") || "";
                             if (e.theme.indexOf("dark") >  -1) {
                                 if (_class.search(/\bdark\b/) === -1)
                                     _class += " dark";
@@ -1081,7 +1080,7 @@ define(function(require, exports, module) {
          */
         function syncTreeToggles(active) {
             if (treeToggles && treeToggles.button && treeToggles.menuItem) {
-                var style = "cs50-simple-tree-toggle";
+                let style = "cs50-simple-tree-toggle";
                 if (dark)
                     style += " dark";
 
@@ -1113,12 +1112,12 @@ define(function(require, exports, module) {
             [
                 "fold", "foldall", "foldOther", "toggleFoldWidget",
                 "toggleParentFoldWidget"
-            ].forEach(function(name) {
+            ].forEach(name => {
                 commands.commands[name].isAvailable = getFalse;
             });
 
             // unfold all folded code
-            tabs.getTabs().forEach(function(tab) {
+            tabs.getTabs().forEach(tab => {
                 commands.exec("unfoldall", tab.editor);
             });
 
@@ -1211,7 +1210,7 @@ define(function(require, exports, module) {
 
                 // extraneous templates
                 "File/New From Template"
-            ].forEach(function(path) {
+            ].forEach(path => {
                 setMenuVisibility(path, false);
             });
         }
@@ -1221,7 +1220,7 @@ define(function(require, exports, module) {
          */
         function hideMiniButton() {
             // menu bar
-            var bar = layout.findParent(menus);
+            const bar = layout.findParent(menus);
             if (bar && bar.childNodes[0]) {
                 var minimizeBtn = bar.childNodes[0].childNodes[0];
                 if (minimizeBtn) {
@@ -1240,12 +1239,12 @@ define(function(require, exports, module) {
         function simplifyPlus() {
 
             // finds the menu bar and then executes callback
-            tabs.getElement("mnuEditors", function(menu) {
-                var menuItems = menu.childNodes;
+            tabs.getElement("mnuEditors", menu => {
+                const menuItems = menu.childNodes;
 
                 // tries to hide the menu items on the plus sign
                 // until it works (sometimes this is called before they load)
-                var test = setInterval(function() {
+                const test = setInterval(function() {
                     if (hide(menuItems[2]) &&
                         hide(menuItems[3]) &&
                         hide(menuItems[4])) {
@@ -1259,15 +1258,15 @@ define(function(require, exports, module) {
          * Hides the left Navigate and Commands side tabs
          */
         function hideSideTabs() {
-            var panelList = ["navigate", "commands.panel", "scm"];
+            const panelList = ["navigate", "commands.panel", "scm"];
 
             // remember tree visibility status
-            var resetVisibility = tree.active ? tree.show : tree.hide;
+            const resetVisibility = tree.active ? tree.show : tree.hide;
 
             // temporarily overcomes a bug in C9 (tree is forcibly hidden by enabling panels)
             tree.hide();
 
-            panelList.forEach(function(p) {panels.disablePanel(p);});
+            panelList.forEach(p => { panels.disablePanel(p); });
 
             // reset tree visibility status
             resetVisibility();
@@ -1313,22 +1312,22 @@ define(function(require, exports, module) {
         function simplifyStatusbar() {
 
             // handle ace instance creation
-            ace.on("create", function(e) {
+            ace.on("create", e => {
 
                 // get statusbar for this instance
-                var bar = statusbar.getStatusbar(e.editor);
+                const bar = statusbar.getStatusbar(e.editor);
                 if (!bar)
                     return;
                 [
                     "btnSbPrefs", "itmTabSize", "lblEditorStatus",
                     "lblSelectionLength", "lblSyntax", "lblTabs"
-                ].forEach(function(element) {
+                ].forEach(element => {
                     // hide element from statusbar
-                    bar.getElement(element, function(e) {
+                    bar.getElement(element, e => {
                         e.hide();
 
                         // prevent statusbar from showing them again
-                        e.show = function() {};
+                        e.show = () => {};
                     });
                 });
             });
@@ -1364,7 +1363,7 @@ define(function(require, exports, module) {
                 // handle renaming tabs
                 else if (e.tab.document) {
                     // handle setting/updating document title
-                    e.tab.document.once("setTitle", function(e) {
+                    e.tab.document.once("setTitle", e => {
                         if (/\.js$/i.test(e.title))
                             settings.set("project/language/@undeclaredVars", false);
                     });
@@ -1405,24 +1404,24 @@ define(function(require, exports, module) {
              * false otherwise.
              */
             function isAvailable() {
-                var type = _.isObject(tabs.focussedTab)
+                const type = _.isObject(tabs.focussedTab)
                     && tabs.focussedTab.editorType;
                 if (_.isString(type))
                     return _.indexOf(["ace", "hex", "terminal"], type) > -1;
             };
 
             // cache and delete keyboard shortcuts for largerfont & smallerfont
-            var largerfontKeys = commands.commands.largerfont.bindKey;
+            const largerfontKeys = commands.commands.largerfont.bindKey;
             delete commands.commands.largerfont.bindKey;
-            var smallerfontKeys = commands.commands.smallerfont.bindKey;
+            const smallerfontKeys = commands.commands.smallerfont.bindKey;
             delete commands.commands.smallerfont.bindKey;
 
             // command for increasing font sizes of ace and terminal
             commands.addCommand({
                 name: "largerfonts",
-                exec: function() {
+                exec() {
                     // increase ace's font size
-                    var size = settings.getNumber("user/ace/@fontSize");
+                    let size = settings.getNumber("user/ace/@fontSize");
                     settings.set("user/ace/@fontSize", ++size > 72 ? 72 : size);
 
                     // increase terminal's font size
@@ -1437,9 +1436,9 @@ define(function(require, exports, module) {
             // command for resetting font sizes of ace and terminal to defaults
             commands.addCommand({
                 name: "resetfonts",
-                exec: function() {
-                    var ace = 12;
-                    var terminal = 12;
+                exec() {
+                    let ace = 12;
+                    let terminal = 12;
 
                     // determine default font sizes depending on current mode
                     if (presentation.presenting)
@@ -1459,9 +1458,9 @@ define(function(require, exports, module) {
             // command for decreasing font sizes of ace and terminal
             commands.addCommand({
                 name: "smallerfonts",
-                exec: function() {
+                exec() {
                     // decrease ace's font size
-                    var size = settings.getNumber("user/ace/@fontSize");
+                    let size = settings.getNumber("user/ace/@fontSize");
                     settings.set("user/ace/@fontSize", --size < 1 ? 1 : size);
 
                     // decrease terminal's font size
@@ -1491,7 +1490,7 @@ define(function(require, exports, module) {
          */
         function updateMenuCaptions() {
             // map paths to captions
-            var captions = {
+            const captions = {
                 "Cloud9": "CS50 IDE",
                 "Cloud9/Quit Cloud9": "Log Out",
                 "Goto": "Go",
@@ -1505,7 +1504,7 @@ define(function(require, exports, module) {
             };
 
             // update captions
-            for (var path in captions)
+            for (let path in captions)
                 setMenuCaption(path, captions[path]);
         }
 
@@ -1513,7 +1512,7 @@ define(function(require, exports, module) {
          * Sets and updates the title of the browser tab.
          */
         function updateTitle(tab) {
-            var title = "CS50 IDE";
+            let title = "CS50 IDE";
 
             // append "Offline" to offline IDE title
             if (!c9.hosted)
@@ -1533,7 +1532,7 @@ define(function(require, exports, module) {
 
             // warning toggle
             notification.enabled = settings.getBool("user/cs50/simple/@unsavedWarning");
-            settings.on("user/cs50/simple/@unsavedWarning", function(enabled) {
+            settings.on("user/cs50/simple/@unsavedWarning", enabled => {
                 notification.enabled = enabled;
                 if (!enabled && _.isFunction(notification.hide))
                     notification.hide();
@@ -1579,7 +1578,7 @@ define(function(require, exports, module) {
 
                     // wait for old notification to be closed before showing
                     if (_.isFunction(notification.hasClosed) && !notification.hasClosed()) {
-                        notification.hasClosed.interval = setInterval(function() {
+                        notification.hasClosed.interval = setInterval(() => {
                             clearInterval(notification.hasClosed.interval);
                             show(title);
                         }, 300);
@@ -1589,7 +1588,7 @@ define(function(require, exports, module) {
                 }
 
                 // new notification
-                var div = '<div class="cs50-unsaved-notification">You haven\'t saved your changes to <code>' + title + '</code> yet.</div>';
+                const div = '<div class="cs50-unsaved-notification">You haven\'t saved your changes to <code>' + title + '</code> yet.</div>';
 
                 // show new notification
                 notification.hide = notify(div, true);
@@ -1606,20 +1605,20 @@ define(function(require, exports, module) {
             }
 
             // handle when a tab goes blur
-            tabs.on("blur", function(e) {
-                var blurTab = e.tab;
-                var doc = blurTab.document;
+            tabs.on("blur", e => {
+                const blurTab = e.tab;
+                const doc = blurTab.document;
 
                 // ensure blur tab is ace
                 if (!blurTab || blurTab.editorType !== "ace" || !doc)
                     return;
 
                 // wait for a tab to be focussed
-                tabs.once("focus", function(e) {
+                tabs.once("focus", e => {
                     if (e.tab.editorType === "terminal" && doc.changed) {
 
                         // hide notification when tab is closed
-                        blurTab.on("close", function() {
+                        blurTab.on("close", () => {
                             if (notification.currTitle === blurTab.title && _.isFunction(notification.hide))
                                 notification.hide();
                         });
@@ -1632,7 +1631,7 @@ define(function(require, exports, module) {
             });
 
             // hide notification on save
-            save.on("afterSave", function(e) {
+            save.on("afterSave", e => {
                 if (notification.currTitle === e.tab.title && _.isFunction(notification.hide))
                     notification.hide();
             });
@@ -1650,7 +1649,7 @@ define(function(require, exports, module) {
         }
 
 
-        var loaded = false;
+        let loaded = false;
         function load() {
 
             // remove trailing ? or & (e.g., when left after resetting setting)
@@ -1684,7 +1683,7 @@ define(function(require, exports, module) {
             warnUnsaved();
 
             // get setting's version number
-            var ver = settings.getNumber("project/cs50/simple/@ver");
+            const ver = settings.getNumber("project/cs50/simple/@ver");
             if (isNaN(ver) || ver < SETTINGS_VER) {
                 // changes the vertical line to 132
                 settings.set("user/ace/@printMarginColumn", "132");
@@ -1736,7 +1735,7 @@ define(function(require, exports, module) {
                 settings.set("project/cs50/simple/@ver", SETTINGS_VER);
             }
 
-            settings.on("read", function() {
+            settings.on("read", () => {
                 settings.setDefaults("user/cs50/simple", [
                     ["gravatar", false],
                     ["terminalSound", true],
@@ -1754,7 +1753,7 @@ define(function(require, exports, module) {
             simplifyStatusbar();
 
             // stop marking undeclared variables for javascript files
-            tabs.on("tabAfterActivate", (e) => {
+            tabs.on("tabAfterActivate", e => {
                 toggleUndeclaredVars(e);
 
                 // prevent other plugins from resetting it
@@ -1762,7 +1761,7 @@ define(function(require, exports, module) {
             });
 
             // set titles of terminal tabs to current directory name
-            tabs.on("tabCreate", function(e) {
+            tabs.on("tabCreate", e => {
                 setTmuxTitle(e.tab);
                 updateTooltip(e);
             }, plugin);
@@ -1799,7 +1798,7 @@ define(function(require, exports, module) {
                 updateAuthorInfo(settings.getBool("user/cs50/simple/collab/@authorInfoToggled"));
 
                 // cache original author info setting as it changes
-                settings.on("user/collab/@show-author-info", function(val) {
+                settings.on("user/collab/@show-author-info", val => {
                     // ensure only original setting is cached
                     if (authorInfoToggled === false)
                         settings.set("user/cs50/simple/collab/@originAuthorInfo", val);
@@ -1833,11 +1832,11 @@ define(function(require, exports, module) {
 
         /***** Lifecycle *****/
 
-        plugin.on("load", function() {
+        plugin.on("load", () => {
             load();
         });
 
-        plugin.on("unload", function() {
+        plugin.on("unload", () => {
             // TODO unload correctly
             // toggleSimpleMode(false);
             authorInfoToggled = null;
