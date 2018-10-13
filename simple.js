@@ -1825,6 +1825,9 @@ define(function(require, exports, module) {
                 // update author info as members are added or removed
                 workspace.on("sync", updateAuthorInfo);
             }
+
+            // disable html auto completer
+            language.unregisterLanguageHandler("plugins/c9.ide.language.html/html_completer");
         }
 
         /***** Lifecycle *****/
