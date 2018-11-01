@@ -6,7 +6,7 @@ define(function(require, exports, module) {
         "collab.environment", "commands", "console", "dialog.confirm",
         "dialog.file", "dialog.notification", "editors", "fs", "fs.cache",
         "harvard.cs50.presentation", "immediate", "info",
-        "keymaps", "navigate", "outline", "language", "language.python",
+        "keymaps", "outline", "language", "language.python",
         "layout", "login", "Menu", "MenuItem", "menus", "newresource", "panels",
         "Plugin", "preferences", "preview", "proc", "run.gui", "save",
         "settings", "tabbehavior", "tabManager", "terminal", "tooltip", "tree",
@@ -90,13 +90,13 @@ define(function(require, exports, module) {
             if (!openItem)
                 return;
 
-            const navigate = commands.commands.navigate || commands.commands.gotoanything;
+            const gotoanything = commands.commands.gotoanything;
 
             // add command that opens file dialog
             commands.addCommand({
                 name: "openFileDialog",
                 hint: "Opens file dialog for opening files",
-                bindKey: navigate.bindKey,
+                bindKey: gotoanything.bindKey,
                 exec() {
 
                     // wehther to customize file dialog
@@ -117,8 +117,8 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
-            // delete navigate's keyboard shortcut
-            delete navigate.bindKey;
+            // delete gotoanything's keyboard shortcut
+            delete gotoanything.bindKey;
 
             /**
              * Prevents selection of multiple files in "open file" dialog's tree
@@ -1255,10 +1255,10 @@ define(function(require, exports, module) {
         }
 
         /**
-         * Hides the left Navigate and Commands side tabs
+         * Hides the left and Commands side tabs
          */
         function hideSideTabs() {
-            const panelList = ["navigate", "commands.panel", "scm"];
+            const panelList = ["commands.panel", "scm"];
 
             // remember tree visibility status
             const resetVisibility = tree.active ? tree.show : tree.hide;
