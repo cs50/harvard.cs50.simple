@@ -1757,13 +1757,13 @@ define(function(require, exports, module) {
                 toggleUndeclaredVars(e);
 
                 // prevent other plugins from resetting it
-                updateTooltip(e);
+                // updateTooltip(e);
             });
 
             // set titles of terminal tabs to current directory name
             tabs.on("tabCreate", e => {
                 setTmuxTitle(e.tab);
-                updateTooltip(e);
+                // updateTooltip(e);
             }, plugin);
 
 
