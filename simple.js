@@ -63,6 +63,12 @@ define(function(require, exports, module) {
 
 
         function addTerminalSound() {
+            settings.on("read", () => {
+                settings.setDefaults("user/cs50/simple", [
+                    ["terminalSound", true]
+                ]);
+            });
+
             prefs.add({
                "CS50" : {
                     position: 5,
