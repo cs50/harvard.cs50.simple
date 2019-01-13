@@ -118,6 +118,22 @@ define(function(require, exports, module) {
             });
         }
 
+
+        function toggleUndeclaredVariableWarnings() {
+            tabs.on("tabAfterActivate", e => {
+                if (!e || !e.tab || e.tab.editorType !== "ace")
+                    return;
+
+                if (/\.js$/i.test(e.tab.path)) {
+                    settings.set("project/language/@undeclaredVars", false);
+                }
+                else {
+                    settings.set("project/language/@undeclaredVars", true);
+                }
+            });
+        }
+
+
         let loaded = false;
         plugin.on("load", () => {
             if (loaded)
@@ -125,6 +141,7 @@ define(function(require, exports, module) {
 
             loaded = true;
             addSaveWarning();
+            toggleUndeclaredVariableWarnings();
             updateTerminalTitle();
         });
 
