@@ -93,18 +93,14 @@ define(function(require, exports, module) {
 
         function updateTerminalTitle() {
             tabs.on("tabCreate", e => {
-                if (!e.tab || e.tab.editorType !== "terminal")
+                if (!e.tab || e.tab.editorType !== "terminal" || !e.tab.document)
                     return;
 
-                const terminal = e.tab.document.getSession().terminal;
-                if (!terminal)
-                    return;
-
-                function _updateTerminalTitle(document_) {
-                    terminal.off("title", _updateTerminalTitle);
+                function _updateTerminalTitle() {
+                    e.tab.document.off("setTitle", _updateTerminalTitle);
 
                     // Fetch title from the object, fall back on tab
-                    let title = document_.title || e.tab.document.title;
+                    let title = e.tab.document.title;
                     if (!title)
                         return;
 
@@ -112,9 +108,10 @@ define(function(require, exports, module) {
                     title = title.replace(/\s-.*$/, "");
                     e.tab.document.title = title;
                     e.tab.document.tooltip = "Terminal";
+                    e.tab.document.on("setTitle", _updateTerminalTitle);
                 }
 
-                terminal.on("title", _updateTerminalTitle);
+                e.tab.document.on("setTitle", _updateTerminalTitle);
             });
         }
 
