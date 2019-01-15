@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "ace", "menus", "Plugin", "tabbehavior", "tabManager", "tree", "ui",
+        "ace", "menus", "panels", "Plugin", "tabbehavior", "tabManager", "tree", "ui",
 
         "ace", "configure", "editors", "findreplace", "format", "keymaps",
         "layout", "newresource", "preferences", "preferences.keybindings",
@@ -15,6 +15,7 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         const ace = imports.ace;
         const menus = imports.menus;
+        const panels = imports.panels;
         const Plugin = imports.Plugin;
         const tabbehavior = imports.tabbehavior;
         const tabs = imports.tabManager;
@@ -218,6 +219,14 @@ define(function(require, exports, module) {
         }
 
 
+        function disableRightBarContextMenu() {
+            panels.areas["right"].aml.childNodes.some(node => {
+                if (node.$int && node.$int.classList.contains("panelsbar"))
+                    node.oncontextmenu = (() => {});
+            });
+        }
+
+
         let loaded = false;
         plugin.on("load", () => {
             if (loaded)
@@ -225,6 +234,8 @@ define(function(require, exports, module) {
 
             loaded = true;
 
+
+            disableRightBarContextMenu();
             simplifyAceContextMenu();
             simplifyMenuBar();
             simplifyPlusMenu();
