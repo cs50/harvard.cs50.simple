@@ -21,6 +21,19 @@ define(function(require, exports, module) {
 
         const plugin = new Plugin("CS50", main.consumes);
 
+
+        function addLogOutButton() {
+            menus.addItemByPath("AWS Cloud9/~", new ui.divider(), 2000081, plugin);
+            menus.addItemByPath("AWS Cloud9/Log Out", new ui.item({
+                id: "log_out",
+                caption: "Log Out",
+                onclick() {
+                    window.top.location = "https://ide.cs50.io/logout";
+                }
+            }), 2000082, plugin);
+        }
+
+
         function removePreviewAndRun() {
             const parent = layout.findParent({ name: "preview" });
             const captions = ["Preview", "Run"];
@@ -189,6 +202,7 @@ define(function(require, exports, module) {
 
             loaded = true;
 
+            addLogOutButton();
             addTreeToggle();
             hideGearButton();
             hideMinimizeButton();
