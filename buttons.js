@@ -69,6 +69,8 @@ define(function(require, exports, module) {
         function hideMinimizeButton() {
             menus.getElement("menubar", e => {
                 e.firstChild.remove();
+
+                // $ext doesn't work
                 e.parentNode.$int.style.paddingLeft = "0";
             });
         }
@@ -160,7 +162,7 @@ define(function(require, exports, module) {
                 return;
 
             codePane.getElement("tree_toggle", treeToggle => {
-                codePane.aml.$int.classList.add("cs50-simple-pane0");
+                codePane.aml.$ext.classList.add("cs50-simple-pane0");
                 codePane.aml.$buttons.style.paddingLeft = "54px";
 
                 // Show button only if tab buttons are visible
