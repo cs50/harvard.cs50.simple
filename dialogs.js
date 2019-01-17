@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "commands", "dialog.file", "menus", "Plugin", "tabManager"
+        "commands", "dialog.file", "dialog.share", "menus", "Plugin", "tabManager"
     ];
 
     main.provides = ["harvard.cs50.dialogs"];
@@ -11,6 +11,7 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         const commands = imports.commands;
         const fileDialog = imports["dialog.file"];
+        const shareDialog = imports["dialog.share"];
         const menus = imports.menus;
         const Plugin = imports.Plugin;
         const tabs = imports.tabManager;
@@ -67,6 +68,30 @@ define(function(require, exports, module) {
         }
 
 
+        function simplifyShareDialog() {
+
+            // AWS Cloud9 documentation
+            shareDialog.getElement("publishDiv", e => e.remove());
+
+            shareDialog.getElement("access", e => {
+
+                // RW button
+                e.hide();
+
+                // Placeholder in text field
+                e.previousSibling.setAttribute("initial-message", "Username");
+                e.previousSibling.setAttribute("width", 432);
+                e.previousSibling.$ext.style.marginRight = "6px";
+
+                // Invite Members label
+                e.parentNode.parentNode.previousSibling.setAttribute("tooltip", "");
+            });
+
+            // Create new IAM label
+            shareDialog.getElement("inviteDetailsRow", e => e.remove());
+        }
+
+
         let loaded = false;
         plugin.on("load", () => {
             if (loaded)
@@ -75,6 +100,7 @@ define(function(require, exports, module) {
             loaded = true;
 
             addFileDialog();
+            simplifyShareDialog();
         });
 
         plugin.on("unload", () => {});
