@@ -5,7 +5,7 @@ define(function(require, exports, module) {
         "ace", "menus", "panels", "Plugin", "tabbehavior", "tabManager", "tree", "ui",
 
         "ace", "configure", "editors", "findreplace", "format", "keymaps",
-        "layout", "newresource", "preferences", "preferences.keybindings",
+        "layout", "login", "newresource", "preferences", "preferences.keybindings",
         "save", "ace.status", "terminal"
     ];
 
@@ -45,6 +45,11 @@ define(function(require, exports, module) {
 
         function moveMenuItem(curPath, newPath, index) {
              applyToMenuItem(curPath, i => menus.addItemByPath(newPath, i, index, plugin));
+        }
+
+
+        function removeUserMenu() {
+            removeMenuItem("user_info");
         }
 
 
@@ -236,6 +241,7 @@ define(function(require, exports, module) {
 
 
             disableRightBarContextMenu();
+            removeUserMenu();
             simplifyAceContextMenu();
             simplifyMenuBar();
             simplifyPlusMenu();
