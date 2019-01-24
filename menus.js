@@ -33,6 +33,11 @@ define(function(require, exports, module) {
         }
 
 
+        function moveMenuItemSameMenu(path, index) {
+            applyToMenuItem(path, i => menus.addItemByPath(path, i, index, plugin));
+        }
+
+
         function removeMenuItem(path) {
             return applyToMenuItem(path, i => i.remove());
         }
@@ -83,6 +88,16 @@ define(function(require, exports, module) {
                     );
                 }
             }), 2000079, plugin);
+
+
+            // Sort
+            [
+                "Init Script",
+                "Keymap",
+                "Project Settings",
+                "Stylesheet",
+                "User Settings"
+            ].forEach((p, i) => moveMenuItemSameMenu(`AWS Cloud9/Open Your ${p}`, 400 + i * 10));
         }
 
 
