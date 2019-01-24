@@ -131,7 +131,9 @@ define(function(require, exports, module) {
                 "View/Themes",
 
                 // Goto menu
+                "Go/Find References",
                 "Go/Go to Anything...",
+                "Go/Go to File...",
                 "Go/Go to Symbol...",
                 "Go/Go to Command...",
                 "Go/Next Error",
@@ -147,11 +149,15 @@ define(function(require, exports, module) {
                 "Window",
 
                 // Run menu
-                "Run"
+                "Run",
+
+                // Support
+                "Support"
             ].forEach(removeMenuItem);
 
             moveMenuItem("Window/New Terminal", "File/New Terminal", 150);
             renameMenuItem("View/Gutter", "Line Numbers");
+            renameMenuItem("Go/Go to Line...", "Line...");
         }
 
 
