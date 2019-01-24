@@ -83,12 +83,6 @@ define(function(require, exports, module) {
                     );
                 }
             }), 2000079, plugin);
-
-            menus.addItemByPath("AWS Cloud9/Restart Workspace", new ui.item({
-                caption: "Restart Workspace",
-                onclick() {}
-            }), 2000080, plugin);
-
         }
 
 
