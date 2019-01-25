@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "ace", "menus", "panels", "Plugin", "tabbehavior", "tabManager", "tree", "ui",
+        "ace", "dialog.confirm", "menus", "panels", "Plugin", "tabbehavior", "tabManager", "tree", "ui",
 
         "ace", "configure", "editors", "findreplace", "format", "keymaps",
         "layout", "login", "newresource", "preferences", "preferences.keybindings",
@@ -14,6 +14,7 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         const ace = imports.ace;
+        const confirm_ = imports["dialog.confirm"].show;
         const menus = imports.menus;
         const panels = imports.panels;
         const Plugin = imports.Plugin;
@@ -71,11 +72,11 @@ define(function(require, exports, module) {
             menus.addItemByPath("AWS Cloud9/Reset Settings", new ui.item({
                 caption: "Reset Settings",
                 onclick() {
-                    confirm("Reset Settings",
+                    confirm_("Reset Settings",
                         "",
                         "Are you sure you want to reset CS50 IDE to factory " +
-                        "defaults? It will then look just as it did when you " +
-                        "created it. Your files and folders will not be deleted.",
+                        "defaults? It will then look just as it did the first time you " +
+                        "logged in. Your files and folders will not be deleted.",
                         // OK
                         (() => {
 
