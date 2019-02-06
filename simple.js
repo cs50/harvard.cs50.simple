@@ -28,24 +28,26 @@ define(function(require, exports, module) {
         const plugin = new Plugin("CS50", main.consumes);
 
         function removeLeftBar() {
-            const leftBarAml = panels.areas["left"].aml;
-            if (leftBarAml) {
-                const removals = leftBarAml.childNodes.filter(node => {
-                return ["panelsbar open", "gotoanything-input"]
-                    .indexOf(node.getAttribute("class")) > -1;
-                });
+            panels.on("draw", () => {
+                const leftBarAml = panels.areas.left.aml;
+                if (leftBarAml) {
+                    const removals = leftBarAml.childNodes.filter(node => {
+                    return ["panelsbar open", "gotoanything-input"]
+                        .indexOf(node.getAttribute("class")) > -1;
+                    });
 
-                removals.forEach(node => node.remove());
-            }
+                    removals.forEach(node => node.remove());
+                }
 
-            const treeActive = tree.active;
-            panels.disablePanel("tree");
-            panels.disablePanel("gotoanything");
+                const treeActive = tree.active;
+                panels.disablePanel("tree");
+                panels.disablePanel("gotoanything");
 
-            if (treeActive)
-                tree.show();
-            else
-                tree.hide();
+                if (treeActive)
+                    tree.show();
+                else
+                    tree.hide();
+            });
         }
 
 
