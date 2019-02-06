@@ -241,10 +241,13 @@ define(function(require, exports, module) {
 
 
         function disableRightBarContextMenu() {
-            panels.areas["right"].aml.childNodes.some(node => {
-                if (node.$ext && node.$ext.classList.contains("panelsbar"))
-                    node.oncontextmenu = (() => {});
-            });
+            const aml = panels.areas["right"].aml;
+            if (aml) {
+                aml.childNodes.some(node => {
+                    if (node.$ext && node.$ext.classList.contains("panelsbar"))
+                        node.oncontextmenu = (() => {});
+                });
+            }
         }
 
 
