@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "commands", "fs.cache", "harvard.cs50.presentation", "language",
+        "commands", "fs.cache", "harvard.cs50.presentation", "gotoanything", "language",
         "panels", "Plugin", "preferences", "settings", "tree", "tree.favorites",
         "ui"
     ];
@@ -28,26 +28,31 @@ define(function(require, exports, module) {
         const plugin = new Plugin("CS50", main.consumes);
 
         function removeLeftBar() {
-            panels.on("draw", () => {
-                const leftBarAml = panels.areas.left.aml;
-                if (leftBarAml) {
+            const interval = setInterval(
+                () => {
+                    const leftBarAml = panels.areas && panels.areas.left && panels.areas.left.aml;
+                    if (!leftBarAml)
+                        return
+
+                    clearInterval(interval)
                     const removals = leftBarAml.childNodes.filter(node => {
                     return ["panelsbar open", "gotoanything-input"]
                         .indexOf(node.getAttribute("class")) > -1;
                     });
 
                     removals.forEach(node => node.remove());
-                }
 
-                const treeActive = tree.active;
-                panels.disablePanel("tree");
-                panels.disablePanel("gotoanything");
+                    const treeActive = tree.active;
+                    panels.disablePanel("tree");
+                    panels.disablePanel("gotoanything");
 
-                if (treeActive)
-                    tree.show();
-                else
-                    tree.hide();
-            });
+                    if (treeActive)
+                        tree.show();
+                    else
+                        tree.hide();
+                },
+                0
+            )
         }
 
 
