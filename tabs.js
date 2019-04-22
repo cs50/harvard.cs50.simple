@@ -121,7 +121,7 @@ define(function(require, exports, module) {
                 if (!e || !e.tab || e.tab.editorType !== "ace")
                     return;
 
-                if (/\.js$/i.test(e.tab.path)) {
+                if (/\.(js|html)$/i.test(e.tab.path)) {
                     settings.set("project/language/@undeclaredVars", false);
                 }
                 else {
