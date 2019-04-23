@@ -79,27 +79,6 @@ define(function(require, exports, module) {
 
 
         function addTerminalSound() {
-            settings.on("read", () => {
-                settings.setDefaults("user/cs50/simple", [
-                    ["terminalSound", true]
-                ]);
-            });
-
-            prefs.add({
-               "CS50" : {
-                    position: 5,
-                    "IDE Behavior" : {
-                        "Audible Terminal Bell" : {
-                            type: "checkbox",
-                            setting: "user/cs50/simple/@terminalSound",
-                            min: 1,
-                            max: 200,
-                            position: 190
-                        }
-                    }
-                }
-            }, plugin);
-
             const terminalSound = new Audio(require(
                 "asset-url!@cs50/ide/plugins/harvard.cs50.simple/sounds/bell.mp3"
             ));
@@ -119,13 +98,34 @@ define(function(require, exports, module) {
                 }
             }
 
+            settings.on("read", () => {
+                settings.setDefaults("user/cs50/simple", [
+                    ["terminalSound", true]
+                ]);
+
+                _toggleTerminalSound(settings.getBool("user/cs50/simple/@terminalSound"));
+            });
+
+            prefs.add({
+               "CS50" : {
+                    position: 5,
+                    "IDE Behavior" : {
+                        "Audible Terminal Bell" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@terminalSound",
+                            min: 1,
+                            max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+
             settings.on(
                 "user/cs50/simple/@terminalSound",
                 _toggleTerminalSound,
                 plugin
             );
-
-            _toggleTerminalSound(settings.getBool("user/cs50/simple/@terminalSound"));
         }
 
 
