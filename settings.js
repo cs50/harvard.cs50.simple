@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         const settings = imports.settings;
 
         const plugin = new Plugin("CS50", main.consumes);
-        const revision = 2;
+        const revision = 3;
 
         let loaded = false;
         plugin.on("load", () => {
@@ -33,8 +33,8 @@ define(function(require, exports, module) {
                         })
 
                         const defaults = {
-                            // Set default ace print margin
-                            "user/ace/@printMarginColumn": "132",
+                            // Hide print margin
+                            "user/ace/@showPrintMargin": false,
 
                             // Show status bar
                             "user/ace/statusbar/@show": true,
@@ -71,7 +71,7 @@ define(function(require, exports, module) {
                                 return
                             }
 
-                            if (Object.keys(defaults).every((key) => settings.set(key, defaults[key]))) {
+                            if (Object.keys(defaults).every((key) => settings.set(key, defaults[key]) !== false)) {
                                 // Update revision
                                 settings.set("project/cs50/simple/settings/@revision", revision)
                                 return
