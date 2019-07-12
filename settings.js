@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         const settings = imports.settings;
 
         const plugin = new Plugin("CS50", main.consumes);
-        const revision = 1;
+        const revision = 2;
 
         let loaded = false;
         plugin.on("load", () => {
@@ -23,42 +23,69 @@ define(function(require, exports, module) {
             loaded = true;
 
             // Default settings
-            const currentRevision = settings.getNumber("project/cs50/simple/settings/@revision");
-            if (!currentRevision || currentRevision < revision) {
+            settings.on("read", () => {
+                const currentRevision = settings.getNumber("project/cs50/simple/settings/@revision");
+                if (!currentRevision || currentRevision < revision) {
+                    setTimeout(async () => {
+                        const editorTypes = {};
+                        ["class", "exe", "gz", "o", "pyc", "raw", "tar", "zip"].forEach(type => {
+                            editorTypes[`user/tabs/editorTypes/@${type}`] = "none"
+                        })
 
-                // Set default ace print margin
-                settings.set("user/ace/@printMarginColumn", "132");
+                        const defaults = {
+                            // Set default ace print margin
+                            "user/ace/@printMarginColumn": "132",
 
-                // Show status bar
-                settings.set("user/ace/statusbar/@show", true);
+                            // Show status bar
+                            "user/ace/statusbar/@show": true,
 
-                // Turn off auto-save
-                settings.set("user/general/@autosave", false);
+                            // Turn off auto-save
+                            "user/general/@autosave": false,
 
-                // Download project as ZIP files
-                settings.set("user/general/@downloadFilesAs", "zip");
+                            // Download project as ZIP files
+                            "user/general/@downloadFilesAs": "zip",
 
-                // Disable autocomplete (temporarily?)
-                settings.set("user/language/@continuousCompletion", false);
-                settings.set("user/language/@enterCompletion", false);
+                            // Disable autocomplete (temporarily?)
+                            "user/language/@continuousCompletion": false,
+                            "user/language/@enterCompletion": false,
 
-                // Hide asterisks for unsaved documents
-                settings.set("user/tabs/@asterisk", false);
+                            // Hide asterisks for unsaved documents
+                            "user/tabs/@asterisk": false,
 
-                // Excluded formats
-                ["class", "exe", "gz", "o", "pyc", "raw", "tar", "zip"].forEach(type => {
-                    settings.set(`user/tabs/editorTypes/@${type}`, "none");
-                });
+                            // Terminal scrollback buffer
+                            "user/terminal/@scrollback": 2000,
 
-                // Terminal scrollback buffer
-                settings.set("user/terminal/@scrollback", 2000);
+                            // Strip trailing whitespaces on save
+                            "project/general/@stripws": true,
 
-                // Strip trailing whitespaces on save
-                settings.set("project/general/@stripws", true);
+                            // Strip trailing whitespaces on save
+                            "project/general/@stripws": true,
 
-                // Update revision
-                settings.set("project/cs50/simple/settings/@revision", revision)
-            }
+                            // Excluded formats
+                            ...editorTypes
+                        }
+
+                        let retries = 5
+                        while (retries > 0) {
+                           if (Object.keys(defaults).every((key) => settings.set(key, defaults[key])))
+                               break
+
+                           console.warn('failed to update settings, retrying')
+                           await new Promise((resolve) => setTimeout(resolve, 500))
+                           retries--
+                        }
+
+                        if (retries < 1) {
+                            console.error('failed to update settings')
+                            return
+                        }
+
+                        // Update revision
+                        settings.set("project/cs50/simple/settings/@revision", revision)
+                    }, 0)
+                }
+            })
+
         });
 
         plugin.on("unload", () => {});
