@@ -52,6 +52,7 @@ define(function(require, exports, module) {
             }, plugin);
 
             delete gotoanything.bindKey;
+            delete commands.commands.gotofile.bindKey;
 
             fileDialog.on("show", () => {
                 const txtDirectory = fileDialog.getElement("txtDirectory");
