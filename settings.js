@@ -65,23 +65,24 @@ define(function(require, exports, module) {
                             ...editorTypes
                         }
 
-                        let retries = 5
-                        while (retries > 0) {
-                           if (Object.keys(defaults).every((key) => settings.set(key, defaults[key])))
-                               break
+                        async function updateSettings(retries) {
+                            if (retries < 1) {
+                                console.error('failed to update settings')
+                                return
+                            }
 
-                           console.warn('failed to update settings, retrying')
-                           await new Promise((resolve) => setTimeout(resolve, 500))
-                           retries--
+                            if (Object.keys(defaults).every((key) => settings.set(key, defaults[key]))) {
+                                // Update revision
+                                settings.set("project/cs50/simple/settings/@revision", revision)
+                                return
+                            }
+
+                            console.warn('failed to update settings, retrying')
+                            await new Promise((resolve) => setTimeout(resolve, 500))
+                            updateSettings(retries - 1)
                         }
 
-                        if (retries < 1) {
-                            console.error('failed to update settings')
-                            return
-                        }
-
-                        // Update revision
-                        settings.set("project/cs50/simple/settings/@revision", revision)
+                        updateSettings(5)
                     }, 0)
                 }
             })

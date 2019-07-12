@@ -141,8 +141,10 @@ define(function(require, exports, module) {
         }
 
 
-        function disableHTMLCompleter() {
-            language.unregisterLanguageHandler("plugins/c9.ide.language.html/html_completer");
+        function disableCompleters() {
+            language.unregisterLanguageHandler(require("language!@c9/ide/plugins/c9.ide.language.generic/local_completer"));
+            language.unregisterLanguageHandler(require("language!@c9/ide/plugins/c9.ide.language.html/html_completer"));
+            language.unregisterLanguageHandler(require("language!@c9/ide/plugins/c9.ide.language.generic/snippet_completer"));
         }
 
 
@@ -156,7 +158,7 @@ define(function(require, exports, module) {
 
             addSlashToFolders();
             addTerminalSound();
-            disableHTMLCompleter();
+            disableCompleters();
             removeLeftBar();
             removeTrailingQuestionMark();
         });
