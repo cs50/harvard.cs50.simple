@@ -98,3 +98,8 @@ div.panel-bar.environment_files.top-margin {
 .projectRoot .extrainfo {
     display: none;
 }
+
+/* Hide share button */
+.c9-share:not(.cs50-share) {
+    display: none;
+}
