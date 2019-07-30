@@ -2,11 +2,10 @@ define(function(require, exports, module) {
     "use strict";
 
     main.consumes = [
-        "ace", "dialog.confirm", "menus", "panels", "Plugin", "tabbehavior", "tabManager", "tree", "ui",
-
-        "ace", "configure", "editors", "findreplace", "format", "keymaps",
-        "layout", "login", "newresource", "preferences", "preferences.keybindings",
-        "save", "ace.status", "terminal"
+        "ace", "dialog.confirm", "menus", "panels", "Plugin", "tabbehavior",
+        "tabManager", "tree", "ui", "configure", "editors", "findreplace",
+        "format", "keymaps", "layout", "login", "newresource", "preferences",
+        "preferences.keybindings", "proc", "save", "ace.status", "terminal"
     ];
 
     main.provides = ["harvard.cs50.menus"];
@@ -18,6 +17,7 @@ define(function(require, exports, module) {
         const menus = imports.menus;
         const panels = imports.panels;
         const Plugin = imports.Plugin;
+        const proc = imports.proc;
         const tabbehavior = imports.tabbehavior;
         const tabs = imports.tabManager;
         const tree = imports.tree;
@@ -90,6 +90,25 @@ define(function(require, exports, module) {
                 }
             }), 2000079, plugin);
 
+            menus.addItemByPath("AWS Cloud9/Restart", new ui.item({
+                caption: "Restart",
+                onclick() {
+                    confirm_("Restart IDE",
+                        "",
+                        "Are you sure you want to restart the IDE?",
+                        // OK
+                        (() => {
+                            proc.spawn("sudo", { args: ["service", "ssh", "stop"] }, () => {});
+                            setTimeout(() => {
+                                parent.postMessage('reload', 'https://ide.cs50.io')
+                            }, 1000);
+                        }),
+
+                        // Cancel
+                        (() => {})
+                    );
+                }
+            }), 2000080, plugin);
 
             // Sort
             [
