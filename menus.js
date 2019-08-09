@@ -100,7 +100,7 @@ define(function(require, exports, module) {
                         (() => {
                             proc.spawn("sudo", { args: ["service", "ssh", "stop"] }, () => {});
                             setTimeout(() => {
-                                parent.postMessage('reload', 'https://ide.cs50.io')
+                                parent.postMessage("reload", "https://ide.cs50.io")
                             }, 1000);
                         }),
 
