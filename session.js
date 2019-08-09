@@ -51,7 +51,6 @@ define(function(require, exports, module) {
             loaded = true;
 
             vfs.on("vfsError", (e) => {
-                console.log(e)
                 if (e.action === "relogin") {
                     showLoginDialog();
                 }
