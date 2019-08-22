@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         const settings = imports.settings;
 
         const plugin = new Plugin("CS50", main.consumes);
-        const revision = 3;
+        const revision = 4;
 
         let loaded = false;
         plugin.on("load", () => {
@@ -60,6 +60,9 @@ define(function(require, exports, module) {
 
                             // Strip trailing whitespaces on save
                             "project/general/@stripws": true,
+
+                            // Set PYTHONPATH for linter, etc
+                            "project/python/@path": "/usr/local/lib/python3.7/site-packages",
 
                             // Excluded formats
                             ...editorTypes
