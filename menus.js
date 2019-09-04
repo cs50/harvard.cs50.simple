@@ -246,15 +246,24 @@ define(function(require, exports, module) {
 
         function simplifyTreeContextMenu() {
             // Remove "Run" and "Preview" from file browser's context menu
-            tree.on("menuUpdate", e => {
+            tree.once("menuUpdate", (e) => {
                 if (!e.menu)
                     return;
 
-                e.menu.childNodes.forEach(node => {
-                    const caption = node.getAttribute("caption");
-                    if (caption === "Run" || caption === "Preview")
-                        node.remove();
-                });
+                let counter = 0;
+                // Preview is added after this event fires
+                const i = setInterval(() => {
+                    e.menu.childNodes.forEach(node => {
+                        const caption = node.getAttribute("caption");
+                        if (caption === "Run" || caption === "Preview") {
+                            node.remove();
+                            if (++counter >= 2) {
+                                clearInterval(i);
+                            }
+                        }
+                    });
+                }, 0)
+
             });
         }
 
