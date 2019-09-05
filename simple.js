@@ -100,7 +100,8 @@ define(function(require, exports, module) {
 
             settings.on("read", () => {
                 settings.setDefaults("user/cs50/simple", [
-                    ["terminalSound", true]
+                    ["terminalSound", true],
+                    ["previewEnabled", false]
                 ]);
 
                 _toggleTerminalSound(settings.getBool("user/cs50/simple/@terminalSound"));
@@ -115,6 +116,20 @@ define(function(require, exports, module) {
                             setting: "user/cs50/simple/@terminalSound",
                             min: 1,
                             max: 200,
+                            position: 190
+                        }
+                    }
+                }
+            }, plugin);
+
+            prefs.add({
+               "CS50" : {
+                    position: 10,
+                    "IDE Behavior" : {
+                        position: 10,
+                        "Enable Preview" : {
+                            type: "checkbox",
+                            setting: "user/cs50/simple/@previewEnabled",
                             position: 190
                         }
                     }

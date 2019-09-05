@@ -5,7 +5,7 @@ define(function(require, exports, module) {
         "ace", "dialog.confirm", "menus", "panels", "Plugin", "tabbehavior",
         "tabManager", "tree", "ui", "configure", "editors", "findreplace",
         "format", "keymaps", "layout", "login", "newresource", "preferences",
-        "preferences.keybindings", "proc", "save", "ace.status", "terminal"
+        "preferences.keybindings", "proc", "save", "settings", "ace.status", "terminal"
     ];
 
     main.provides = ["harvard.cs50.menus"];
@@ -18,12 +18,15 @@ define(function(require, exports, module) {
         const panels = imports.panels;
         const Plugin = imports.Plugin;
         const proc = imports.proc;
+        const settings = imports.settings;
         const tabbehavior = imports.tabbehavior;
         const tabs = imports.tabManager;
         const tree = imports.tree;
         const ui = imports.ui;
 
         const plugin = new Plugin("CS50", main.consumes);
+
+        let previewItem;
 
         function applyToMenuItem(path, fn) {
             const item = menus.get(path).item;
@@ -245,28 +248,47 @@ define(function(require, exports, module) {
 
 
         function simplifyTreeContextMenu() {
-            // Remove "Run" and "Preview" from file browser's context menu
+            function getItem(menu, caption) {
+                const node = menu.childNodes.find((n) => {
+                    return caption === n.getAttribute("caption");
+                });
+
+                return node;
+            }
+
             tree.once("menuUpdate", (e) => {
-                if (!e.menu)
+
+                // Remove "Run"
+                const runItem = getItem(e.menu, "Run");
+                if (runItem)
+                    runItem.remove();
+
+                // Get "Preview"
+                // Preview is added initailly after this event is fired
+                const i = setInterval(() => {
+                    previewItem = getItem(e.menu, "Preview");
+                    if (previewItem) {
+                        clearInterval(i);
+                        if (!settings.getBool("user/cs50/simple/@previewEnabled"))
+                            previewItem.hide();
+                    }
+                }, 0);
+            });
+
+            tree.on("menuUpdate", (e) => {
+                // Ensure previewItem was initialized
+                if (!previewItem)
                     return;
 
-                let counter = 0;
-                // Preview is added after this event fires
-                const i = setInterval(() => {
-                    e.menu.childNodes.forEach(node => {
-                        const caption = node.getAttribute("caption");
-                        if (caption === "Run" || caption === "Preview") {
-                            node.remove();
-                            if (++counter >= 2) {
-                                clearInterval(i);
-                            }
-                        }
-                    });
-                }, 0)
-
+                const previewEnabled = settings.getBool("user/cs50/simple/@previewEnabled");
+                if (previewEnabled) {
+                    previewItem.show();
+                }
+                else {
+                    previewItem.hide();
+                }
             });
         }
-
 
         function disableRightBarContextMenu() {
             const aml = panels.areas["right"].aml;
