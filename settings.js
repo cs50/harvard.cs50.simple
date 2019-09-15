@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         const settings = imports.settings;
 
         const plugin = new Plugin("CS50", main.consumes);
-        const revision = 4;
+        const revision = 5;
 
         let loaded = false;
         plugin.on("load", () => {
@@ -33,6 +33,9 @@ define(function(require, exports, module) {
                         })
 
                         const defaults = {
+                            // Code collapsing
+                            "user/ace/@showFoldWidgets": false,
+
                             // Hide print margin
                             "user/ace/@showPrintMargin": false,
 
