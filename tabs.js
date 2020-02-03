@@ -52,7 +52,7 @@ define(function(require, exports, module) {
 
             function _showWarning(tab) {
                 hideSaveWarning();
-                if (!settings.getBool("user/cs50/simple/tabs/@saveWarning"))
+                if (!settings.getBool("user/cs50/simple/tabs/@saveWarning") || settings.get("user/general/@autosave"))
                     return;
 
                 const interval = setInterval(() => {

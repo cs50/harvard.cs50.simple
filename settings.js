@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         const settings = imports.settings;
 
         const plugin = new Plugin("CS50", main.consumes);
-        const revision = 5;
+        const revision = 6;
 
         let loaded = false;
         plugin.on("load", () => {
@@ -57,6 +57,9 @@ define(function(require, exports, module) {
 
                             // Terminal scrollback buffer
                             "user/terminal/@scrollback": 2000,
+
+                            // Enable autosave on focus change
+                            "user/general/@autosave": "onFocusChange",
 
                             // Strip trailing whitespaces on save
                             "project/general/@stripws": true,
