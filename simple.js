@@ -35,12 +35,6 @@ define(function(require, exports, module) {
                         return
 
                     clearInterval(interval)
-                    const removals = leftBarAml.childNodes.filter(node => {
-                    return ["panelsbar open", "gotoanything-input"]
-                        .indexOf(node.getAttribute("class")) > -1;
-                    });
-
-                    removals.forEach(node => node.remove());
 
                     const treeActive = tree.active;
                     panels.disablePanel("tree");
