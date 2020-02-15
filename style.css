@@ -105,6 +105,6 @@ div.panel-bar.environment_files.top-margin {
 }
 
 /* Hide gotoanything input */
-.gotoanything-input, .panelsbar.open {
+.gotoanything-input {
     display: none !important;
 }
