@@ -100,12 +100,7 @@ define(function(require, exports, module) {
                         "",
                         "Are you sure you want to restart the IDE?",
                         // OK
-                        (() => {
-                            proc.spawn("sudo", { args: ["service", "ssh", "stop"] }, () => {});
-                            setTimeout(() => {
-                                parent.postMessage("reload", "https://ide.cs50.io")
-                            }, 1000);
-                        }),
+                        (() => parent.postMessage("restart", "*")),
 
                         // Cancel
                         (() => {})
