@@ -31,7 +31,7 @@ define(function(require, exports, module) {
                         caption: "Login",
                         color: "green",
                         default: true,
-                        onclick: () => parent.postMessage("reload", "https://ide.cs50.io"),
+                        onclick: () => parent.postMessage("reload", "*"),
                     },
                 ],
             });
